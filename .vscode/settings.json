@@ -1,0 +1,13 @@
+{
+  // COMPORTAMENTO DO EDITOR (preferência do time)
+  "files.autoSave": "onFocusChange",
+  "editor.formatOnSave": true,
+  "workbench.editor.revealIfOpen": true,
+  "editor.minimap.enabled": false,
+  "accessibility.signalOptions.volume": 0,
+  // CUSTOMIZAÇÃO DE CORES - Fundo preto puro
+  "workbench.colorCustomizations": {
+    "editor.background": "#000000",
+    "terminal.background": "#000000"
+  }
+}
