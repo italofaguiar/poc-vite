@@ -1,0 +1,1 @@
+As orientações estão no arquivo `docs/1.contexto.md`.
