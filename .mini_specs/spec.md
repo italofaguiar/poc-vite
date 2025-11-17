@@ -11,6 +11,6 @@ essa poca deverá contemplar:
 
 o plano deve ser sucinto, basicamente um apanhado com objetivo e estrategia em alto nível para realizarmos essa poc. 
 
-Na sequencia, uma vez que eu aprovar o plano, iremos construir de fato o `.mini_specs/tasks.md` com as tasks detalhadas para cada etapa do plano. 
+Na sequencia, uma vez que eu aprovar o plano, iremos construir de fato o `.mini_specs/tasks.md` com as tasks detalhadas para cada etapa do plano. Deve ser um documento markdown separado por Fases e em cada fase deve haver um checklist de tasks a serem realizadas. A medida que as tasks forem sendo concluídas, iremos marcando como feitas.
 
 Por fim, uma vez aprovadas as tasks, iremos executar as tasks para construir a poc.
