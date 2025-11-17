@@ -12,7 +12,8 @@
         "--headless",
         "--isolated",
         "--chromeArg=--no-sandbox",
-        "--chromeArg=--disable-setuid-sandbox"
+        "--chromeArg=--disable-setuid-sandbox",
+        "--chromeArg=--disable-dev-shm-usage"
       ]
     }
   }
