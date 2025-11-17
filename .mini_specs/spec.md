@@ -1,0 +1,5 @@
+- [ ] usar .tsx em vez de .jsx no vite. 
+    - duvida: incentiva a tipar o maximo de coisas? qual o padrao ouro aqui?
+- [ ] vai ter proxy no vite para o backend?
+- [ ] hot reload no docker compose?
+- [ ] Zod para validacao de dados no frontend?

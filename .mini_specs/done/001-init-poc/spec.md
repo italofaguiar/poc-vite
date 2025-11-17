@@ -19,7 +19,3 @@ Por fim, uma vez aprovadas as tasks, iremos executar as tasks para construir a p
 
 TODOS
 
-- [ ] nao seria melhor usar .tsx em vez de .jsx no vite?
-- [ ] vai ter proxy no vite para o backend?
-- [ ] hot reload no docker compose?
-- [ ] Zod para validacao de dados no frontend 
