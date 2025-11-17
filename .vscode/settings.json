@@ -5,6 +5,11 @@
   "workbench.editor.revealIfOpen": true,
   "editor.minimap.enabled": false,
   "accessibility.signalOptions.volume": 0,
+
+  // ENCODING E LINE ENDINGS (previne bugs de caracteres)
+  "files.encoding": "utf8",
+  "files.eol": "\n",
+
   // CUSTOMIZAÇÃO DE CORES - Fundo preto puro
   "workbench.colorCustomizations": {
     "editor.background": "#000000",

@@ -1,0 +1,34 @@
+# Git attributes - Garante line endings consistentes
+# Previne problemas entre Windows/Linux/Mac
+
+# Auto-detect text files e normaliza line endings para LF
+* text=auto eol=lf
+
+# Arquivos de texto explicitamente
+*.md text
+*.txt text
+*.json text
+*.yml text
+*.yaml text
+*.toml text
+
+# Codigo fonte
+*.py text
+*.js text
+*.jsx text
+*.ts text
+*.tsx text
+*.css text
+*.scss text
+*.html text
+
+# Arquivos binarios (nao aplicar conversao)
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary
