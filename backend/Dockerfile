@@ -3,17 +3,26 @@ FROM python:3.12-slim
 # Set working directory
 WORKDIR /app
 
-# Install system dependencies
+# Install system dependencies and UV
 RUN apt-get update && apt-get install -y \
     gcc \
     postgresql-client \
-    && rm -rf /var/lib/apt/lists/*
+    curl \
+    && rm -rf /var/lib/apt/lists/* \
+    && curl -LsSf https://astral.sh/uv/install.sh | sh
 
-# Copy requirements first for better caching
-COPY requirements.txt .
+# Add UV to PATH
+ENV PATH="/root/.local/bin:$PATH"
 
-# Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+# Copy dependency files first for better caching
+COPY pyproject.toml ./
+
+# Install Python dependencies using UV (native mode with sync)
+# Only production dependencies (no dev tools like ruff/mypy)
+RUN uv sync --no-dev --no-cache
+
+# Add .venv to PATH so Python uses it
+ENV PATH="/app/.venv/bin:$PATH"
 
 # Copy application code
 COPY . .
@@ -22,4 +31,4 @@ COPY . .
 EXPOSE 8000
 
 # Command will be overridden by docker-compose
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uv", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

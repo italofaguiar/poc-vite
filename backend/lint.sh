@@ -4,11 +4,11 @@
 set -e
 
 echo "Running ruff..."
-ruff check app/
+uv run ruff check app/
 
 echo ""
 echo "Running mypy..."
-mypy app/
+uv run mypy app/
 
 echo ""
 echo "✅ All linting checks passed!"

@@ -39,6 +39,30 @@ Esta é uma POC do **PilotoDeVendas.IA** - uma aplicação SaaS para automação
 - **Frontend**: React 18, TypeScript, Vite, TailwindCSS, React Router, Axios, Zod
 - **Infraestrutura**: Docker Compose (dev), GCP CloudRun + CloudSQL (prod)
 
+### Gerenciamento de Dependências
+
+**Backend**: Usa **UV** (gerenciador moderno de pacotes Python) com `pyproject.toml`.
+
+- Dependências definidas em `backend/pyproject.toml`
+- UV é instalado automaticamente no Docker
+- Mais rápido que pip tradicional
+- Setup local: `./scripts/setup-backend.sh` (instala UV + dependências)
+
+**Comandos UV úteis**:
+```bash
+# Instalar/atualizar dependências (modo nativo)
+uv sync
+
+# Adicionar nova dependência
+uv add <pacote>
+
+# Remover dependência
+uv remove <pacote>
+
+# Rodar comandos no ambiente virtual do UV
+uv run uvicorn app.main:app --reload
+```
+
 ### Autenticação
 - **Padrão**: Session-based com cookies HttpOnly (não JWT)
 - **Fluxo**: Login/Signup → cria sessão → cookie `session_id` (HttpOnly, Secure, SameSite=Lax)
@@ -125,9 +149,18 @@ npm run lint         # Executar ESLint (deve passar com 0 erros/warnings)
 
 ### Backend
 ```bash
+# Setup inicial (apenas primeira vez ou para novos devs)
+./scripts/setup-backend.sh
+
 # Dentro do container ou localmente
 cd backend
-uvicorn app.main:app --reload  # Dev server (porta 8000)
+uv run uvicorn app.main:app --reload  # Dev server (porta 8000)
+
+# Instalar/atualizar dependências com UV
+uv sync
+
+# Adicionar nova dependência
+uv add <pacote>
 
 # Criar tabelas manualmente (se necessário)
 python -c "from app.database import engine; from app.models import Base; Base.metadata.create_all(bind=engine)"
@@ -168,6 +201,23 @@ pytest  # Quando testes forem criados
 - Código legível > código "elegante"
 - MVP funcional > solução "perfeita"
 
+### Ambiente de Desenvolvimento vs Produção
+
+**Docker Compose**: Usar para desenvolvimento com hot-reload e testes exploratórios (manual + Playwright).
+
+**Ferramentas de dev** (lint, testes unitários): Rodar diretamente com UV/npm, não via Docker.
+
+```bash
+# Desenvolvimento diário
+docker compose up --build        # Hot-reload, testes manuais/Playwright
+
+# Linting e testes unitários
+cd backend && uv run ruff check app/ && uv run mypy app/
+cd frontend && npm run lint && npm test
+```
+
+**Containers de produção**: Enxutos, sem dev tools (ruff, mypy, ESLint).
+
 ## MCPs Disponíveis
 
 O Playwright MCP está configurado no arquivo `.mcp.json` (versionado no Git).
@@ -203,7 +253,7 @@ O Playwright fornece automação completa de navegador com acesso a:
 4. **Variáveis de ambiente**: Usar `.env` (não commitado). Ver `.env.example` para referência.
 5. **Tasks**: O arquivo `.mini_specs/tasks.md` contém o roadmap da POC dividido em 5 fases.
 6. **Prioridade**: KISS (Keep It Simple Stupid) sempre que possível. Ver `docs/1.contexto.md` para diretrizes completas.
-7. **Linting antes de commit**: **SEMPRE** executar linting antes de commitar código:
-   - **Frontend**: `docker compose exec frontend npm run lint` (deve passar com 0 erros/warnings)
-   - **Backend**: `docker compose exec backend sh /app/lint.sh` (ruff + mypy devem passar)
+7. **Linting antes de commit**: **SEMPRE** executar linting localmente antes de commitar código:
+   - **Frontend**: `cd frontend && npm run lint` (deve passar com 0 erros/warnings)
+   - **Backend**: `cd backend && uv run ruff check app/ && uv run mypy app/` (ambos devem passar)
    - Isso garante qualidade de código e evita problemas de build em produção

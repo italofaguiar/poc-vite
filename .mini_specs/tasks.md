@@ -10,37 +10,37 @@ Roadmap detalhado para implementação das melhorias na POC. As tasks estão org
 
 ### Tasks
 
-- [ ] **1.1** Criar `pyproject.toml` na raiz do backend
+- [x] **1.1** Criar `pyproject.toml` na raiz do backend
   - Definir metadata do projeto (name, version, description)
   - Migrar dependências de `requirements.txt` para `dependencies`
   - Configurar `dev-dependencies` (pytest, ruff, mypy, etc.)
   - Adicionar configurações do ruff, mypy, pytest no pyproject.toml
 
-- [ ] **1.2** Atualizar `Dockerfile` do backend para usar UV
+- [x] **1.2** Atualizar `Dockerfile` do backend para usar UV
   - Instalar UV no container
   - Ajustar comando de instalação: `uv pip install --no-cache` → `uv sync`
   - Otimizar layers do Docker (cache de dependências)
 
-- [ ] **1.3** Atualizar `docker-compose.yml`
+- [x] **1.3** Atualizar `docker-compose.yml`
   - Ajustar volumes se necessário
   - Garantir que hot-reload continue funcionando
 
-- [ ] **1.4** Criar script de migração local
+- [x] **1.4** Criar script de migração local
   - Documentar como desenvolvedores devem migrar ambiente local
   - Criar `scripts/setup-backend.sh` para automação
 
-- [ ] **1.5** Atualizar documentação
+- [x] **1.5** Atualizar documentação
   - Atualizar `CLAUDE.md` com novos comandos UV
   - Atualizar `README.md` se necessário
   - Adicionar seção sobre UV no guia de desenvolvimento
 
-- [ ] **1.6** Testar ambiente completo
+- [x] **1.6** Testar ambiente completo
   - Validar que `docker compose up --build` funciona
   - Validar que backend inicia sem erros
   - Validar que endpoints da API funcionam
   - Validar que linting (ruff + mypy) funciona
 
-- [ ] **1.7** Remover `requirements.txt`
+- [x] **1.7** Remover `requirements.txt`
   - Remover arquivo completamente após confirmar que tudo funciona com UV
   - Atualizar `.gitignore` se necessário
 
@@ -267,13 +267,13 @@ Roadmap detalhado para implementação das melhorias na POC. As tasks estão org
 
 ## 📊 Resumo de Progresso
 
-- **Fase 1 - UV + pyproject.toml**: 0/7 tasks
+- **Fase 1 - UV + pyproject.toml**: 7/7 tasks ✅
 - **Fase 2 - Dark Mode**: 0/9 tasks
 - **Fase 3 - i18n**: 0/10 tasks
 - **Fase 4 - Testes e Integração**: 0/7 tasks
 - **Fase 5 - Documentação**: 0/7 tasks
 
-**Total**: 0/40 tasks concluídas
+**Total**: 7/40 tasks concluídas
 
 ---
 
