@@ -1,1 +1,1 @@
-As orientações estão no arquivo `docs/1.contexto.md`.
+A menos que o usuário diga o contrário em algum ponto específico, responda todas as suas perguntas sempre levando as orientações que estão no arquivo `docs/1.contexto.md`.
