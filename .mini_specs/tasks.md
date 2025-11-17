@@ -56,11 +56,11 @@
 
 ## Fase 4: Backend - API Dashboard
 
-- [ ] Criar `backend/app/routers/dashboard.py`:
-  - [ ] `GET /api/dashboard/data` (protegido por sessão)
-  - [ ] Retornar dados dummy para gráfico (lista de objetos com data/valor)
-  - [ ] Retornar dados dummy para tabela (lista de objetos com id/nome/status/valor)
-- [ ] Incluir router dashboard no `main.py`
+- [x] Criar `backend/app/routers/dashboard.py`:
+  - [x] `GET /api/dashboard/data` (protegido por sessão)
+  - [x] Retornar dados dummy para gráfico (lista de objetos com data/valor)
+  - [x] Retornar dados dummy para tabela (lista de objetos com id/nome/status/valor)
+- [x] Incluir router dashboard no `main.py`
 - [ ] Testar endpoint com curl/Postman (verificar proteção de sessão)
 
 ---
