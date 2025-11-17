@@ -112,15 +112,20 @@ When reviewing code, systematically evaluate:
    - Naming conventions consistent with codebase
    - File structure matches established organization
 
-3. **Performance**
-   - No unnecessary re-renders (React)
-   - Proper async patterns (Python)
-   - Database queries optimized
-
-4. **Testing Readiness**
+3. **Testing Readiness**
    - Code is testable (pure functions, dependency injection)
    - Edge cases considered
    - Error paths covered
+
+4. **Refactoring Opportunities**
+   - Any duplicated code that could be abstracted?
+   - Functions/components that are too large?
+   - Could any logic be simplified?
+
+5. **Performance**
+   - No unnecessary re-renders (React)
+   - Proper async patterns (Python)
+   - Database queries optimized
 
 ## Your Review Process
 

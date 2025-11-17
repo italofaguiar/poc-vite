@@ -9,15 +9,15 @@
 ## 📑 Índice
 
 - [📊 Resumo Executivo](#-resumo-executivo)
-- [🔒 Problemas de Segurança](#-problemas-de-segurança)
-- [💻 Problemas de Qualidade de Código](#-problemas-de-qualidade-de-código)
-- [📚 Violações de Best Practices](#-violações-de-best-practices)
+- [🔴 Problemas CRÍTICOS](#-problemas-críticos)
+- [🟠 Problemas ALTA Prioridade](#-problemas-alta-prioridade)
+- [🟡 Problemas MÉDIA Prioridade](#-problemas-média-prioridade)
+- [🟢 Problemas BAIXA Prioridade](#-problemas-baixa-prioridade)
 - [✅ Aderência aos Padrões (CLAUDE.md)](#-aderência-aos-padrões-claudemd)
-- [🐛 Bugs Potenciais & Casos Extremos](#-bugs-potenciais--casos-extremos)
 - [🌟 Aspectos Positivos](#-aspectos-positivos)
 - [📝 Recomendações para Melhorias](#-recomendações-para-melhorias)
 - [✔️ Checklist Pré-Commit](#️-checklist-pré-commit)
-- [🚀 Próximos Passos Recomendados (Priorizados)](#-próximos-passos-recomendados-priorizados)
+- [🚀 Próximos Passos Recomendados](#-próximos-passos-recomendados)
 - [🎯 Veredito Final](#-veredito-final)
 - [📋 Sumário Executivo do Plano](#-sumário-executivo-do-plano)
 
@@ -39,17 +39,29 @@ O backend consiste em aproximadamente 517 linhas de código Python distribuídas
 
 ---
 
-## 🔒 Problemas de Segurança
+## 🔴 Problemas CRÍTICOS
 
-### CRÍTICO
-
+### Segurança
 **Nenhum identificado** - Não há vulnerabilidades críticas de segurança que exigiriam bloqueio imediato do deployment.
 
-### ALTA Prioridade
+### Qualidade de Código
+**Nenhum identificado**
 
-#### 1. Configuração de Cookie Security (Risco em Produção)
+### Best Practices
+**Nenhum identificado**
 
-- **Localização**: `/home/italo/projects/poc-vite/backend/app/routers/auth.py` linhas 65, 106
+### Bugs Potenciais
+**Nenhum identificado**
+
+---
+
+## 🟠 Problemas ALTA Prioridade
+
+### Segurança
+
+#### #1 Configuração de Cookie Security (Risco em Produção)
+
+- **Localização**: `backend/app/routers/auth.py` linhas 65, 106
 - **Problema**: `secure=False` nas configurações de cookie significa que cookies podem ser transmitidos via HTTP
 - **Risco**: Session hijacking via ataques man-in-the-middle em produção
 - **Evidência**:
@@ -75,9 +87,9 @@ O backend consiste em aproximadamente 517 linhas de código Python distribuídas
   ```
 - **Nota**: Está documentado como TODO mas deve ser resolvido antes de qualquer deployment em produção
 
-#### 2. SECRET_KEY Padrão Fraca
+#### #2 SECRET_KEY Padrão Fraca
 
-- **Localização**: `/home/italo/projects/poc-vite/backend/app/auth.py` linha 12
+- **Localização**: `backend/app/auth.py` linha 12
 - **Problema**: SECRET_KEY padrão "dev-secret-key-change-in-production" é previsível
 - **Risco**: Tokens de sessão podem ser forjados se o padrão for usado em produção
 - **Evidência**:
@@ -93,11 +105,15 @@ O backend consiste em aproximadamente 517 linhas de código Python distribuídas
   SECRET_KEY = SECRET_KEY or "dev-secret-key-change-in-production"
   ```
 
-### MÉDIA Prioridade
+---
 
-#### 3. Armazenamento de Sessões In-Memory
+## 🟡 Problemas MÉDIA Prioridade
 
-- **Localização**: `/home/italo/projects/poc-vite/backend/app/auth.py` linha 17
+### Segurança
+
+#### #3 Armazenamento de Sessões In-Memory
+
+- **Localização**: `backend/app/auth.py` linha 17
 - **Problema**: Sessões armazenadas em dict Python (serão perdidas ao reiniciar)
 - **Risco**: Todos os usuários são deslogados ao reiniciar o backend; sem possibilidade de escalonamento horizontal
 - **Status**: **ADEQUADAMENTE DOCUMENTADO** - Comentário indica claramente "use Redis in production"
@@ -108,43 +124,18 @@ O backend consiste em aproximadamente 517 linhas de código Python distribuídas
       logging.warning("Using in-memory session storage - sessions will be lost on restart!")
   ```
 
-#### 4. String de Conexão do Banco de Dados em Logs
+#### #4 String de Conexão do Banco de Dados em Logs
 
-- **Localização**: `/home/italo/projects/poc-vite/backend/app/database.py` linhas 8-11
+- **Localização**: `backend/app/database.py` linhas 8-11
 - **Problema**: URL do banco de dados pode conter credenciais
 - **Risco**: Baixo (apenas se logs forem expostos), mas best practice é sanitizar
 - **Recomendação**: Nenhuma ação necessária para POC, mas considerar redação de credenciais dos logs em produção
 
-### BAIXA Prioridade
+### Qualidade de Código
 
-#### 5. Sem Rate Limiting em Endpoints de Auth
+#### #7 Sem Uso de Padrão Async do FastAPI
 
-- **Problema**: Endpoints de login/signup não têm rate limiting
-- **Risco**: Ataques de força bruta são possíveis
-- **Status**: Aceitável para POC/MVP
-- **Recomendação**: Adicionar middleware de rate limiting antes de produção (ex: slowapi)
-
-#### 6. Complexidade de Senha Não Forçada
-
-- **Localização**: `/home/italo/projects/poc-vite/backend/app/schemas.py` linha 9
-- **Problema**: Apenas min_length=6, sem requisitos de complexidade
-- **Evidência**:
-  ```python
-  password: str = Field(..., min_length=6, description="Password must be at least 6 characters")
-  ```
-- **Risco**: Usuários podem escolher senhas fracas como "123456"
-- **Status**: Aceitável para POC
-- **Recomendação**: Adicionar validação de complexidade para produção (maiúscula, minúscula, número, símbolo)
-
----
-
-## 💻 Problemas de Qualidade de Código
-
-### MÉDIA Prioridade
-
-#### 7. Sem Uso de Padrão Async do FastAPI
-
-- **Localização**: Todos os route handlers em `/home/italo/projects/poc-vite/backend/app/routers/*.py`
+- **Localização**: Todos os route handlers em `backend/app/routers/*.py`
 - **Problema**: Todos os endpoints usam `def` síncrono ao invés de `async def`
 - **Impacto**: Operações de I/O bloqueantes (queries de banco) bloqueiam o event loop
 - **Evidência**: Grep por "async def" não retornou matches
@@ -161,9 +152,9 @@ O backend consiste em aproximadamente 517 linhas de código Python distribuídas
 - **Decisão**: Para uma POC com baixo tráfego esperado, código síncrono é mais simples e aceitável (princípio KISS). No entanto, isso deve estar no roadmap para escalonamento em produção.
 - **Alternativa**: Se manter síncrono, considerar usar `run_in_executor()` para chamadas de banco em cenários de alto tráfego
 
-#### 8. Lógica de Auth Duplicada no Router do Dashboard
+#### #8 Lógica de Auth Duplicada no Router do Dashboard
 
-- **Localização**: `/home/italo/projects/poc-vite/backend/app/routers/dashboard.py` linhas 15-34 vs `/home/italo/projects/poc-vite/backend/app/routers/auth.py` linhas 135-165
+- **Localização**: `backend/app/routers/dashboard.py` linhas 15-34 vs `backend/app/routers/auth.py` linhas 135-165
 - **Problema**: `get_current_user_dependency()` duplica lógica de `/api/auth/me`
 - **Evidência**:
   ```python
@@ -205,59 +196,17 @@ O backend consiste em aproximadamente 517 linhas de código Python distribuídas
   ```
 - **Impacto**: Violação DRY, dificulta manutenção de consistência
 
-#### 9. Duplicação de COOKIE_NAME Hardcoded
+#### #9 Duplicação de COOKIE_NAME Hardcoded
 
 - **Localização**: `auth.py` linha 19 e `dashboard.py` linha 12
 - **Problema**: `COOKIE_NAME = "session_id"` definido em dois lugares
 - **Correção**: Mover para módulo de config compartilhado ou arquivo de constantes
 
-### BAIXA Prioridade
+### Best Practices
 
-#### 10. Type Hints Faltando em Algumas Variáveis
+#### #13 API Sync do SQLAlchemy ao Invés de Async
 
-- **Localização**: `/home/italo/projects/poc-vite/backend/app/auth.py` linhas 33, 47
-- **Problema**: Comentários type ignore usados ao invés de type hints adequados
-- **Evidência**:
-  ```python
-  return pwd_context.hash(password)  # type: ignore[no-any-return]
-  return pwd_context.verify(plain_password, hashed_password)  # type: ignore[no-any-return]
-  ```
-- **Impacto**: Menor - warnings do mypy suprimidos mas código ainda é type-safe
-- **Status**: Workaround aceitável para problemas de tipagem de biblioteca de terceiros
-
-#### 11. Mensagens de Erro Inconsistentes
-
-- **Localização**: Endpoints de auth retornam formatos de detail diferentes
-- **Exemplos**:
-  - `"Email already registered"` (signup)
-  - `"Invalid email or password"` (login)
-  - `"Not authenticated"` (rotas protegidas)
-- **Impacto**: Menor - experiência de usuário inconsistente
-- **Recomendação**: Usar schema de resposta de erro consistente (ex: `{"error": "...", "code": "..."}`)
-
-#### 12. Sem Implementação de Logging
-
-- **Problema**: Sem logging estruturado para eventos de auth (sucesso/falha de login, criação/deleção de sessão)
-- **Impacto**: Difícil debugar problemas ou detectar incidentes de segurança
-- **Recomendação**: Adicionar logging antes de produção:
-  ```python
-  import logging
-  logger = logging.getLogger(__name__)
-
-  # No endpoint de login
-  logger.info(f"Login successful for user {user.email}")
-  logger.warning(f"Failed login attempt for {credentials.email}")
-  ```
-
----
-
-## 📚 Violações de Best Practices
-
-### MÉDIA Prioridade
-
-#### 13. API Sync do SQLAlchemy ao Invés de Async
-
-- **Localização**: `/home/italo/projects/poc-vite/backend/app/database.py`
+- **Localização**: `backend/app/database.py`
 - **Problema**: Usando SQLAlchemy síncrono com `create_engine()` ao invés de async
 - **Evidência**:
   ```python
@@ -273,15 +222,15 @@ O backend consiste em aproximadamente 517 linhas de código Python distribuídas
   ```
 - **Decisão**: Para POC, síncrono é aceitável (mais simples, menos complexidade). Documentar como tech debt.
 
-#### 14. Sem Ferramenta de Migration de Banco
+#### #14 Sem Ferramenta de Migration de Banco
 
 - **Problema**: Usando `Base.metadata.create_all()` ao invés de migrations do Alembic
-- **Localização**: `/home/italo/projects/poc-vite/backend/app/create_tables.py`
+- **Localização**: `backend/app/create_tables.py`
 - **Impacto**: Sem versionamento de schema, difícil gerenciar mudanças no banco
 - **Status**: Aceitável para POC
 - **Recomendação**: Adicionar Alembic antes de adicionar mais models
 
-#### 15. Sem Middleware de Logging de Request/Response
+#### #15 Sem Middleware de Logging de Request/Response
 
 - **Problema**: Sem middleware para logar requests/responses para debug
 - **Impacto**: Dificulta troubleshooting de problemas
@@ -295,9 +244,117 @@ O backend consiste em aproximadamente 517 linhas de código Python distribuídas
       return response
   ```
 
-### BAIXA Prioridade
+### Bugs Potenciais
 
-#### 16. Sem Descrições de Tags do OpenAPI
+#### #18 Verificação de Expiração de Sessão Tem Race Condition
+
+- **Localização**: `backend/app/auth.py` linhas 89-99
+- **Problema**: Sessão poderia ser deletada entre verificação de existência e acesso a dados se múltiplas requisições ocorrerem simultaneamente
+- **Código Atual**:
+  ```python
+  if session_id not in sessions:
+      return None
+  session_data = sessions[session_id]  # Poderia ser deletada aqui por outra thread
+  ```
+- **Risco**: Baixo (servidor de desenvolvimento single-threaded, improvável em produção com session store adequado)
+- **Correção**: Usar `.get()` com default None:
+  ```python
+  session_data = sessions.get(session_id)
+  if not session_data:
+      return None
+  ```
+
+#### #19 Sem Limpeza de Sessões Expiradas
+
+- **Problema**: Sessões expiradas permanecem no dict in-memory para sempre (memory leak)
+- **Localização**: `backend/app/auth.py` linha 98
+- **Comportamento Atual**: `delete_session()` só é chamado quando usuário acessa sessão expirada
+- **Impacto**: Memória cresce indefinidamente com usuários inativos
+- **Correção**: Adicionar background task para limpar sessões expiradas:
+  ```python
+  from fastapi import BackgroundTasks
+
+  def cleanup_expired_sessions():
+      now = datetime.utcnow()
+      expired = [sid for sid, data in sessions.items()
+                 if now - data["created_at"] > SESSION_EXPIRATION]
+      for sid in expired:
+          del sessions[sid]
+  ```
+
+#### #20 Sessão de Banco Não Fechada em Early Return
+
+- **Problema**: Se exceção ocorrer no endpoint, sessão DB pode não fechar
+- **Status**: Na verdade tratado corretamente pela injeção de dependência do FastAPI
+- **Evidência**: `get_db()` usa try/finally para garantir cleanup
+- **Veredito**: Não é bug, código está correto
+
+---
+
+## 🟢 Problemas BAIXA Prioridade
+
+### Segurança
+
+#### #5 Sem Rate Limiting em Endpoints de Auth
+
+- **Problema**: Endpoints de login/signup não têm rate limiting
+- **Risco**: Ataques de força bruta são possíveis
+- **Status**: Aceitável para POC/MVP
+- **Recomendação**: Adicionar middleware de rate limiting antes de produção (ex: slowapi)
+
+#### #6 Complexidade de Senha Não Forçada
+
+- **Localização**: `backend/app/schemas.py` linha 9
+- **Problema**: Apenas min_length=6, sem requisitos de complexidade
+- **Evidência**:
+  ```python
+  password: str = Field(..., min_length=6, description="Password must be at least 6 characters")
+  ```
+- **Risco**: Usuários podem escolher senhas fracas como "123456"
+- **Status**: Aceitável para POC
+- **Recomendação**: Adicionar validação de complexidade para produção (maiúscula, minúscula, número, símbolo)
+
+### Qualidade de Código
+
+#### #10 Type Hints Faltando em Algumas Variáveis
+
+- **Localização**: `backend/app/auth.py` linhas 33, 47
+- **Problema**: Comentários type ignore usados ao invés de type hints adequados
+- **Evidência**:
+  ```python
+  return pwd_context.hash(password)  # type: ignore[no-any-return]
+  return pwd_context.verify(plain_password, hashed_password)  # type: ignore[no-any-return]
+  ```
+- **Impacto**: Menor - warnings do mypy suprimidos mas código ainda é type-safe
+- **Status**: Workaround aceitável para problemas de tipagem de biblioteca de terceiros
+
+#### #11 Mensagens de Erro Inconsistentes
+
+- **Localização**: Endpoints de auth retornam formatos de detail diferentes
+- **Exemplos**:
+  - `"Email already registered"` (signup)
+  - `"Invalid email or password"` (login)
+  - `"Not authenticated"` (rotas protegidas)
+- **Impacto**: Menor - experiência de usuário inconsistente
+- **Recomendação**: Usar schema de resposta de erro consistente (ex: `{"error": "...", "code": "..."}`)
+
+#### #12 Sem Implementação de Logging
+
+- **Problema**: Sem logging estruturado para eventos de auth (sucesso/falha de login, criação/deleção de sessão)
+- **Impacto**: Difícil debugar problemas ou detectar incidentes de segurança
+- **Recomendação**: Adicionar logging antes de produção:
+  ```python
+  import logging
+  logger = logging.getLogger(__name__)
+
+  # No endpoint de login
+  logger.info(f"Login successful for user {user.email}")
+  logger.warning(f"Failed login attempt for {credentials.email}")
+  ```
+
+### Best Practices
+
+#### #16 Sem Descrições de Tags do OpenAPI
 
 - **Problema**: Tags ("auth", "dashboard", "health") não têm descrições no spec OpenAPI
 - **Impacto**: Documentação auto-gerada menos útil
@@ -310,11 +367,26 @@ O backend consiste em aproximadamente 517 linhas de código Python distribuídas
   app = FastAPI(..., openapi_tags=tags_metadata)
   ```
 
-#### 17. Datetime Usando datetime.utcnow() (Deprecated)
+#### #17 Datetime Usando datetime.utcnow() (Deprecated)
 
-- **Localização**: `/home/italo/projects/poc-vite/backend/app/auth.py` linhas 63, 72, 96
+- **Localização**: `backend/app/auth.py` linhas 63, 72, 96
 - **Problema**: `datetime.utcnow()` está deprecated no Python 3.12+
 - **Recomendação**: Usar `datetime.now(timezone.utc)` para datetimes timezone-aware
+
+### Bugs Potenciais
+
+#### #21 Sem Validação de Email Além do Pydantic
+
+- **Problema**: Sem verificação se email é entregável (ex: endereços de email descartáveis)
+- **Status**: Aceitável para POC
+- **Recomendação**: Considerar fluxo de verificação de email para produção
+
+#### #22 Endpoint de Logout Não Falha em Sessão Inválida
+
+- **Localização**: `backend/app/routers/auth.py` linha 113
+- **Comportamento**: Retorna sucesso mesmo se sessão não existe
+- **Impacto**: Nenhum (logout idempotente é na verdade boa UX)
+- **Veredito**: Não é bug, este é o comportamento correto
 
 ---
 
@@ -343,70 +415,6 @@ O backend consiste em aproximadamente 517 linhas de código Python distribuídas
 13. **Conformidade com Linting**: Incapaz de verificar status ruff/mypy (UV não está no PATH localmente)
    - **Recomendação**: Desenvolvedor deve executar `cd backend && ./lint.sh` antes de commit
 14. **Documentação de Tech Debt**: Sessões in-memory documentadas, mas sem tracker centralizado de tech debt
-
----
-
-## 🐛 Bugs Potenciais & Casos Extremos
-
-### MÉDIA Prioridade
-
-#### 18. Verificação de Expiração de Sessão Tem Race Condition
-
-- **Localização**: `/home/italo/projects/poc-vite/backend/app/auth.py` linhas 89-99
-- **Problema**: Sessão poderia ser deletada entre verificação de existência e acesso a dados se múltiplas requisições ocorrerem simultaneamente
-- **Código Atual**:
-  ```python
-  if session_id not in sessions:
-      return None
-  session_data = sessions[session_id]  # Poderia ser deletada aqui por outra thread
-  ```
-- **Risco**: Baixo (servidor de desenvolvimento single-threaded, improvável em produção com session store adequado)
-- **Correção**: Usar `.get()` com default None:
-  ```python
-  session_data = sessions.get(session_id)
-  if not session_data:
-      return None
-  ```
-
-#### 19. Sem Limpeza de Sessões Expiradas
-
-- **Problema**: Sessões expiradas permanecem no dict in-memory para sempre (memory leak)
-- **Localização**: `/home/italo/projects/poc-vite/backend/app/auth.py` linha 98
-- **Comportamento Atual**: `delete_session()` só é chamado quando usuário acessa sessão expirada
-- **Impacto**: Memória cresce indefinidamente com usuários inativos
-- **Correção**: Adicionar background task para limpar sessões expiradas:
-  ```python
-  from fastapi import BackgroundTasks
-
-  def cleanup_expired_sessions():
-      now = datetime.utcnow()
-      expired = [sid for sid, data in sessions.items()
-                 if now - data["created_at"] > SESSION_EXPIRATION]
-      for sid in expired:
-          del sessions[sid]
-  ```
-
-#### 20. Sessão de Banco Não Fechada em Early Return
-
-- **Problema**: Se exceção ocorrer no endpoint, sessão DB pode não fechar
-- **Status**: Na verdade tratado corretamente pela injeção de dependência do FastAPI
-- **Evidência**: `get_db()` usa try/finally para garantir cleanup
-- **Veredito**: Não é bug, código está correto
-
-### BAIXA Prioridade
-
-#### 21. Sem Validação de Email Além do Pydantic
-
-- **Problema**: Sem verificação se email é entregável (ex: endereços de email descartáveis)
-- **Status**: Aceitável para POC
-- **Recomendação**: Considerar fluxo de verificação de email para produção
-
-#### 22. Endpoint de Logout Não Falha em Sessão Inválida
-
-- **Localização**: `/home/italo/projects/poc-vite/backend/app/routers/auth.py` linha 113
-- **Comportamento**: Retorna sucesso mesmo se sessão não existe
-- **Impacto**: Nenhum (logout idempotente é na verdade boa UX)
-- **Veredito**: Não é bug, este é o comportamento correto
 
 ---
 
@@ -483,7 +491,7 @@ uv run mypy app/
 
 ---
 
-## 🚀 Próximos Passos Recomendados (Priorizados)
+## 🚀 Próximos Passos Recomendados
 
 ### 1. Imediato (Antes do próximo commit)
 - Executar `./lint.sh` para verificar conformidade ruff/mypy
@@ -526,15 +534,15 @@ uv run mypy app/
 
 ## 📋 Sumário Executivo do Plano
 
-### Problemas Identificados por Categoria
+### Problemas Identificados por Criticidade
 
-| Categoria | Crítico | Alta | Média | Baixa | Total |
-|-----------|---------|------|-------|-------|-------|
-| **Segurança** | 0 | 2 | 2 | 2 | 6 |
-| **Qualidade de Código** | 0 | 0 | 3 | 3 | 6 |
-| **Best Practices** | 0 | 0 | 3 | 2 | 5 |
-| **Bugs Potenciais** | 0 | 0 | 3 | 2 | 5 |
-| **TOTAL** | **0** | **2** | **11** | **9** | **22** |
+| Criticidade | Segurança | Qualidade | Best Practices | Bugs | Total |
+|-------------|-----------|-----------|----------------|------|-------|
+| **CRÍTICO** | 0 | 0 | 0 | 0 | **0** |
+| **ALTA** | 2 | 0 | 0 | 0 | **2** |
+| **MÉDIA** | 2 | 3 | 3 | 3 | **11** |
+| **BAIXA** | 2 | 3 | 2 | 2 | **9** |
+| **TOTAL** | **6** | **6** | **5** | **5** | **22** |
 
 ### Top 5 Problemas Prioritários
 
