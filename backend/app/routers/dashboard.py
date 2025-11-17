@@ -1,11 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException, Cookie
-from sqlalchemy.orm import Session
-from typing import Optional
 from datetime import datetime, timedelta
 
+from fastapi import APIRouter, Cookie, Depends, HTTPException
+from sqlalchemy.orm import Session
+
+from app.auth import get_user_from_session
 from app.database import get_db
 from app.models import User
-from app.auth import get_user_from_session
 
 router = APIRouter(prefix="/api/dashboard", tags=["dashboard"])
 
@@ -14,7 +14,7 @@ COOKIE_NAME = "session_id"
 
 def get_current_user_dependency(
     db: Session = Depends(get_db),
-    session_id: Optional[str] = Cookie(None, alias=COOKIE_NAME)
+    session_id: str | None = Cookie(None, alias=COOKIE_NAME)
 ) -> User:
     """
     Dependency to get current authenticated user.

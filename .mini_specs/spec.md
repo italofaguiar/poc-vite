@@ -90,7 +90,7 @@ const api = axios.create({
 
 NEW TODOS
 
-- [ ] Acabar com esses alertas de pylance, eslint, etc. no código, tanto no back-end como no front-end. Se for preciso, instale os pacotes, e cheque que todos os lints estao ok, porque isso atrapalha o DX. 
+- [ ] uv+pyproject.toml para o backend python
 - [ ] Dark mode toggle no frontend (default dark)
     - puxa inspiracao do proj pvia-lcp
     - use cores principais preto e verde (layout moderno, tipo spotify ou supabase)

@@ -1,17 +1,17 @@
-from fastapi import APIRouter, Depends, HTTPException, Response, Cookie
-from sqlalchemy.orm import Session
-from typing import Optional
 
-from app.database import get_db
-from app.models import User
-from app.schemas import UserSignup, UserLogin, UserResponse
+from fastapi import APIRouter, Cookie, Depends, HTTPException, Response
+from sqlalchemy.orm import Session
+
 from app.auth import (
+    create_session,
+    delete_session,
+    get_user_from_session,
     hash_password,
     verify_password,
-    create_session,
-    get_user_from_session,
-    delete_session
 )
+from app.database import get_db
+from app.models import User
+from app.schemas import UserLogin, UserResponse, UserSignup
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
@@ -53,7 +53,7 @@ def signup(user_data: UserSignup, response: Response, db: Session = Depends(get_
     db.refresh(new_user)
 
     # Create session
-    session_id = create_session(new_user.id)
+    session_id = create_session(new_user.id)  # type: ignore[arg-type]
 
     # Set cookie
     response.set_cookie(
@@ -90,11 +90,11 @@ def login(credentials: UserLogin, response: Response, db: Session = Depends(get_
         raise HTTPException(status_code=401, detail="Invalid email or password")
 
     # Verify password
-    if not verify_password(credentials.password, user.password_hash):
+    if not verify_password(credentials.password, user.password_hash):  # type: ignore[arg-type]
         raise HTTPException(status_code=401, detail="Invalid email or password")
 
     # Create session
-    session_id = create_session(user.id)
+    session_id = create_session(user.id)  # type: ignore[arg-type]
 
     # Set cookie
     response.set_cookie(
@@ -110,7 +110,7 @@ def login(credentials: UserLogin, response: Response, db: Session = Depends(get_
 
 
 @router.post("/logout")
-def logout(response: Response, session_id: Optional[str] = Cookie(None, alias=COOKIE_NAME)):
+def logout(response: Response, session_id: str | None = Cookie(None, alias=COOKIE_NAME)):
     """
     Logout and invalidate session.
 
@@ -134,7 +134,7 @@ def logout(response: Response, session_id: Optional[str] = Cookie(None, alias=CO
 @router.get("/me", response_model=UserResponse)
 def get_current_user(
     db: Session = Depends(get_db),
-    session_id: Optional[str] = Cookie(None, alias=COOKIE_NAME)
+    session_id: str | None = Cookie(None, alias=COOKIE_NAME)
 ):
     """
     Get current user from session.

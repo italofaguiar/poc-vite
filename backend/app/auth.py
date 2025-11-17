@@ -1,8 +1,9 @@
 import os
 from datetime import datetime, timedelta
-from typing import Optional
-from passlib.context import CryptContext
+from typing import Any
+
 from itsdangerous import URLSafeTimedSerializer
+from passlib.context import CryptContext
 
 # Password hashing context
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -13,7 +14,7 @@ session_serializer = URLSafeTimedSerializer(SECRET_KEY)
 
 # In-memory session storage (use Redis in production)
 # Format: {session_id: {"user_id": int, "created_at": datetime}}
-sessions = {}
+sessions: dict[str, dict[str, Any]] = {}
 
 # Session expiration time (7 days)
 SESSION_EXPIRATION = timedelta(days=7)
@@ -29,7 +30,7 @@ def hash_password(password: str) -> str:
     Returns:
         Hashed password
     """
-    return pwd_context.hash(password)
+    return pwd_context.hash(password)  # type: ignore[no-any-return]
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
@@ -43,7 +44,7 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     Returns:
         True if password matches, False otherwise
     """
-    return pwd_context.verify(plain_password, hashed_password)
+    return pwd_context.verify(plain_password, hashed_password)  # type: ignore[no-any-return]
 
 
 def create_session(user_id: int) -> str:
@@ -74,7 +75,7 @@ def create_session(user_id: int) -> str:
     return session_id
 
 
-def get_user_from_session(session_id: str) -> Optional[int]:
+def get_user_from_session(session_id: str) -> int | None:
     """
     Get user ID from session.
 
@@ -89,14 +90,16 @@ def get_user_from_session(session_id: str) -> Optional[int]:
         return None
 
     session_data = sessions[session_id]
+    created_at: datetime = session_data["created_at"]
 
     # Check if session has expired
-    if datetime.utcnow() - session_data["created_at"] > SESSION_EXPIRATION:
+    if datetime.utcnow() - created_at > SESSION_EXPIRATION:
         # Session expired, delete it
         delete_session(session_id)
         return None
 
-    return session_data["user_id"]
+    user_id: int = session_data["user_id"]
+    return user_id
 
 
 def delete_session(session_id: str) -> bool:

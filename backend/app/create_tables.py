@@ -5,8 +5,7 @@ Run this before starting the application for the first time.
 Usage:
     python -m app.create_tables
 """
-from app.database import engine, Base
-from app.models import User  # Import all models here
+from app.database import Base, engine
 
 
 def create_tables():

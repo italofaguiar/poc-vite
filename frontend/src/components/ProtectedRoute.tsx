@@ -15,7 +15,7 @@ function ProtectedRoute({ children }: ProtectedRouteProps) {
       try {
         await getMe()
         setIsAuthenticated(true)
-      } catch (error) {
+      } catch {
         setIsAuthenticated(false)
       } finally {
         setIsLoading(false)
