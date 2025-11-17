@@ -34,10 +34,10 @@ export function HeroSection({
       {/* Content */}
       <div className="relative z-10 flex flex-col items-center text-center space-y-4 max-w-2xl">
         {/* Logo */}
-        <Logo variant="full" size="md" />
+        <Logo variant="full" size="lg" />
 
         {/* Tagline */}
-        <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-app-primary dark:text-dark-app-primary leading-tight">
+        <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-app-primary dark:text-dark-app-primary leading-tight">
           {title}
         </h1>
 
