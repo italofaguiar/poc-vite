@@ -2,30 +2,30 @@
 
 ## Fase 1: Setup Inicial & Infraestrutura
 
-- [ ] Criar estrutura de pastas do projeto
-  - [ ] `backend/app/` com subpastas `routers/`
-  - [ ] `frontend/src/` com subpastas `pages/`, `components/`, `services/`
-- [ ] Criar `docker-compose.yml` com 3 serviços (frontend, backend, db)
-- [ ] Criar `.env.example` com variáveis de ambiente necessárias
-- [ ] Criar `.gitignore` adequado (node_modules, __pycache__, .env, etc)
+- [x] Criar estrutura de pastas do projeto
+  - [x] `backend/app/` com subpastas `routers/`
+  - [x] `frontend/src/` com subpastas `pages/`, `components/`, `services/`
+- [x] Criar `docker-compose.yml` com 3 serviços (frontend, backend, db)
+- [x] Criar `.env.example` com variáveis de ambiente necessárias
+- [x] Criar `.gitignore` adequado (node_modules, __pycache__, .env, etc)
 
 ---
 
 ## Fase 2: Backend - Database & Models
 
-- [ ] Criar `backend/requirements.txt` com dependências:
-  - [ ] fastapi, uvicorn, sqlalchemy, psycopg2-binary, python-dotenv
-  - [ ] passlib[bcrypt], python-multipart, itsdangerous
-- [ ] Criar `backend/Dockerfile` para imagem Python 3.12
-- [ ] Criar `backend/app/database.py` com:
-  - [ ] Configuração SQLAlchemy engine
-  - [ ] SessionLocal factory
-  - [ ] Base declarativa
-  - [ ] Função `get_db()` dependency
-- [ ] Criar `backend/app/models.py` com modelo `User`:
-  - [ ] Campos: id (PK), email (unique), password_hash, created_at
-  - [ ] Index no campo email
-- [ ] Criar script/função para criar tabelas no banco
+- [x] Criar `backend/requirements.txt` com dependências:
+  - [x] fastapi, uvicorn, sqlalchemy, psycopg2-binary, python-dotenv
+  - [x] passlib[bcrypt], python-multipart, itsdangerous
+- [x] Criar `backend/Dockerfile` para imagem Python 3.12
+- [x] Criar `backend/app/database.py` com:
+  - [x] Configuração SQLAlchemy engine
+  - [x] SessionLocal factory
+  - [x] Base declarativa
+  - [x] Função `get_db()` dependency
+- [x] Criar `backend/app/models.py` com modelo `User`:
+  - [x] Campos: id (PK), email (unique), password_hash, created_at
+  - [x] Index no campo email
+- [x] Criar script/função para criar tabelas no banco
 
 ---
 
