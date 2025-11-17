@@ -110,22 +110,22 @@
 
 ## Fase 7: Frontend - Dashboard
 
-- [ ] Criar `frontend/src/services/api.js`:
-  - [ ] Adicionar função `getDashboardData()`
-- [ ] Criar `frontend/src/components/Chart.jsx`:
-  - [ ] Usar Recharts (LineChart ou BarChart)
-  - [ ] Receber dados via props
-  - [ ] Estilizar com TailwindCSS
-- [ ] Criar `frontend/src/components/Table.jsx`:
-  - [ ] Renderizar tabela HTML com dados via props
-  - [ ] Colunas: ID, Nome, Status, Valor
-  - [ ] Estilizar com TailwindCSS
-- [ ] Criar `frontend/src/pages/Dashboard.jsx`:
-  - [ ] Chamar api.getDashboardData() no useEffect
-  - [ ] Renderizar componente Chart com dados
-  - [ ] Renderizar componente Table com dados
-  - [ ] Botão de logout que chama api.logout()
-  - [ ] Loading state enquanto carrega dados
+- [x] Criar `frontend/src/services/api.js`:
+  - [x] Adicionar função `getDashboardData()`
+- [x] Criar `frontend/src/components/Chart.jsx`:
+  - [x] Usar Recharts (LineChart ou BarChart)
+  - [x] Receber dados via props
+  - [x] Estilizar com TailwindCSS
+- [x] Criar `frontend/src/components/Table.jsx`:
+  - [x] Renderizar tabela HTML com dados via props
+  - [x] Colunas: ID, Nome, Status, Valor
+  - [x] Estilizar com TailwindCSS
+- [x] Criar `frontend/src/pages/Dashboard.jsx`:
+  - [x] Chamar api.getDashboardData() no useEffect
+  - [x] Renderizar componente Chart com dados
+  - [x] Renderizar componente Table com dados
+  - [x] Botão de logout que chama api.logout()
+  - [x] Loading state enquanto carrega dados
 
 ---
 
