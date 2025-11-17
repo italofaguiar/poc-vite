@@ -7,7 +7,6 @@ import { ZodError } from 'zod'
 import { isApiError, getErrorMessage } from '../types'
 import ErrorMessage from '../components/ErrorMessage'
 import { HeroSection } from '../components/HeroSection'
-import { AnimatedBackground } from '../components/AnimatedBackground'
 import { LanguageToggle } from '../components/LanguageToggle'
 
 function Login() {
@@ -82,9 +81,6 @@ function Login() {
 
       {/* Hero Section - Left Side */}
       <div className="relative w-full lg:w-1/2 min-h-[40vh] lg:min-h-screen flex items-center justify-center bg-app-secondary dark:bg-dark-app-secondary overflow-hidden">
-        {/* Animated Background - covers entire left side */}
-        <AnimatedBackground />
-
         <HeroSection
           title={t('auth.hero.title')}
           subtitle={t('auth.hero.subtitle')}

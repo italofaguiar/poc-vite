@@ -41,6 +41,11 @@ tasks to create
 - [ ] suporte multi-linguagem no frontend (por ora, só português e inglês)
 
 
---- 
+--- NEW
 
-- Fazer tanto na tela inicial como no dashboard uma identidade basica da app. observe https://pilotodevendas.com.br/ e veja a hero section. traga ela bem forte para as telas de login/signup. ja no dashboard deixe apenas o logo no header, alinhado a esquerda.
+- [x] dashboard ta com problema no langToggle
+- [x] padrao de ling é o PT
+- [x] No dark theme, os botões tem que ter um bom contraste. Por exemplo, se o fundo do botão é verde, a letra no botão tem que ser preta. Analise, por exemplo, o botão de login e o botão de língua para a língua que tá ativa. Ambos no dark mode, claro.
+- [ ] animacao = 0
+
+

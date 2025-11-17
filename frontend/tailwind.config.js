@@ -69,23 +69,6 @@ export default {
       backgroundImage: {
         'gradient-radial': 'radial-gradient(circle, var(--tw-gradient-stops))',
       },
-      animation: {
-        'pulse-radial': 'pulseRadial 4s ease-in-out infinite',
-        'pulse-radial-delayed': 'pulseRadial 4s ease-in-out infinite 1s',
-        'pulse-radial-slow': 'pulseRadial 6s ease-in-out infinite',
-      },
-      keyframes: {
-        pulseRadial: {
-          '0%, 100%': {
-            transform: 'scale(1)',
-            opacity: '0.5',
-          },
-          '50%': {
-            transform: 'scale(1.3)',
-            opacity: '0.7',
-          },
-        },
-      },
     },
   },
   plugins: [],
