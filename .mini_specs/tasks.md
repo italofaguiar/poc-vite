@@ -65,45 +65,47 @@ Roadmap de melhorias baseado nas decisoes de arquitetura e boas praticas.
 
 ### Tasks:
 
-- [ ] **2.1** Configurar TypeScript no Vite
+- [x] **2.1** Configurar TypeScript no Vite
   - Criar `frontend/tsconfig.json` (config para React + Vite)
   - Criar `frontend/tsconfig.node.json` (config para Vite config files)
   - Instalar `typescript`: `npm install --save-dev typescript`
   - Verificar se `@types/react` e `@types/react-dom` ja estao em devDependencies
 
-- [ ] **2.2** Renomear arquivos de configuracao
+- [x] **2.2** Renomear arquivos de configuracao
   - `frontend/vite.config.js` -> `frontend/vite.config.ts`
 
-- [ ] **2.3** Migrar componentes (ordem: folha -> raiz)
+- [x] **2.3** Migrar componentes (ordem: folha -> raiz)
   - Renomear `frontend/src/components/Chart.jsx` -> `Chart.tsx`
   - Renomear `frontend/src/components/Table.jsx` -> `Table.tsx`
   - Renomear `frontend/src/components/ProtectedRoute.jsx` -> `ProtectedRoute.tsx`
   - Adicionar tipagem de props em cada componente
 
-- [ ] **2.4** Migrar paginas
+- [x] **2.4** Migrar paginas
   - Renomear `frontend/src/pages/Login.jsx` -> `Login.tsx`
   - Renomear `frontend/src/pages/Signup.jsx` -> `Signup.tsx`
   - Renomear `frontend/src/pages/Dashboard.jsx` -> `Dashboard.tsx`
   - Adicionar tipagem de estado e handlers
 
-- [ ] **2.5** Migrar servicos e criar tipos para API
+- [x] **2.5** Migrar servicos e criar tipos para API
   - Renomear `frontend/src/services/api.js` -> `api.ts`
   - Criar `frontend/src/types/api.ts` com interfaces:
     - `User` (id, email, created_at)
     - `DashboardData` (baseado em resposta real da API)
   - Tipar funcoes do api.ts com tipos criados
 
-- [ ] **2.6** Migrar arquivos raiz
+- [x] **2.6** Migrar arquivos raiz
   - Renomear `frontend/src/App.jsx` -> `App.tsx`
   - Renomear `frontend/src/main.jsx` -> `main.tsx`
   - Atualizar `index.html` para referenciar `main.tsx`
 
-- [ ] **2.7** Testar compilacao e execucao
+- [x] **2.7** Testar compilacao e execucao
   - Executar `npm run dev` e verificar sem erros TypeScript
   - Executar `npm run build` e verificar build sem erros
   - Testar funcionalidade completa (login, dashboard, logout)
 
 **Criterio de conclusao**: Todo codigo frontend em .tsx, compilando sem erros, aplicacao funcionando normalmente.
+
+**Status**: ✅ CONCLUIDA
 
 ---
 
