@@ -147,3 +147,7 @@ Playwright e Chrome DevTools MCPs estão disponíveis para testes E2E e debug.
 4. **Variáveis de ambiente**: Usar `.env` (não commitado). Ver `.env.example` para referência.
 5. **Tasks**: O arquivo `.mini_specs/tasks.md` contém o roadmap da POC dividido em 5 fases.
 6. **Prioridade**: KISS (Keep It Simple Stupid) sempre que possível. Ver `docs/1.contexto.md` para diretrizes completas.
+7. **Linting antes de commit**: **SEMPRE** executar linting antes de commitar código:
+   - **Frontend**: `docker compose exec frontend npm run lint` (deve passar com 0 erros/warnings)
+   - **Backend**: `docker compose exec backend sh /app/lint.sh` (ruff + mypy devem passar)
+   - Isso garante qualidade de código e evita problemas de build em produção

@@ -1,5 +1,6 @@
 import axios from 'axios'
 import type { AuthResponse, MeResponse, DashboardData } from '../types/api'
+import { dashboardDataSchema, userResponseSchema } from '../schemas/dashboard'
 
 // Create axios instance with base configuration
 const api = axios.create({
@@ -28,13 +29,17 @@ export const logout = async (): Promise<{ message: string }> => {
 
 export const getMe = async (): Promise<MeResponse> => {
   const response = await api.get<MeResponse>('/api/auth/me')
-  return response.data
+  // Validate response with Zod
+  const validatedData = userResponseSchema.parse(response.data)
+  return validatedData
 }
 
 // Dashboard API functions
 export const getDashboardData = async (): Promise<DashboardData> => {
   const response = await api.get<DashboardData>('/api/dashboard/data')
-  return response.data
+  // Validate response with Zod
+  const validatedData = dashboardDataSchema.parse(response.data)
+  return validatedData
 }
 
 export default api

@@ -1,36 +1,40 @@
 import { useState, FormEvent, ChangeEvent } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { signup } from '../services/api'
+import { signupSchema } from '../schemas/auth'
+import { ZodError } from 'zod'
 
 function Signup() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
+  const [emailError, setEmailError] = useState('')
+  const [passwordError, setPasswordError] = useState('')
+  const [generalError, setGeneralError] = useState('')
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
 
-  const validateEmail = (email: string): boolean => {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    return re.test(email)
-  }
-
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    setError('')
 
-    // Basic validation
-    if (!email || !password) {
-      setError('Por favor, preencha todos os campos')
-      return
-    }
+    // Clear previous errors
+    setEmailError('')
+    setPasswordError('')
+    setGeneralError('')
 
-    if (!validateEmail(email)) {
-      setError('Por favor, insira um email valido')
-      return
-    }
-
-    if (password.length < 6) {
-      setError('A senha deve ter pelo menos 6 caracteres')
+    // Validate with Zod
+    try {
+      signupSchema.parse({ email, password })
+    } catch (err) {
+      if (err instanceof ZodError) {
+        // Map Zod errors to field-specific error states
+        err.errors.forEach((error) => {
+          if (error.path[0] === 'email') {
+            setEmailError(error.message)
+          } else if (error.path[0] === 'password') {
+            setPasswordError(error.message)
+          }
+        })
+      }
       return
     }
 
@@ -44,12 +48,12 @@ function Signup() {
       if (err && typeof err === 'object' && 'response' in err) {
         const axiosError = err as { response?: { data?: { detail?: string } } }
         if (axiosError.response?.data?.detail) {
-          setError(axiosError.response.data.detail)
+          setGeneralError(axiosError.response.data.detail)
         } else {
-          setError('Erro ao criar conta. Tente novamente.')
+          setGeneralError('Erro ao criar conta. Tente novamente.')
         }
       } else {
-        setError('Erro ao criar conta. Tente novamente.')
+        setGeneralError('Erro ao criar conta. Tente novamente.')
       }
     } finally {
       setLoading(false)
@@ -58,10 +62,12 @@ function Signup() {
 
   const handleEmailChange = (e: ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value)
+    setEmailError('') // Clear error on change
   }
 
   const handlePasswordChange = (e: ChangeEvent<HTMLInputElement>) => {
     setPassword(e.target.value)
+    setPasswordError('') // Clear error on change
   }
 
   return (
@@ -79,9 +85,9 @@ function Signup() {
           </p>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="rounded-md shadow-sm -space-y-px">
+          <div className="space-y-4">
             <div>
-              <label htmlFor="email" className="sr-only">
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
                 Email
               </label>
               <input
@@ -89,16 +95,20 @@ function Signup() {
                 name="email"
                 type="email"
                 autoComplete="email"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                placeholder="Email"
+                className={`appearance-none relative block w-full px-3 py-2 border ${
+                  emailError ? 'border-red-500' : 'border-gray-300'
+                } placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm`}
+                placeholder="seu@email.com"
                 value={email}
                 onChange={handleEmailChange}
                 disabled={loading}
               />
+              {emailError && (
+                <p className="mt-1 text-sm text-red-600">{emailError}</p>
+              )}
             </div>
             <div>
-              <label htmlFor="password" className="sr-only">
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
                 Senha
               </label>
               <input
@@ -106,19 +116,23 @@ function Signup() {
                 name="password"
                 type="password"
                 autoComplete="new-password"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                placeholder="Senha (minimo 6 caracteres)"
+                className={`appearance-none relative block w-full px-3 py-2 border ${
+                  passwordError ? 'border-red-500' : 'border-gray-300'
+                } placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm`}
+                placeholder="Minimo 6 caracteres"
                 value={password}
                 onChange={handlePasswordChange}
                 disabled={loading}
               />
+              {passwordError && (
+                <p className="mt-1 text-sm text-red-600">{passwordError}</p>
+              )}
             </div>
           </div>
 
-          {error && (
+          {generalError && (
             <div className="rounded-md bg-red-50 p-4">
-              <p className="text-sm text-red-800">{error}</p>
+              <p className="text-sm text-red-800">{generalError}</p>
             </div>
           )}
 

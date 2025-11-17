@@ -120,38 +120,40 @@ Roadmap de melhorias baseado nas decisoes de arquitetura e boas praticas.
 
 ### Tasks:
 
-- [ ] **3.1** Instalar Zod
+- [x] **3.1** Instalar Zod
   - Executar: `npm install zod`
 
-- [ ] **3.2** Criar schemas de validacao
+- [x] **3.2** Criar schemas de validacao
   - Criar `frontend/src/schemas/auth.ts`
   - Adicionar schema para signup (email, password com regras)
   - Adicionar schema para login (email, password)
   - Criar `frontend/src/schemas/dashboard.ts`
   - Adicionar schema para validar resposta de `DashboardData`
 
-- [ ] **3.3** Integrar validacao no formulario de Signup
+- [x] **3.3** Integrar validacao no formulario de Signup
   - Usar Zod para validar antes de enviar request
   - Exibir mensagens de erro apropriadas
   - Manter UX: mostrar erros inline nos campos
 
-- [ ] **3.4** Integrar validacao no formulario de Login
+- [x] **3.4** Integrar validacao no formulario de Login
   - Usar Zod para validar antes de enviar request
   - Exibir mensagens de erro apropriadas
 
-- [ ] **3.5** Validar respostas da API
+- [x] **3.5** Validar respostas da API
   - Adicionar validacao com Zod em `api.ts` para:
     - `getDashboardData()` - garantir shape correto
     - `getMe()` - garantir User valido
   - Tratar erros de validacao (schema nao bateu = erro de API)
 
-- [ ] **3.6** Testar validacoes
+- [x] **3.6** Testar validacoes
   - Testar signup com email invalido (deve bloquear antes de enviar)
   - Testar signup com senha curta (deve mostrar erro)
   - Testar login com campos vazios (deve validar)
   - Verificar console do navegador sem erros de validacao
 
 **Criterio de conclusao**: Formularios validados antes de submit, respostas da API validadas, mensagens de erro claras.
+
+**Status**: ✅ CONCLUIDA
 
 ---
 
