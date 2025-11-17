@@ -128,6 +128,8 @@ npm test  # Quando testes forem criados
 
 Playwright e Chrome DevTools MCPs estão disponíveis para testes E2E e debug.
 
+**Observação importante sobre Playwright**: Sempre iniciar testes com a janela maximizada usando `browser_resize` (width: 1920, height: 1080) logo após navegação. Isso garante que elementos responsivos sejam renderizados corretamente e evita problemas de layout em testes E2E.
+
 ## Endpoints da API
 
 - `GET /` - Health check
