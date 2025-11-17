@@ -77,6 +77,13 @@ function Signup() {
 
       {/* Hero Section - Left Side */}
       <div className="relative w-full lg:w-1/2 min-h-[40vh] lg:min-h-screen flex items-center justify-center bg-app-secondary dark:bg-dark-app-secondary overflow-hidden">
+        {/* Static gradient overlay */}
+        <div className="absolute inset-0 pointer-events-none"
+             style={{
+               background: 'radial-gradient(ellipse 800px 600px at bottom right, rgba(0, 255, 136, 0.2) 0%, rgba(0, 255, 136, 0.1) 40%, transparent 70%)'
+             }}>
+        </div>
+
         <HeroSection
           title={t('auth.hero.title')}
           subtitle={t('auth.hero.subtitle')}
