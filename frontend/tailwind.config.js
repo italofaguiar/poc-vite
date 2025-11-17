@@ -78,11 +78,11 @@ export default {
         pulseRadial: {
           '0%, 100%': {
             transform: 'scale(1)',
-            opacity: '0.3',
+            opacity: '0.5',
           },
           '50%': {
-            transform: 'scale(1.2)',
-            opacity: '0.5',
+            transform: 'scale(1.3)',
+            opacity: '0.7',
           },
         },
       },
