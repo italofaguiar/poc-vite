@@ -67,21 +67,21 @@
 
 ## Fase 5: Frontend - Setup & Estrutura
 
-- [ ] Criar `frontend/package.json` com dependências:
-  - [ ] react, react-dom, react-router-dom
-  - [ ] axios, recharts
-  - [ ] Vite como dev dependency
-- [ ] Criar `frontend/Dockerfile` para imagem Node 20
-- [ ] Criar `frontend/vite.config.js`:
-  - [ ] Configurar port 5173
-  - [ ] Configurar proxy para backend (opcional, se não usar CORS)
-- [ ] Instalar e configurar TailwindCSS:
-  - [ ] `tailwind.config.js`
-  - [ ] Importar no CSS principal
-- [ ] Criar `frontend/src/main.jsx` como entry point
-- [ ] Criar `frontend/src/App.jsx` com React Router:
-  - [ ] Rotas: `/login`, `/signup`, `/dashboard`
-  - [ ] Rota default redirect para `/login`
+- [x] Criar `frontend/package.json` com dependências:
+  - [x] react, react-dom, react-router-dom
+  - [x] axios, recharts
+  - [x] Vite como dev dependency
+- [x] Criar `frontend/Dockerfile` para imagem Node 20
+- [x] Criar `frontend/vite.config.js`:
+  - [x] Configurar port 5173
+  - [x] Configurar proxy para backend (opcional, se não usar CORS)
+- [x] Instalar e configurar TailwindCSS:
+  - [x] `tailwind.config.js`
+  - [x] Importar no CSS principal
+- [x] Criar `frontend/src/main.jsx` como entry point
+- [x] Criar `frontend/src/App.jsx` com React Router:
+  - [x] Rotas: `/login`, `/signup`, `/dashboard`
+  - [x] Rota default redirect para `/login`
 
 ---
 
