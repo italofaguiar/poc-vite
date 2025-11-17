@@ -32,7 +32,7 @@ export function HeroSection({
   return (
     <div className={`flex flex-col items-center justify-center p-8 md:p-12 lg:p-16 ${className}`}>
       {/* Content */}
-      <div className="relative z-10 flex flex-col items-center text-center space-y-4 max-w-2xl">
+      <div className="relative z-10 flex flex-col items-center text-center space-y-6 max-w-2xl">
         {/* Logo */}
         <Logo variant="full" size="lg" />
 
