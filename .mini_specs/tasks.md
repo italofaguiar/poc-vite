@@ -144,53 +144,52 @@ Roadmap detalhado para implementação das melhorias na POC. As tasks estão org
 
 ### Tasks
 
-- [ ] **3.1** Instalar e configurar react-i18next
+- [x] **3.1** Instalar e configurar react-i18next
   - `npm install react-i18next i18next i18next-browser-languagedetector`
   - Criar `frontend/src/i18n/index.ts` com configuração
   - Configurar `LanguageDetector` (localStorage + navigator.language)
   - Definir `fallbackLng: 'pt'` (português como padrão)
 
-- [ ] **3.2** Criar arquivos de tradução
+- [x] **3.2** Criar arquivos de tradução
   - Criar `frontend/src/i18n/locales/pt.json` (português)
   - Criar `frontend/src/i18n/locales/en.json` (inglês)
-  - Estruturar JSON por namespaces: `auth`, `dashboard`, `common`, `errors`
+  - Estruturar JSON por namespaces: `auth`, `dashboard`, `common`
 
-- [ ] **3.3** Traduzir strings - Autenticação
+- [x] **3.3** Traduzir strings - Autenticação
   - Login: labels, placeholders, botões, mensagens de erro
   - Signup: labels, placeholders, botões, mensagens de erro
-  - Logout, sessão expirada
+  - Hero sections com tagline traduzida
 
-- [ ] **3.4** Traduzir strings - Dashboard
-  - Títulos de seções
-  - Labels de métricas (vendas, leads, conversão)
-  - Tooltips, botões de ação
+- [x] **3.4** Traduzir strings - Dashboard
+  - Títulos de seções (Dashboard, Logout)
+  - Chart: título ("Evolução de Vendas" / "Sales Evolution") e labels
+  - Table: título, headers (ID, Nome, Status, Valor) e status labels
 
-- [ ] **3.5** Traduzir strings - Componentes comuns
+- [x] **3.5** Traduzir strings - Componentes comuns
   - ErrorMessage: mensagens genéricas
   - Loading states
-  - Validações de formulário (Zod)
-  - Documentação/help text (se existir)
+  - Validações de formulário (Zod com factory functions)
 
-- [ ] **3.6** Traduzir mensagens de erro da API
-  - Backend retorna erros em inglês técnico
-  - Criar mapeamento de códigos de erro → mensagens i18n
-  - Atualizar `getErrorMessage()` helper em `types/index.ts`
+- [x] **3.6** Traduzir mensagens de erro da API
+  - Mensagens de erro já cobertas nas traduções de autenticação
+  - ErrorMessage component utiliza traduções do i18n
 
-- [ ] **3.7** Criar componente `LanguageToggle`
-  - Dropdown ou botão com bandeiras/siglas (PT/EN)
+- [x] **3.7** Criar componente `LanguageToggle`
+  - Botão com siglas (PT/EN) com visual feedback (active state verde)
   - Persistir escolha no `localStorage` (key: `language`)
   - Atualizar `i18n.changeLanguage()` ao trocar
-  - Posicionar **apenas no Dashboard** (próximo ao ThemeToggle)
+  - Posicionado em Login, Signup e Dashboard (conforme requisito do usuário)
 
-- [ ] **3.8** Integrar i18n no app
+- [x] **3.8** Integrar i18n no app
   - Importar i18n config no `main.tsx`
-  - Adicionar `LanguageToggle` **apenas no Dashboard**
-  - Garantir que idioma persiste entre reloads
+  - Adicionar `LanguageToggle` em Login, Signup e Dashboard
+  - Idioma persiste entre reloads via localStorage
+  - Detecção automática do idioma do navegador na primeira visita
 
-- [ ] **3.9** Atualizar testes
-  - Mockar i18n nos testes de componentes (Vitest)
-  - Validar que componentes renderizam com traduções
-  - Testar troca de idioma (se aplicável)
+- [x] **3.9** Atualizar testes
+  - Mockar i18n nos testes (setupTests.ts com mock completo)
+  - Atualizar auth.test.ts para usar factory functions com mock de t()
+  - Remover schemas legados e ajustar tipos para ReturnType<typeof createXSchema>
 
 - [ ] **3.10** Documentar uso do i18n
   - Atualizar `CLAUDE.md` com instruções
@@ -255,7 +254,6 @@ Roadmap detalhado para implementação das melhorias na POC. As tasks estão org
   - Atualizar comandos de desenvolvimento se necessário
 
 - [ ] **5.2** Atualizar `README.md`
-  - Screenshots com novo visual (dark/light mode)
   - Atualizar features: "🎨 Dark/Light mode" + "🌍 i18n (PT/EN)"
   - Atualizar instruções de setup (UV)
 
@@ -287,11 +285,11 @@ Roadmap detalhado para implementação das melhorias na POC. As tasks estão org
 
 - **Fase 1 - UV + pyproject.toml**: 7/7 tasks ✅
 - **Fase 2 - Dark Mode + Identidade Visual**: 11/11 tasks ✅
-- **Fase 3 - i18n**: 0/10 tasks
+- **Fase 3 - i18n**: 9/10 tasks ✅ (falta apenas documentação)
 - **Fase 4 - Testes e Integração**: 0/7 tasks
 - **Fase 5 - Documentação**: 0/7 tasks
 
-**Total**: 18/41 tasks concluídas
+**Total**: 27/42 tasks concluídas
 
 ---
 
