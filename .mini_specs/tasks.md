@@ -1,0 +1,161 @@
+# Tasks POC - PilotoDeVendas.IA Frontend
+
+## Fase 1: Setup Inicial & Infraestrutura
+
+- [ ] Criar estrutura de pastas do projeto
+  - [ ] `backend/app/` com subpastas `routers/`
+  - [ ] `frontend/src/` com subpastas `pages/`, `components/`, `services/`
+- [ ] Criar `docker-compose.yml` com 3 serviços (frontend, backend, db)
+- [ ] Criar `.env.example` com variáveis de ambiente necessárias
+- [ ] Criar `.gitignore` adequado (node_modules, __pycache__, .env, etc)
+
+---
+
+## Fase 2: Backend - Database & Models
+
+- [ ] Criar `backend/requirements.txt` com dependências:
+  - [ ] fastapi, uvicorn, sqlalchemy, psycopg2-binary, python-dotenv
+  - [ ] passlib[bcrypt], python-multipart, itsdangerous
+- [ ] Criar `backend/Dockerfile` para imagem Python 3.12
+- [ ] Criar `backend/app/database.py` com:
+  - [ ] Configuração SQLAlchemy engine
+  - [ ] SessionLocal factory
+  - [ ] Base declarativa
+  - [ ] Função `get_db()` dependency
+- [ ] Criar `backend/app/models.py` com modelo `User`:
+  - [ ] Campos: id (PK), email (unique), password_hash, created_at
+  - [ ] Index no campo email
+- [ ] Criar script/função para criar tabelas no banco
+
+---
+
+## Fase 3: Backend - Autenticação
+
+- [ ] Criar `backend/app/schemas.py` com Pydantic schemas:
+  - [ ] `UserSignup` (email, password)
+  - [ ] `UserLogin` (email, password)
+  - [ ] `UserResponse` (id, email, created_at)
+- [ ] Criar `backend/app/auth.py` com funções de sessão:
+  - [ ] `hash_password(password: str)` usando bcrypt
+  - [ ] `verify_password(plain: str, hashed: str)`
+  - [ ] `create_session(user_id: int)` retorna session_id
+  - [ ] `get_user_from_session(session_id: str)` valida e retorna user_id
+  - [ ] `delete_session(session_id: str)` invalida sessão
+- [ ] Criar `backend/app/routers/auth.py` com endpoints:
+  - [ ] `POST /api/auth/signup` - cria usuário + retorna cookie
+  - [ ] `POST /api/auth/login` - valida credenciais + retorna cookie
+  - [ ] `POST /api/auth/logout` - invalida sessão + limpa cookie
+  - [ ] `GET /api/auth/me` - verifica sessão ativa + retorna user info
+- [ ] Criar `backend/app/main.py`:
+  - [ ] Instanciar FastAPI app
+  - [ ] Configurar CORS middleware para `http://localhost:5173`
+  - [ ] Incluir router de auth
+  - [ ] Endpoint raiz GET / para health check
+
+---
+
+## Fase 4: Backend - API Dashboard
+
+- [ ] Criar `backend/app/routers/dashboard.py`:
+  - [ ] `GET /api/dashboard/data` (protegido por sessão)
+  - [ ] Retornar dados dummy para gráfico (lista de objetos com data/valor)
+  - [ ] Retornar dados dummy para tabela (lista de objetos com id/nome/status/valor)
+- [ ] Incluir router dashboard no `main.py`
+- [ ] Testar endpoint com curl/Postman (verificar proteção de sessão)
+
+---
+
+## Fase 5: Frontend - Setup & Estrutura
+
+- [ ] Criar `frontend/package.json` com dependências:
+  - [ ] react, react-dom, react-router-dom
+  - [ ] axios, recharts
+  - [ ] Vite como dev dependency
+- [ ] Criar `frontend/Dockerfile` para imagem Node 20
+- [ ] Criar `frontend/vite.config.js`:
+  - [ ] Configurar port 5173
+  - [ ] Configurar proxy para backend (opcional, se não usar CORS)
+- [ ] Instalar e configurar TailwindCSS:
+  - [ ] `tailwind.config.js`
+  - [ ] Importar no CSS principal
+- [ ] Criar `frontend/src/main.jsx` como entry point
+- [ ] Criar `frontend/src/App.jsx` com React Router:
+  - [ ] Rotas: `/login`, `/signup`, `/dashboard`
+  - [ ] Rota default redirect para `/login`
+
+---
+
+## Fase 6: Frontend - Autenticação
+
+- [ ] Criar `frontend/src/services/api.js`:
+  - [ ] Configurar axios instance com `baseURL: http://localhost:8000`
+  - [ ] Configurar `withCredentials: true` para cookies
+  - [ ] Funções: `signup()`, `login()`, `logout()`, `getMe()`
+- [ ] Criar `frontend/src/pages/Signup.jsx`:
+  - [ ] Formulário com email + password
+  - [ ] Validação básica (email válido, senha mínima)
+  - [ ] Chamar api.signup() e redirecionar para dashboard
+  - [ ] Mostrar erros de API
+- [ ] Criar `frontend/src/pages/Login.jsx`:
+  - [ ] Formulário com email + password
+  - [ ] Chamar api.login() e redirecionar para dashboard
+  - [ ] Link para página de signup
+  - [ ] Mostrar erros de API
+- [ ] Criar componente `ProtectedRoute`:
+  - [ ] Chamar api.getMe() antes de renderizar
+  - [ ] Se não autenticado, redirecionar para `/login`
+  - [ ] Aplicar em rota `/dashboard`
+
+---
+
+## Fase 7: Frontend - Dashboard
+
+- [ ] Criar `frontend/src/services/api.js`:
+  - [ ] Adicionar função `getDashboardData()`
+- [ ] Criar `frontend/src/components/Chart.jsx`:
+  - [ ] Usar Recharts (LineChart ou BarChart)
+  - [ ] Receber dados via props
+  - [ ] Estilizar com TailwindCSS
+- [ ] Criar `frontend/src/components/Table.jsx`:
+  - [ ] Renderizar tabela HTML com dados via props
+  - [ ] Colunas: ID, Nome, Status, Valor
+  - [ ] Estilizar com TailwindCSS
+- [ ] Criar `frontend/src/pages/Dashboard.jsx`:
+  - [ ] Chamar api.getDashboardData() no useEffect
+  - [ ] Renderizar componente Chart com dados
+  - [ ] Renderizar componente Table com dados
+  - [ ] Botão de logout que chama api.logout()
+  - [ ] Loading state enquanto carrega dados
+
+---
+
+## Fase 8: Integração & Testes
+
+- [ ] Subir ambiente completo com `docker-compose up --build`
+- [ ] Testar fluxo completo:
+  - [ ] Acessar http://localhost:5173
+  - [ ] Criar nova conta (signup)
+  - [ ] Verificar redirecionamento para dashboard
+  - [ ] Verificar gráfico e tabela renderizando
+  - [ ] Fazer logout
+  - [ ] Fazer login novamente com mesma conta
+  - [ ] Verificar que dashboard carrega corretamente
+- [ ] Validar cookies no DevTools:
+  - [ ] Cookie HttpOnly presente após login
+  - [ ] Cookie removido após logout
+- [ ] Validar CORS:
+  - [ ] Verificar que requests do frontend funcionam
+  - [ ] Verificar headers CORS no Network tab
+- [ ] Criar `README.md` básico:
+  - [ ] Instruções para rodar com docker-compose
+  - [ ] Variáveis de ambiente necessárias
+  - [ ] Endpoints da API
+  - [ ] Screenshots (opcional)
+
+---
+
+## Notas
+
+- Marcar tasks como `[x]` conforme forem sendo concluídas
+- Cada fase deve ser completada antes de iniciar a próxima
+- Se encontrar bloqueios, documentar e ajustar tasks conforme necessário
