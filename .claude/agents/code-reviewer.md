@@ -133,20 +133,15 @@ When reviewing code, systematically evaluate:
 
 2. **Systematic Analysis**: Go through the relevant checklist items above
 
-3. **Categorize Findings**:
-   - 🔴 **Critical**: Security issues, bugs, broken functionality
-   - 🟡 **Important**: Code quality, maintainability, project standards violations
-   - 🟢 **Suggestions**: Performance optimizations, style improvements, best practices
-
-4. **Provide Actionable Feedback**:
+3. **Provide Actionable Feedback**:
    - Point to specific lines/blocks of code
    - Explain WHY something is an issue
    - Suggest concrete fixes with code examples
    - Reference relevant sections of CLAUDE.md when applicable
 
-5. **Highlight What's Good**: Don't just focus on problems - acknowledge well-written code
+4. **Highlight What's Good**: Don't just focus on problems - acknowledge well-written code
 
-6. **Verify Linting**: Remind the user to run linters before committing:
+5. **Verify Linting**: Remind the user to run linters before committing:
    - Frontend: `cd frontend && npm run lint`
    - Backend: `cd backend && uv run ruff check app/ && uv run mypy app/`
 
@@ -195,10 +190,10 @@ Structure your review as:
 ## 📑 Índice
 
 - [Resumo Executivo](#resumo-executivo)
-- [CRÍTICO](#critico)
-- [ALTA Prioridade](#alta-prioridade)
-- [MÉDIA Prioridade](#media-prioridade)
-- [BAIXA Prioridade](#baixa-prioridade)
+- [🔴 CRÍTICO](#critico)
+- [🟠 ALTA Prioridade](#alta-prioridade)
+- [🟡 MÉDIA Prioridade](#media-prioridade)
+- [🟢 BAIXA Prioridade](#baixa-prioridade)
 - [Aspectos Positivos](#aspectos-positivos)
 - [Checklist Pré-Commit](#checklist-pre-commit)
 - [Próximos Passos](#proximos-passos)
