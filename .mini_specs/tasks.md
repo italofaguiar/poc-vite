@@ -17,25 +17,25 @@ Roadmap de melhorias baseado nas decisoes de arquitetura e boas praticas.
 
 ### Tasks:
 
-- [ ] **1.1** Adicionar proxy no `frontend/vite.config.js`
+- [x] **1.1** Adicionar proxy no `frontend/vite.config.js`
   - Configurar `/api` para proxy para `http://backend:8000`
   - Manter `host: '0.0.0.0'` e `usePolling: true` (Docker)
   - Adicionar `changeOrigin: true` e `secure: false`
 
-- [ ] **1.2** Atualizar `frontend/src/services/api.js`
+- [x] **1.2** Atualizar `frontend/src/services/api.js`
   - Alterar `baseURL` de `import.meta.env.VITE_API_URL` para `'/'`
   - Manter `withCredentials: true` (cookies continuam necessarios)
 
-- [ ] **1.3** Remover variavel de ambiente `VITE_API_URL`
+- [x] **1.3** Remover variavel de ambiente `VITE_API_URL`
   - Remover do `frontend/.env` (se existir)
   - Atualizar `frontend/.env.example` (remover referencia)
   - Atualizar `docker-compose.yml` (remover `VITE_API_URL` do servico frontend)
 
-- [ ] **1.4** Remover CORS do backend
+- [x] **1.4** Remover CORS do backend
   - Comentar/remover `CORSMiddleware` em `backend/app/main.py`
   - Remover imports relacionados a CORS
 
-- [ ] **1.5** Testar funcionalidade completa
+- [x] **1.5** Testar funcionalidade completa
   - Reiniciar containers: `docker compose down && docker compose up --build`
   - Testar signup (novo usuario)
   - Testar login (cookie deve ser definido)
@@ -43,11 +43,13 @@ Roadmap de melhorias baseado nas decisoes de arquitetura e boas praticas.
   - Testar logout (cookie deve ser removido)
   - Verificar no DevTools: sem erros CORS, cookie `session_id` presente
 
-- [ ] **1.6** Atualizar documentacao
+- [x] **1.6** Atualizar documentacao
   - Atualizar `CLAUDE.md` (secao "Autenticacao" - remover mencao a CORS)
   - Atualizar `CLAUDE.md` (secao "Comandos" - atualizar instrucoes se necessario)
 
 **Criterio de conclusao**: Login/logout/dashboard funcionando sem CORS, dev consistente com arquitetura de producao.
+
+**Status**: ✅ CONCLUIDA (commits: 9389d41, 7747596)
 
 ---
 
@@ -224,8 +226,8 @@ Roadmap de melhorias baseado nas decisoes de arquitetura e boas praticas.
 
 | Fase | Tasks Totais | Concluidas | Status |
 |------|--------------|------------|--------|
-| Fase 1 | 6 | 0 | 🔴 Pendente |
-| Fase 2 | 7 | 0 | 🔴 Pendente |
+| Fase 1 | 6 | 6 | ✅ Concluida |
+| Fase 2 | 7 | 0 | 🟡 Em progresso |
 | Fase 3 | 6 | 0 | 🔴 Pendente |
 | Fase 4 | 6 | 0 | 🔴 Pendente |
 | Fase 5 | 4 | 0 | ⚪ Opcional |
