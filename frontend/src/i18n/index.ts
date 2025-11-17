@@ -26,7 +26,7 @@ i18n
       escapeValue: false, // React already escapes by default
     },
     detection: {
-      order: ['localStorage', 'navigator'], // Check localStorage first, then browser settings
+      order: ['localStorage'], // Only check localStorage (fallback to PT if not set)
       caches: ['localStorage'], // Persist language choice in localStorage
       lookupLocalStorage: 'language', // localStorage key
     },

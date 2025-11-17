@@ -19,7 +19,7 @@ export function LanguageToggle() {
         onClick={() => changeLanguage('pt')}
         className={`px-3 py-1 text-sm font-medium rounded transition-colors ${
           currentLang === 'pt'
-            ? 'bg-primary text-white'
+            ? 'bg-primary text-black'
             : 'text-app-secondary dark:text-dark-app-secondary hover:text-app-primary dark:hover:text-dark-app-primary'
         }`}
         aria-label="Mudar idioma para Português"
@@ -31,7 +31,7 @@ export function LanguageToggle() {
         onClick={() => changeLanguage('en')}
         className={`px-3 py-1 text-sm font-medium rounded transition-colors ${
           currentLang === 'en'
-            ? 'bg-primary text-white'
+            ? 'bg-primary text-black'
             : 'text-app-secondary dark:text-dark-app-secondary hover:text-app-primary dark:hover:text-dark-app-primary'
         }`}
         aria-label="Change language to English"

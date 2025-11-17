@@ -64,7 +64,7 @@ function Dashboard() {
           <p className="text-red-600">{state.error}</p>
           <button
             onClick={() => window.location.reload()}
-            className="btn-primary mt-4 px-4 py-2 text-white rounded-md"
+            className="btn-primary mt-4 px-4 py-2 text-black rounded-md"
           >
             {t('dashboard.tryAgain')}
           </button>
