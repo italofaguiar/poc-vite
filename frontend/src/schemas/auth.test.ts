@@ -1,10 +1,27 @@
 import { describe, it, expect } from 'vitest';
 import {
-  emailSchema,
-  passwordSchema,
-  signupSchema,
-  loginSchema,
+  createEmailSchema,
+  createPasswordSchema,
+  createSignupSchema,
+  createLoginSchema,
 } from './auth';
+
+// Mock i18n t function
+const t = (key: string) => {
+  const translations: Record<string, string> = {
+    'auth.validation.emailRequired': 'Email é obrigatório',
+    'auth.validation.emailInvalid': 'Email inválido',
+    'auth.validation.passwordRequired': 'Senha é obrigatória',
+    'auth.validation.passwordMinLength': 'Senha deve ter no mínimo 6 caracteres',
+  };
+  return translations[key] || key;
+};
+
+// Create schemas with mocked t function
+const emailSchema = createEmailSchema(t);
+const passwordSchema = createPasswordSchema(t);
+const signupSchema = createSignupSchema(t);
+const loginSchema = createLoginSchema(t);
 
 describe('emailSchema', () => {
   it('should validate a correct email', () => {
@@ -16,7 +33,7 @@ describe('emailSchema', () => {
     const result = emailSchema.safeParse('');
     expect(result.success).toBe(false);
     if (!result.success) {
-      expect(result.error.issues[0].message).toBe('Email e obrigatorio');
+      expect(result.error.issues[0].message).toBe('Email é obrigatório');
     }
   });
 
@@ -24,7 +41,7 @@ describe('emailSchema', () => {
     const result = emailSchema.safeParse('invalid-email');
     expect(result.success).toBe(false);
     if (!result.success) {
-      expect(result.error.issues[0].message).toBe('Email invalido');
+      expect(result.error.issues[0].message).toBe('Email inválido');
     }
   });
 });
@@ -40,7 +57,7 @@ describe('passwordSchema', () => {
     expect(result.success).toBe(false);
     if (!result.success) {
       expect(result.error.issues[0].message).toBe(
-        'Senha deve ter no minimo 6 caracteres'
+        'Senha deve ter no mínimo 6 caracteres'
       );
     }
   });
@@ -106,7 +123,7 @@ describe('loginSchema', () => {
     });
     expect(result.success).toBe(false);
     if (!result.success) {
-      expect(result.error.issues[0].message).toBe('Senha e obrigatoria');
+      expect(result.error.issues[0].message).toBe('Senha é obrigatória');
     }
   });
 

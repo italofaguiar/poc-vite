@@ -26,26 +26,6 @@ export const createLoginSchema = (t: TFunction) => z.object({
   password: z.string().min(1, t('auth.validation.passwordRequired')),
 })
 
-// Legacy schemas (without i18n) - kept for backward compatibility
-export const emailSchema = z
-  .string()
-  .min(1, 'Email e obrigatorio')
-  .email('Email invalido')
-
-export const passwordSchema = z
-  .string()
-  .min(6, 'Senha deve ter no minimo 6 caracteres')
-
-export const signupSchema = z.object({
-  email: emailSchema,
-  password: passwordSchema,
-})
-
-export const loginSchema = z.object({
-  email: emailSchema,
-  password: z.string().min(1, 'Senha e obrigatoria'),
-})
-
 // Types inferred from schemas
-export type SignupFormData = z.infer<typeof signupSchema>
-export type LoginFormData = z.infer<typeof loginSchema>
+export type SignupFormData = z.infer<ReturnType<typeof createSignupSchema>>
+export type LoginFormData = z.infer<ReturnType<typeof createLoginSchema>>

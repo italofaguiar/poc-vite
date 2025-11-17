@@ -1,4 +1,5 @@
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
+import { useTranslation } from 'react-i18next'
 import { useTheme } from '../contexts/ThemeContext'
 import type { ChartDataPoint } from '../types'
 
@@ -7,12 +8,13 @@ interface ChartProps {
 }
 
 function Chart({ data }: ChartProps) {
+  const { t } = useTranslation()
   const { theme } = useTheme()
   const isDark = theme === 'dark'
 
   return (
     <div className="bg-app-secondary dark:bg-dark-app-secondary p-6 rounded-lg shadow-lg border border-app-primary dark:border-dark-app-primary">
-      <h3 className="text-lg font-semibold text-app-primary dark:text-dark-app-primary mb-4">Evolucao de Vendas</h3>
+      <h3 className="text-lg font-semibold text-app-primary dark:text-dark-app-primary mb-4">{t('dashboard.chart.title')}</h3>
       <ResponsiveContainer width="100%" height={300}>
         <LineChart data={data}>
           <CartesianGrid
@@ -46,7 +48,7 @@ function Chart({ data }: ChartProps) {
             dataKey="value"
             stroke={isDark ? '#00ff88' : '#00cc6a'}
             strokeWidth={2}
-            name="Valor (R$)"
+            name={t('dashboard.chart.valueLabel')}
           />
         </LineChart>
       </ResponsiveContainer>

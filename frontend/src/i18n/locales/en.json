@@ -42,7 +42,25 @@
     "loading": "Loading data...",
     "errorMessage": "Error loading dashboard data",
     "errorLogout": "Error logging out:",
-    "tryAgain": "Try again"
+    "tryAgain": "Try again",
+    "chart": {
+      "title": "Sales Evolution",
+      "valueLabel": "Value (R$)"
+    },
+    "table": {
+      "title": "Products",
+      "headers": {
+        "id": "ID",
+        "name": "Name",
+        "status": "Status",
+        "value": "Value"
+      },
+      "status": {
+        "active": "Active",
+        "pending": "Pending",
+        "inactive": "Inactive"
+      }
+    }
   },
   "common": {
     "loading": "Loading...",

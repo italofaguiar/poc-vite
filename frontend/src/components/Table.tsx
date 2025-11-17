@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import type { TableRow } from '../types'
 
 interface TableProps {
@@ -5,6 +6,8 @@ interface TableProps {
 }
 
 function Table({ data }: TableProps) {
+  const { t } = useTranslation()
+
   const getStatusColor = (status: TableRow['status']): string => {
     switch (status) {
       case 'Ativo':
@@ -18,6 +21,15 @@ function Table({ data }: TableProps) {
     }
   }
 
+  const translateStatus = (status: TableRow['status']): string => {
+    const statusMap: Record<string, string> = {
+      'Ativo': t('dashboard.table.status.active'),
+      'Pendente': t('dashboard.table.status.pending'),
+      'Inativo': t('dashboard.table.status.inactive'),
+    }
+    return statusMap[status] || status
+  }
+
   const formatCurrency = (value: number): string => {
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
@@ -28,23 +40,23 @@ function Table({ data }: TableProps) {
   return (
     <div className="bg-app-secondary dark:bg-dark-app-secondary rounded-lg shadow-lg overflow-hidden border border-app-primary dark:border-dark-app-primary">
       <div className="px-6 py-4 border-b border-app-primary dark:border-dark-app-primary">
-        <h3 className="text-lg font-semibold text-app-primary dark:text-dark-app-primary">Produtos</h3>
+        <h3 className="text-lg font-semibold text-app-primary dark:text-dark-app-primary">{t('dashboard.table.title')}</h3>
       </div>
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-app-primary dark:divide-dark-app-primary">
           <thead className="bg-app-primary dark:bg-dark-app-primary">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-app-secondary dark:text-dark-app-secondary uppercase tracking-wider">
-                ID
+                {t('dashboard.table.headers.id')}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-app-secondary dark:text-dark-app-secondary uppercase tracking-wider">
-                Nome
+                {t('dashboard.table.headers.name')}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-app-secondary dark:text-dark-app-secondary uppercase tracking-wider">
-                Status
+                {t('dashboard.table.headers.status')}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-app-secondary dark:text-dark-app-secondary uppercase tracking-wider">
-                Valor
+                {t('dashboard.table.headers.value')}
               </th>
             </tr>
           </thead>
@@ -63,7 +75,7 @@ function Table({ data }: TableProps) {
                       item.status
                     )}`}
                   >
-                    {item.status}
+                    {translateStatus(item.status)}
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-app-primary dark:text-dark-app-primary">

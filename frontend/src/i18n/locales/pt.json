@@ -42,7 +42,25 @@
     "loading": "Carregando dados...",
     "errorMessage": "Erro ao carregar dados do dashboard",
     "errorLogout": "Erro ao fazer logout:",
-    "tryAgain": "Tentar novamente"
+    "tryAgain": "Tentar novamente",
+    "chart": {
+      "title": "Evolução de Vendas",
+      "valueLabel": "Valor (R$)"
+    },
+    "table": {
+      "title": "Produtos",
+      "headers": {
+        "id": "ID",
+        "name": "Nome",
+        "status": "Status",
+        "value": "Valor"
+      },
+      "status": {
+        "active": "Ativo",
+        "pending": "Pendente",
+        "inactive": "Inativo"
+      }
+    }
   },
   "common": {
     "loading": "Carregando...",
