@@ -12,7 +12,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-key-change-in-production")
 session_serializer = URLSafeTimedSerializer(SECRET_KEY)
 
-# In-memory session storage (use Redis in production)
+# In-memory session storage (TODO: use Redis in production)
 # Format: {session_id: {"user_id": int, "created_at": datetime}}
 sessions: dict[str, dict[str, Any]] = {}
 
