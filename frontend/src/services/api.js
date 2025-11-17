@@ -2,7 +2,7 @@ import axios from 'axios'
 
 // Create axios instance with base configuration
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000',
+  baseURL: '/', // Proxy handles routing to backend
   withCredentials: true, // Required to send cookies
   headers: {
     'Content-Type': 'application/json',

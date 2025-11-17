@@ -84,3 +84,11 @@ const api = axios.create({
 - [ ] Remover CORS do FastAPI
 - [ ] Testar login/logout/dashboard em dev
 - [ ] Atualizar documentação (README, CLAUDE.md)
+
+
+---
+
+NEW TODOS
+
+- [ ] Dark mode toggle no frontend
+- [ ] suporte multi-linguagem (i18n) no frontend (por ora, só português e inglês)
