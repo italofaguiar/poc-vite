@@ -33,6 +33,61 @@ Validar arquitetura frontend usando **Vite + React** com autenticação robusta 
 - Se precisar BFF no futuro (websockets, server-sent events), avaliamos depois
 - KISS: uma stack, um deploy, um ponto de falha
 
+## CORS: Desenvolvimento vs Produção
+
+### Em Desenvolvimento (Docker Compose)
+
+**Cenário:**
+- Frontend: `http://localhost:5173` (Vite dev server)
+- Backend: `http://localhost:8000` (FastAPI)
+- **Origens diferentes** → CORS necessário
+
+**Configuração FastAPI:**
+```python
+from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_credentials=True,  # cookies funcionam
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+```
+
+**Dificuldade:** ⭐ Baixa (configuração padrão)
+
+### Em Produção (CloudRun)
+
+**Opção 1: Mesmo Domínio (RECOMENDADO)**
+- `app.pilotodevendas.ia` → servir frontend estático + API no mesmo CloudRun
+- FastAPI serve `/` (SPA build) + `/api/*` (endpoints)
+- **SEM CORS** (mesma origem)
+- Cookies: `SameSite=Lax, Secure=True` (máxima segurança)
+- **Dificuldade:** ⭐ Baixa
+
+**Opção 2: Domínios Separados**
+- `app.pilotodevendas.ia` → frontend (CloudRun 1)
+- `api.pilotodevendas.ia` → backend (CloudRun 2)
+- **COM CORS** (cross-origin)
+- Configuração FastAPI:
+```python
+allow_origins=["https://app.pilotodevendas.ia"]
+allow_credentials=True  # cookies cross-origin
+```
+- Cookies: `SameSite=None, Secure=True` (menos seguro, exigido por browsers)
+- **Dificuldade:** ⭐⭐ Média (requer atenção a segurança)
+
+### Recomendação
+
+**POC:** Usar CORS em dev (origens separadas no Docker Compose)
+
+**Produção:** Iniciar com **Opção 1** (mesmo domínio):
+- Mais simples (sem config CORS)
+- Mais seguro (SameSite=Lax funciona)
+- 1 deploy CloudRun (FastAPI serve tudo)
+- Migrar para Opção 2 só se houver necessidade futura (ex: CDN, múltiplos frontends)
+
 ## Estratégia de Implementação
 
 ### Stack da POC
