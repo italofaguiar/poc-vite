@@ -92,7 +92,7 @@ export function getErrorMessage(error: unknown, fallback = 'Erro desconhecido'):
       return detail
     }
     // If detail is an array of validation errors, return the first one
-    if (Array.isArray(detail) && detail.length > 0) {
+    if (Array.isArray(detail) && detail.length > 0 && detail[0]) {
       return detail[0].msg
     }
   }

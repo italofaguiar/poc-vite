@@ -6,16 +6,7 @@
     },
     "chrome-devtools": {
       "command": "npx",
-      "args": [
-        "-y",
-        "chrome-devtools-mcp@latest",
-        "--headless",
-        "--isolated",
-        "--executablePath=/usr/bin/google-chrome",
-        "--chromeArg=--no-sandbox",
-        "--chromeArg=--disable-setuid-sandbox",
-        "--chromeArg=--disable-dev-shm-usage"
-      ]
+      "args": ["-y", "chrome-devtools-mcp@latest"]
     }
   }
 }
