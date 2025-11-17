@@ -1,15 +1,20 @@
-import { useState } from 'react'
+import { useState, FormEvent, ChangeEvent } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { login } from '../services/api'
+import { signup } from '../services/api'
 
-function Login() {
+function Signup() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
 
-  const handleSubmit = async (e) => {
+  const validateEmail = (email: string): boolean => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    return re.test(email)
+  }
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setError('')
 
@@ -19,23 +24,44 @@ function Login() {
       return
     }
 
+    if (!validateEmail(email)) {
+      setError('Por favor, insira um email valido')
+      return
+    }
+
+    if (password.length < 6) {
+      setError('A senha deve ter pelo menos 6 caracteres')
+      return
+    }
+
     setLoading(true)
 
     try {
-      await login(email, password)
+      await signup(email, password)
       // Redirect to dashboard on success
       navigate('/dashboard')
-    } catch (err) {
-      if (err.response?.status === 401) {
-        setError('Email ou senha inválidos')
-      } else if (err.response?.data?.detail) {
-        setError(err.response.data.detail)
+    } catch (err: unknown) {
+      if (err && typeof err === 'object' && 'response' in err) {
+        const axiosError = err as { response?: { data?: { detail?: string } } }
+        if (axiosError.response?.data?.detail) {
+          setError(axiosError.response.data.detail)
+        } else {
+          setError('Erro ao criar conta. Tente novamente.')
+        }
       } else {
-        setError('Erro ao fazer login. Tente novamente.')
+        setError('Erro ao criar conta. Tente novamente.')
       }
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleEmailChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setEmail(e.target.value)
+  }
+
+  const handlePasswordChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setPassword(e.target.value)
   }
 
   return (
@@ -43,12 +69,12 @@ function Login() {
       <div className="max-w-md w-full space-y-8">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Faça login na sua conta
+            Criar nova conta
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
             Ou{' '}
-            <Link to="/signup" className="font-medium text-blue-600 hover:text-blue-500">
-              crie uma nova conta
+            <Link to="/login" className="font-medium text-blue-600 hover:text-blue-500">
+              faca login se ja tem uma conta
             </Link>
           </p>
         </div>
@@ -67,7 +93,7 @@ function Login() {
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
                 placeholder="Email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={handleEmailChange}
                 disabled={loading}
               />
             </div>
@@ -79,12 +105,12 @@ function Login() {
                 id="password"
                 name="password"
                 type="password"
-                autoComplete="current-password"
+                autoComplete="new-password"
                 required
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                placeholder="Senha"
+                placeholder="Senha (minimo 6 caracteres)"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={handlePasswordChange}
                 disabled={loading}
               />
             </div>
@@ -102,7 +128,7 @@ function Login() {
               disabled={loading}
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? 'Entrando...' : 'Entrar'}
+              {loading ? 'Criando conta...' : 'Criar conta'}
             </button>
           </div>
         </form>
@@ -111,4 +137,4 @@ function Login() {
   )
 }
 
-export default Login
+export default Signup

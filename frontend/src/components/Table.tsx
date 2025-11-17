@@ -1,5 +1,16 @@
-function Table({ data }) {
-  const getStatusColor = (status) => {
+interface TableRow {
+  id: number
+  nome: string
+  status: 'Ativo' | 'Pendente' | 'Inativo'
+  valor: number
+}
+
+interface TableProps {
+  data: TableRow[]
+}
+
+function Table({ data }: TableProps) {
+  const getStatusColor = (status: TableRow['status']): string => {
     switch (status) {
       case 'Ativo':
         return 'bg-green-100 text-green-800'
@@ -12,7 +23,7 @@ function Table({ data }) {
     }
   }
 
-  const formatCurrency = (value) => {
+  const formatCurrency = (value: number): string => {
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
       currency: 'BRL',

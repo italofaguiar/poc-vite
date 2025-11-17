@@ -90,5 +90,7 @@ const api = axios.create({
 
 NEW TODOS
 
-- [ ] Dark mode toggle no frontend
+- [ ] Dark mode toggle no frontend (default dark)
+    - puxa inspiracao do proj pvia-lcp
+    - use cores principais preto e verde (layout moderno, tipo spotify ou supabase)
 - [ ] suporte multi-linguagem (i18n) no frontend (por ora, só português e inglês)

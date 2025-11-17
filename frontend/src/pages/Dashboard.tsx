@@ -4,8 +4,19 @@ import { getDashboardData, logout } from '../services/api'
 import Chart from '../components/Chart'
 import Table from '../components/Table'
 
+interface DashboardData {
+  user_email: string
+  chart_data: Array<{ date: string; value: number }>
+  table_data: Array<{
+    id: number
+    nome: string
+    status: 'Ativo' | 'Pendente' | 'Inativo'
+    valor: number
+  }>
+}
+
 function Dashboard() {
-  const [data, setData] = useState(null)
+  const [data, setData] = useState<DashboardData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const navigate = useNavigate()
