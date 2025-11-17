@@ -36,7 +36,18 @@ ENV/
 # Testing
 coverage/
 .pytest_cache/
+.playwright-mcp/
 
 # Misc
 *.bak
 *.tmp
+
+# Database
+*.db
+*.sqlite3
+postgres_data/
+
+# Vite/Frontend
+dist-ssr/
+*.local
+.pnpm-debug.log*
