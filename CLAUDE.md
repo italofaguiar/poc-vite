@@ -126,7 +126,12 @@ npm test  # Quando testes forem criados
 
 ## MCPs Disponíveis
 
-Playwright e Chrome DevTools MCPs estão disponíveis para testes E2E e debug.
+Os MCPs (Model Context Protocol) estão configurados no arquivo `.mcp.json` (versionado no Git):
+
+- **Playwright**: Testes E2E e automação de navegador
+- **Chrome DevTools**: Debug avançado, inspeção de elementos, network requests, performance
+
+**Configuração**: O arquivo `.mcp.json` na raiz do projeto é compartilhado com toda a equipe. Não é necessário configurar MCPs localmente.
 
 **Observação importante sobre Playwright**: Sempre iniciar testes com a janela maximizada usando `browser_resize` (width: 1920, height: 1080) logo após navegação. Isso garante que elementos responsivos sejam renderizados corretamente e evita problemas de layout em testes E2E.
 
