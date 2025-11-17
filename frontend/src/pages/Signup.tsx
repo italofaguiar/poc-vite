@@ -3,6 +3,8 @@ import { useNavigate, Link } from 'react-router-dom'
 import { signup } from '../services/api'
 import { signupSchema } from '../schemas/auth'
 import { ZodError } from 'zod'
+import { getErrorMessage } from '../types'
+import ErrorMessage from '../components/ErrorMessage'
 
 function Signup() {
   const [email, setEmail] = useState('')
@@ -45,16 +47,8 @@ function Signup() {
       // Redirect to dashboard on success
       navigate('/dashboard')
     } catch (err: unknown) {
-      if (err && typeof err === 'object' && 'response' in err) {
-        const axiosError = err as { response?: { data?: { detail?: string } } }
-        if (axiosError.response?.data?.detail) {
-          setGeneralError(axiosError.response.data.detail)
-        } else {
-          setGeneralError('Erro ao criar conta. Tente novamente.')
-        }
-      } else {
-        setGeneralError('Erro ao criar conta. Tente novamente.')
-      }
+      // Use typed error handling
+      setGeneralError(getErrorMessage(err, 'Erro ao criar conta. Tente novamente.'))
     } finally {
       setLoading(false)
     }
@@ -130,11 +124,7 @@ function Signup() {
             </div>
           </div>
 
-          {generalError && (
-            <div className="rounded-md bg-red-50 p-4">
-              <p className="text-sm text-red-800">{generalError}</p>
-            </div>
-          )}
+          {generalError && <ErrorMessage message={generalError} />}
 
           <div>
             <button

@@ -1,9 +1,4 @@
-interface TableRow {
-  id: number
-  nome: string
-  status: 'Ativo' | 'Pendente' | 'Inativo'
-  valor: number
-}
+import type { TableRow } from '../types'
 
 interface TableProps {
   data: TableRow[]

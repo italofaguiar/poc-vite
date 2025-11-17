@@ -1,5 +1,5 @@
-import axios from 'axios'
-import type { AuthResponse, MeResponse, DashboardData } from '../types/api'
+import axios, { AxiosError } from 'axios'
+import type { AuthResponse, MeResponse, DashboardData, ApiError } from '../types'
 import { dashboardDataSchema, userResponseSchema } from '../schemas/dashboard'
 
 // Create axios instance with base configuration
@@ -10,6 +10,33 @@ const api = axios.create({
     'Content-Type': 'application/json',
   },
 })
+
+// Response interceptor to handle errors consistently
+api.interceptors.response.use(
+  // Pass through successful responses
+  (response) => response,
+  // Handle errors
+  (error: AxiosError<ApiError>) => {
+    // Log error for debugging (in dev mode only)
+    if (import.meta.env.DEV) {
+      console.error('API Error:', {
+        status: error.response?.status,
+        data: error.response?.data,
+        url: error.config?.url,
+      })
+    }
+
+    // For 401 errors (unauthorized), redirect to login
+    // This handles session expiration automatically
+    if (error.response?.status === 401 && window.location.pathname !== '/login') {
+      // Only redirect if not already on login page
+      window.location.href = '/login'
+    }
+
+    // Re-throw the error for component-level handling
+    return Promise.reject(error)
+  }
+)
 
 // Auth API functions
 export const signup = async (email: string, password: string): Promise<AuthResponse> => {

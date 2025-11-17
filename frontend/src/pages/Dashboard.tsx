@@ -3,34 +3,25 @@ import { useNavigate } from 'react-router-dom'
 import { getDashboardData, logout } from '../services/api'
 import Chart from '../components/Chart'
 import Table from '../components/Table'
-
-interface DashboardData {
-  user_email: string
-  chart_data: Array<{ date: string; value: number }>
-  table_data: Array<{
-    id: number
-    nome: string
-    status: 'Ativo' | 'Pendente' | 'Inativo'
-    valor: number
-  }>
-}
+import type { DashboardData, AsyncState } from '../types'
+import { getErrorMessage } from '../types'
 
 function Dashboard() {
-  const [data, setData] = useState<DashboardData | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
+  const [state, setState] = useState<AsyncState<DashboardData>>({ status: 'loading' })
   const navigate = useNavigate()
 
   useEffect(() => {
     const fetchData = async () => {
+      setState({ status: 'loading' })
       try {
-        const response = await getDashboardData()
-        setData(response)
+        const data = await getDashboardData()
+        setState({ status: 'success', data })
       } catch (err) {
-        setError('Erro ao carregar dados do dashboard')
+        setState({
+          status: 'error',
+          error: getErrorMessage(err, 'Erro ao carregar dados do dashboard'),
+        })
         console.error(err)
-      } finally {
-        setLoading(false)
       }
     }
 
@@ -48,7 +39,8 @@ function Dashboard() {
     }
   }
 
-  if (loading) {
+  // Render loading state
+  if (state.status === 'loading') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-100">
         <div className="text-center">
@@ -59,11 +51,12 @@ function Dashboard() {
     )
   }
 
-  if (error) {
+  // Render error state
+  if (state.status === 'error') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-100">
         <div className="text-center">
-          <p className="text-red-600">{error}</p>
+          <p className="text-red-600">{state.error}</p>
           <button
             onClick={() => window.location.reload()}
             className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
@@ -75,6 +68,9 @@ function Dashboard() {
     )
   }
 
+  // At this point, TypeScript knows state.status === 'success'
+  const data = state.data
+
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Header */}
@@ -82,9 +78,7 @@ function Dashboard() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-            {data?.user_email && (
-              <p className="text-sm text-gray-600 mt-1">{data.user_email}</p>
-            )}
+            <p className="text-sm text-gray-600 mt-1">{data.user_email}</p>
           </div>
           <button
             onClick={handleLogout}
@@ -99,10 +93,10 @@ function Dashboard() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="space-y-8">
           {/* Chart Section */}
-          {data?.chart_data && <Chart data={data.chart_data} />}
+          <Chart data={data.chart_data} />
 
           {/* Table Section */}
-          {data?.table_data && <Table data={data.table_data} />}
+          <Table data={data.table_data} />
         </div>
       </main>
     </div>

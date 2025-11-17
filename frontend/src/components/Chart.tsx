@@ -1,9 +1,5 @@
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
-
-interface ChartDataPoint {
-  date: string
-  value: number
-}
+import type { ChartDataPoint } from '../types'
 
 interface ChartProps {
   data: ChartDataPoint[]

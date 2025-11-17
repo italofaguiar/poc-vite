@@ -3,6 +3,8 @@ import { useNavigate, Link } from 'react-router-dom'
 import { login } from '../services/api'
 import { loginSchema } from '../schemas/auth'
 import { ZodError } from 'zod'
+import { isApiError, getErrorMessage } from '../types'
+import ErrorMessage from '../components/ErrorMessage'
 
 function Login() {
   const [email, setEmail] = useState('')
@@ -45,17 +47,11 @@ function Login() {
       // Redirect to dashboard on success
       navigate('/dashboard')
     } catch (err: unknown) {
-      if (err && typeof err === 'object' && 'response' in err) {
-        const axiosError = err as { response?: { status?: number; data?: { detail?: string } } }
-        if (axiosError.response?.status === 401) {
-          setGeneralError('Email ou senha invalidos')
-        } else if (axiosError.response?.data?.detail) {
-          setGeneralError(axiosError.response.data.detail)
-        } else {
-          setGeneralError('Erro ao fazer login. Tente novamente.')
-        }
+      // Use typed error handling
+      if (isApiError(err) && err.response.status === 401) {
+        setGeneralError('Email ou senha invalidos')
       } else {
-        setGeneralError('Erro ao fazer login. Tente novamente.')
+        setGeneralError(getErrorMessage(err, 'Erro ao fazer login. Tente novamente.'))
       }
     } finally {
       setLoading(false)
@@ -132,11 +128,7 @@ function Login() {
             </div>
           </div>
 
-          {generalError && (
-            <div className="rounded-md bg-red-50 p-4">
-              <p className="text-sm text-red-800">{generalError}</p>
-            </div>
-          )}
+          {generalError && <ErrorMessage message={generalError} />}
 
           <div>
             <button

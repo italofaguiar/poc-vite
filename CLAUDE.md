@@ -36,7 +36,7 @@ Esta é uma POC do **PilotoDeVendas.IA** - uma aplicação SaaS para automação
 
 ### Stack
 - **Backend**: Python 3.12, FastAPI (async), SQLAlchemy ORM, Postgres
-- **Frontend**: React 18, Vite, TailwindCSS, React Router, Axios
+- **Frontend**: React 18, TypeScript, Vite, TailwindCSS, React Router, Axios, Zod
 - **Infraestrutura**: Docker Compose (dev), GCP CloudRun + CloudSQL (prod)
 
 ### Autenticação
@@ -57,12 +57,41 @@ backend/app/
 └── main.py        # FastAPI app
 
 frontend/
-├── vite.config.js # Vite config + proxy (/api -> backend:8000)
+├── vite.config.ts # Vite config + proxy (/api -> backend:8000)
 └── src/
-    ├── pages/         # Login.jsx, Signup.jsx, Dashboard.jsx
-    ├── components/    # ProtectedRoute.jsx, Chart.jsx, Table.jsx
-    └── services/      # api.js (axios config + API calls)
+    ├── pages/         # Login.tsx, Signup.tsx, Dashboard.tsx
+    ├── components/    # ProtectedRoute.tsx, Chart.tsx, Table.tsx, ErrorMessage.tsx
+    ├── services/      # api.ts (axios config + API calls)
+    ├── types/         # index.ts (tipos centralizados + type guards)
+    └── schemas/       # auth.ts, dashboard.ts (validação Zod)
 ```
+
+### TypeScript e Validação
+
+**TypeScript**: Todo frontend está em TypeScript (.tsx/.ts) com tipagem completa.
+
+**Princípios de tipagem** (pragmático, não obsessivo):
+- ✅ Tipar props de componentes
+- ✅ Tipar respostas da API
+- ✅ Tipar estado e hooks quando tipo não é inferido
+- ❌ Evitar tipos complexos/genéricos avançados desnecessários
+
+**Validação com Zod**:
+- Formulários validados antes de submit (email, senha)
+- Respostas da API validadas no client (garantir shape correto)
+- Schemas em `frontend/src/schemas/` (auth.ts, dashboard.ts)
+
+**Tipos centralizados** (`frontend/src/types/index.ts`):
+- `AsyncState<T>` - Estados de loading padronizados (idle, loading, success, error)
+- `ApiError` - Tipagem de erros FastAPI
+- `isApiError()` - Type guard para erros de API
+- `getErrorMessage()` - Helper para extrair mensagens de erro
+- Todos os tipos de API re-exportados (DashboardData, User, etc.)
+
+**Error Handling**:
+- Interceptor Axios em `api.ts` loga erros em dev e redireciona 401 para login
+- Error handling tipado com type guards em todos os componentes
+- Componente `ErrorMessage` reutilizável para exibir erros de forma consistente
 
 ## Comandos
 
@@ -89,8 +118,9 @@ docker compose down -v && docker compose up --build
 # Dentro do container ou localmente
 cd frontend
 npm run dev          # Dev server (porta 5173)
-npm run build        # Build para produção
+npm run build        # Build para produção (verifica tipos TypeScript)
 npm run preview      # Preview do build
+npm run lint         # Executar ESLint (deve passar com 0 erros/warnings)
 ```
 
 ### Backend
