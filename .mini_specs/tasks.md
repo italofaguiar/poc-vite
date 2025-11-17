@@ -31,26 +31,26 @@
 
 ## Fase 3: Backend - Autenticação
 
-- [ ] Criar `backend/app/schemas.py` com Pydantic schemas:
-  - [ ] `UserSignup` (email, password)
-  - [ ] `UserLogin` (email, password)
-  - [ ] `UserResponse` (id, email, created_at)
-- [ ] Criar `backend/app/auth.py` com funções de sessão:
-  - [ ] `hash_password(password: str)` usando bcrypt
-  - [ ] `verify_password(plain: str, hashed: str)`
-  - [ ] `create_session(user_id: int)` retorna session_id
-  - [ ] `get_user_from_session(session_id: str)` valida e retorna user_id
-  - [ ] `delete_session(session_id: str)` invalida sessão
-- [ ] Criar `backend/app/routers/auth.py` com endpoints:
-  - [ ] `POST /api/auth/signup` - cria usuário + retorna cookie
-  - [ ] `POST /api/auth/login` - valida credenciais + retorna cookie
-  - [ ] `POST /api/auth/logout` - invalida sessão + limpa cookie
-  - [ ] `GET /api/auth/me` - verifica sessão ativa + retorna user info
-- [ ] Criar `backend/app/main.py`:
-  - [ ] Instanciar FastAPI app
-  - [ ] Configurar CORS middleware para `http://localhost:5173`
-  - [ ] Incluir router de auth
-  - [ ] Endpoint raiz GET / para health check
+- [x] Criar `backend/app/schemas.py` com Pydantic schemas:
+  - [x] `UserSignup` (email, password)
+  - [x] `UserLogin` (email, password)
+  - [x] `UserResponse` (id, email, created_at)
+- [x] Criar `backend/app/auth.py` com funções de sessão:
+  - [x] `hash_password(password: str)` usando bcrypt
+  - [x] `verify_password(plain: str, hashed: str)`
+  - [x] `create_session(user_id: int)` retorna session_id
+  - [x] `get_user_from_session(session_id: str)` valida e retorna user_id
+  - [x] `delete_session(session_id: str)` invalida sessão
+- [x] Criar `backend/app/routers/auth.py` com endpoints:
+  - [x] `POST /api/auth/signup` - cria usuário + retorna cookie
+  - [x] `POST /api/auth/login` - valida credenciais + retorna cookie
+  - [x] `POST /api/auth/logout` - invalida sessão + limpa cookie
+  - [x] `GET /api/auth/me` - verifica sessão ativa + retorna user info
+- [x] Criar `backend/app/main.py`:
+  - [x] Instanciar FastAPI app
+  - [x] Configurar CORS middleware para `http://localhost:5173`
+  - [x] Incluir router de auth
+  - [x] Endpoint raiz GET / para health check
 
 ---
 
