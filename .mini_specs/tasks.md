@@ -87,24 +87,24 @@
 
 ## Fase 6: Frontend - Autenticação
 
-- [ ] Criar `frontend/src/services/api.js`:
-  - [ ] Configurar axios instance com `baseURL: http://localhost:8000`
-  - [ ] Configurar `withCredentials: true` para cookies
-  - [ ] Funções: `signup()`, `login()`, `logout()`, `getMe()`
-- [ ] Criar `frontend/src/pages/Signup.jsx`:
-  - [ ] Formulário com email + password
-  - [ ] Validação básica (email válido, senha mínima)
-  - [ ] Chamar api.signup() e redirecionar para dashboard
-  - [ ] Mostrar erros de API
-- [ ] Criar `frontend/src/pages/Login.jsx`:
-  - [ ] Formulário com email + password
-  - [ ] Chamar api.login() e redirecionar para dashboard
-  - [ ] Link para página de signup
-  - [ ] Mostrar erros de API
-- [ ] Criar componente `ProtectedRoute`:
-  - [ ] Chamar api.getMe() antes de renderizar
-  - [ ] Se não autenticado, redirecionar para `/login`
-  - [ ] Aplicar em rota `/dashboard`
+- [x] Criar `frontend/src/services/api.js`:
+  - [x] Configurar axios instance com `baseURL: http://localhost:8000`
+  - [x] Configurar `withCredentials: true` para cookies
+  - [x] Funções: `signup()`, `login()`, `logout()`, `getMe()`
+- [x] Criar `frontend/src/pages/Signup.jsx`:
+  - [x] Formulário com email + password
+  - [x] Validação básica (email válido, senha mínima)
+  - [x] Chamar api.signup() e redirecionar para dashboard
+  - [x] Mostrar erros de API
+- [x] Criar `frontend/src/pages/Login.jsx`:
+  - [x] Formulário com email + password
+  - [x] Chamar api.login() e redirecionar para dashboard
+  - [x] Link para página de signup
+  - [x] Mostrar erros de API
+- [x] Criar componente `ProtectedRoute`:
+  - [x] Chamar api.getMe() antes de renderizar
+  - [x] Se não autenticado, redirecionar para `/login`
+  - [x] Aplicar em rota `/dashboard`
 
 ---
 
