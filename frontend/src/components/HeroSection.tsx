@@ -26,7 +26,7 @@ interface HeroSectionProps {
 export function HeroSection({
   title,
   subtitle,
-  showAnimation = true,
+  showAnimation: _showAnimation = true,
   className = ''
 }: HeroSectionProps) {
   return (

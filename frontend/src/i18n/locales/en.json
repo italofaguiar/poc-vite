@@ -1,0 +1,52 @@
+{
+  "auth": {
+    "login": {
+      "title": "Sign in",
+      "subtitle": "Or",
+      "createAccount": "create a new account",
+      "email": "Email",
+      "emailPlaceholder": "your@email.com",
+      "password": "Password",
+      "passwordPlaceholder": "Your password",
+      "submitButton": "Sign in",
+      "submittingButton": "Signing in...",
+      "invalidCredentials": "Invalid email or password",
+      "errorMessage": "Error signing in. Please try again."
+    },
+    "signup": {
+      "title": "Create new account",
+      "subtitle": "Or",
+      "loginLink": "sign in if you already have an account",
+      "email": "Email",
+      "emailPlaceholder": "your@email.com",
+      "password": "Password",
+      "passwordPlaceholder": "Minimum 6 characters",
+      "submitButton": "Create account",
+      "submittingButton": "Creating account...",
+      "errorMessage": "Error creating account. Please try again."
+    },
+    "validation": {
+      "emailRequired": "Email is required",
+      "emailInvalid": "Invalid email",
+      "passwordRequired": "Password is required",
+      "passwordMinLength": "Password must be at least 6 characters"
+    },
+    "hero": {
+      "title": "Your 24/7 AI Sales Agent on WhatsApp",
+      "subtitle": "Qualify leads, drive sales and increase your conversion with artificial intelligence"
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "logout": "Logout",
+    "loading": "Loading data...",
+    "errorMessage": "Error loading dashboard data",
+    "errorLogout": "Error logging out:",
+    "tryAgain": "Try again"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success"
+  }
+}

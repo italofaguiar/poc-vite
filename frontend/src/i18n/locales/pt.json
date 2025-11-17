@@ -1,0 +1,52 @@
+{
+  "auth": {
+    "login": {
+      "title": "Fazer login",
+      "subtitle": "Ou",
+      "createAccount": "crie uma nova conta",
+      "email": "Email",
+      "emailPlaceholder": "seu@email.com",
+      "password": "Senha",
+      "passwordPlaceholder": "Sua senha",
+      "submitButton": "Entrar",
+      "submittingButton": "Entrando...",
+      "invalidCredentials": "Email ou senha inválidos",
+      "errorMessage": "Erro ao fazer login. Tente novamente."
+    },
+    "signup": {
+      "title": "Criar nova conta",
+      "subtitle": "Ou",
+      "loginLink": "faça login se já tem uma conta",
+      "email": "Email",
+      "emailPlaceholder": "seu@email.com",
+      "password": "Senha",
+      "passwordPlaceholder": "Mínimo 6 caracteres",
+      "submitButton": "Criar conta",
+      "submittingButton": "Criando conta...",
+      "errorMessage": "Erro ao criar conta. Tente novamente."
+    },
+    "validation": {
+      "emailRequired": "Email é obrigatório",
+      "emailInvalid": "Email inválido",
+      "passwordRequired": "Senha é obrigatória",
+      "passwordMinLength": "Senha deve ter no mínimo 6 caracteres"
+    },
+    "hero": {
+      "title": "Seu Vendedor de IA 24/7 no WhatsApp",
+      "subtitle": "Qualifique leads, conduza vendas e aumente sua conversão com inteligência artificial"
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "logout": "Sair",
+    "loading": "Carregando dados...",
+    "errorMessage": "Erro ao carregar dados do dashboard",
+    "errorLogout": "Erro ao fazer logout:",
+    "tryAgain": "Tentar novamente"
+  },
+  "common": {
+    "loading": "Carregando...",
+    "error": "Erro",
+    "success": "Sucesso"
+  }
+}

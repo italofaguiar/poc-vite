@@ -1,14 +1,17 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { getDashboardData, logout } from '../services/api'
 import Chart from '../components/Chart'
 import Table from '../components/Table'
 import { ThemeToggle } from '../components/ThemeToggle'
+import { LanguageToggle } from '../components/LanguageToggle'
 import { Logo } from '../components/Logo'
 import type { DashboardData, AsyncState } from '../types'
 import { getErrorMessage } from '../types'
 
 function Dashboard() {
+  const { t } = useTranslation()
   const [state, setState] = useState<AsyncState<DashboardData>>({ status: 'loading' })
   const navigate = useNavigate()
 
@@ -21,14 +24,14 @@ function Dashboard() {
       } catch (err) {
         setState({
           status: 'error',
-          error: getErrorMessage(err, 'Erro ao carregar dados do dashboard'),
+          error: getErrorMessage(err, t('dashboard.errorMessage')),
         })
         console.error(err)
       }
     }
 
     fetchData()
-  }, [])
+  }, [t])
 
   const handleLogout = async () => {
     try {
@@ -47,7 +50,7 @@ function Dashboard() {
       <div className="min-h-screen flex items-center justify-center bg-app-primary dark:bg-dark-app-primary transition-colors duration-300">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-          <p className="mt-2 text-app-secondary dark:text-dark-app-secondary">Carregando dados...</p>
+          <p className="mt-2 text-app-secondary dark:text-dark-app-secondary">{t('dashboard.loading')}</p>
         </div>
       </div>
     )
@@ -63,7 +66,7 @@ function Dashboard() {
             onClick={() => window.location.reload()}
             className="btn-primary mt-4 px-4 py-2 text-white rounded-md"
           >
-            Tentar novamente
+            {t('dashboard.tryAgain')}
           </button>
         </div>
       </div>
@@ -83,19 +86,20 @@ function Dashboard() {
             <div className="flex items-center gap-4">
               <Logo variant="compact" size="sm" />
               <div className="border-l border-app-primary dark:border-dark-app-primary pl-4">
-                <h1 className="text-lg sm:text-xl font-bold text-app-primary dark:text-dark-app-primary">Dashboard</h1>
+                <h1 className="text-lg sm:text-xl font-bold text-app-primary dark:text-dark-app-primary">{t('dashboard.title')}</h1>
                 <p className="text-xs sm:text-sm text-app-secondary dark:text-dark-app-secondary">{data.user_email}</p>
               </div>
             </div>
 
             {/* Right: Actions */}
             <div className="flex items-center gap-3 justify-end sm:justify-start">
+              <LanguageToggle />
               <ThemeToggle />
               <button
                 onClick={handleLogout}
                 className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors text-sm"
               >
-                Sair
+                {t('dashboard.logout')}
               </button>
             </div>
           </div>

@@ -32,10 +32,10 @@ describe('Login', () => {
       </BrowserRouter>
     );
 
-    expect(screen.getByText(/Faca login na sua conta/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Email/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Senha/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Entrar/i })).toBeInTheDocument();
+    expect(screen.getByText('Fazer login')).toBeInTheDocument();
+    expect(screen.getByLabelText('Email')).toBeInTheDocument();
+    expect(screen.getByLabelText('Senha')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Entrar' })).toBeInTheDocument();
   });
 
   it('should show validation error for empty email', async () => {
@@ -47,13 +47,13 @@ describe('Login', () => {
       </BrowserRouter>
     );
 
-    const submitButton = screen.getByRole('button', { name: /Entrar/i });
+    const submitButton = screen.getByRole('button', { name: 'Entrar' });
     await user.click(submitButton);
 
     await waitFor(() => {
-      // HTML5 email validation might show "Email invalido" for empty/invalid format
+      // HTML5 email validation might show validation error
       expect(
-        screen.getByText(/Email (e obrigatorio|invalido)/)
+        screen.getByText(/Email (é obrigatório|inválido)/)
       ).toBeInTheDocument();
     });
   });
@@ -71,14 +71,14 @@ describe('Login', () => {
       </BrowserRouter>
     );
 
-    const emailInput = screen.getByLabelText(/Email/i);
-    const submitButton = screen.getByRole('button', { name: /Entrar/i });
+    const emailInput = screen.getByLabelText('Email');
+    const submitButton = screen.getByRole('button', { name: 'Entrar' });
 
     await user.type(emailInput, 'test@example.com');
     await user.click(submitButton);
 
     await waitFor(() => {
-      expect(screen.getByText('Senha e obrigatoria')).toBeInTheDocument();
+      expect(screen.getByText('Senha é obrigatória')).toBeInTheDocument();
     });
   });
 
@@ -91,15 +91,15 @@ describe('Login', () => {
       </BrowserRouter>
     );
 
-    const emailInput = screen.getByLabelText(/Email/i);
-    const submitButton = screen.getByRole('button', { name: /Entrar/i });
+    const emailInput = screen.getByLabelText('Email');
+    const submitButton = screen.getByRole('button', { name: 'Entrar' });
 
     // Trigger validation error
     await user.click(submitButton);
 
     await waitFor(() => {
       expect(
-        screen.getByText(/Email (e obrigatorio|invalido)/)
+        screen.getByText(/Email (é obrigatório|inválido)/)
       ).toBeInTheDocument();
     });
 
@@ -109,7 +109,7 @@ describe('Login', () => {
     // Error should be cleared
     await waitFor(() => {
       expect(
-        screen.queryByText(/Email (e obrigatorio|invalido)/)
+        screen.queryByText(/Email (é obrigatório|inválido)/)
       ).not.toBeInTheDocument();
     });
   });
@@ -124,9 +124,9 @@ describe('Login', () => {
       </BrowserRouter>
     );
 
-    const emailInput = screen.getByLabelText(/Email/i);
-    const passwordInput = screen.getByLabelText(/Senha/i);
-    const submitButton = screen.getByRole('button', { name: /Entrar/i });
+    const emailInput = screen.getByLabelText('Email');
+    const passwordInput = screen.getByLabelText('Senha');
+    const submitButton = screen.getByRole('button', { name: 'Entrar' });
 
     await user.type(emailInput, 'test@example.com');
     await user.type(passwordInput, 'password123');
@@ -154,16 +154,16 @@ describe('Login', () => {
       </BrowserRouter>
     );
 
-    const emailInput = screen.getByLabelText(/Email/i);
-    const passwordInput = screen.getByLabelText(/Senha/i);
-    const submitButton = screen.getByRole('button', { name: /Entrar/i });
+    const emailInput = screen.getByLabelText('Email');
+    const passwordInput = screen.getByLabelText('Senha');
+    const submitButton = screen.getByRole('button', { name: 'Entrar' });
 
     await user.type(emailInput, 'test@example.com');
     await user.type(passwordInput, 'wrongpassword');
     await user.click(submitButton);
 
     await waitFor(() => {
-      expect(screen.getByText('Email ou senha invalidos')).toBeInTheDocument();
+      expect(screen.getByText('Email ou senha inválidos')).toBeInTheDocument();
     });
   });
 
@@ -177,9 +177,9 @@ describe('Login', () => {
       </BrowserRouter>
     );
 
-    const emailInput = screen.getByLabelText(/Email/i);
-    const passwordInput = screen.getByLabelText(/Senha/i);
-    const submitButton = screen.getByRole('button', { name: /Entrar/i });
+    const emailInput = screen.getByLabelText('Email');
+    const passwordInput = screen.getByLabelText('Senha');
+    const submitButton = screen.getByRole('button', { name: 'Entrar' });
 
     await user.type(emailInput, 'test@example.com');
     await user.type(passwordInput, 'password123');
@@ -204,9 +204,9 @@ describe('Login', () => {
       </BrowserRouter>
     );
 
-    const emailInput = screen.getByLabelText(/Email/i);
-    const passwordInput = screen.getByLabelText(/Senha/i);
-    const submitButton = screen.getByRole('button', { name: /Entrar/i });
+    const emailInput = screen.getByLabelText('Email');
+    const passwordInput = screen.getByLabelText('Senha');
+    const submitButton = screen.getByRole('button', { name: 'Entrar' });
 
     await user.type(emailInput, 'test@example.com');
     await user.type(passwordInput, 'password123');

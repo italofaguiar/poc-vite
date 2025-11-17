@@ -1,14 +1,17 @@
 import { useState, FormEvent, ChangeEvent } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { signup } from '../services/api'
-import { signupSchema } from '../schemas/auth'
+import { createSignupSchema } from '../schemas/auth'
 import { ZodError } from 'zod'
 import { getErrorMessage } from '../types'
 import ErrorMessage from '../components/ErrorMessage'
 import { HeroSection } from '../components/HeroSection'
 import { AnimatedBackground } from '../components/AnimatedBackground'
+import { LanguageToggle } from '../components/LanguageToggle'
 
 function Signup() {
+  const { t } = useTranslation()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [emailError, setEmailError] = useState('')
@@ -27,7 +30,7 @@ function Signup() {
 
     // Validate with Zod
     try {
-      signupSchema.parse({ email, password })
+      createSignupSchema(t).parse({ email, password })
     } catch (err) {
       if (err instanceof ZodError) {
         // Map Zod errors to field-specific error states
@@ -50,7 +53,7 @@ function Signup() {
       navigate('/dashboard')
     } catch (err: unknown) {
       // Use typed error handling
-      setGeneralError(getErrorMessage(err, 'Erro ao criar conta. Tente novamente.'))
+      setGeneralError(getErrorMessage(err, t('auth.signup.errorMessage')))
     } finally {
       setLoading(false)
     }
@@ -67,15 +70,20 @@ function Signup() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row bg-app-primary dark:bg-dark-app-primary transition-colors duration-300">
+    <div className="min-h-screen flex flex-col lg:flex-row bg-app-primary dark:bg-dark-app-primary transition-colors duration-300 relative">
+      {/* Language Toggle - Top Right */}
+      <div className="absolute top-4 right-4 z-20">
+        <LanguageToggle />
+      </div>
+
       {/* Hero Section - Left Side */}
       <div className="relative w-full lg:w-1/2 min-h-[40vh] lg:min-h-screen flex items-center justify-center bg-app-secondary dark:bg-dark-app-secondary overflow-hidden">
         {/* Animated Background - covers entire left side */}
         <AnimatedBackground />
 
         <HeroSection
-          title="Seu Vendedor de IA 24/7 no WhatsApp"
-          subtitle="Qualifique leads, conduza vendas e aumente sua conversão com inteligência artificial"
+          title={t('auth.hero.title')}
+          subtitle={t('auth.hero.subtitle')}
           showAnimation={false}
         />
       </div>
@@ -85,12 +93,12 @@ function Signup() {
         <div className="w-full max-w-md space-y-8">
           <div>
             <h2 className="text-3xl font-extrabold text-app-primary dark:text-dark-app-primary">
-              Criar nova conta
+              {t('auth.signup.title')}
             </h2>
             <p className="mt-2 text-sm text-app-secondary dark:text-dark-app-secondary">
-              Ou{' '}
+              {t('auth.signup.subtitle')}{' '}
               <Link to="/login" className="font-medium text-primary hover:text-primary-dark transition-colors">
-                faça login se já tem uma conta
+                {t('auth.signup.loginLink')}
               </Link>
             </p>
           </div>
@@ -99,7 +107,7 @@ function Signup() {
             <div className="space-y-4">
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-app-primary dark:text-dark-app-primary mb-1">
-                  Email
+                  {t('auth.signup.email')}
                 </label>
                 <input
                   id="email"
@@ -109,7 +117,7 @@ function Signup() {
                   className={`appearance-none relative block w-full px-3 py-2 border ${
                     emailError ? 'border-red-500' : 'border-app-primary dark:border-dark-app-primary'
                   } bg-app-secondary dark:bg-dark-app-secondary placeholder-app-secondary dark:placeholder-dark-app-secondary text-app-primary dark:text-dark-app-primary rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-colors sm:text-sm`}
-                  placeholder="seu@email.com"
+                  placeholder={t('auth.signup.emailPlaceholder')}
                   value={email}
                   onChange={handleEmailChange}
                   disabled={loading}
@@ -120,7 +128,7 @@ function Signup() {
               </div>
               <div>
                 <label htmlFor="password" className="block text-sm font-medium text-app-primary dark:text-dark-app-primary mb-1">
-                  Senha
+                  {t('auth.signup.password')}
                 </label>
                 <input
                   id="password"
@@ -130,7 +138,7 @@ function Signup() {
                   className={`appearance-none relative block w-full px-3 py-2 border ${
                     passwordError ? 'border-red-500' : 'border-app-primary dark:border-dark-app-primary'
                   } bg-app-secondary dark:bg-dark-app-secondary placeholder-app-secondary dark:placeholder-dark-app-secondary text-app-primary dark:text-dark-app-primary rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-colors sm:text-sm`}
-                  placeholder="Mínimo 6 caracteres"
+                  placeholder={t('auth.signup.passwordPlaceholder')}
                   value={password}
                   onChange={handlePasswordChange}
                   disabled={loading}
@@ -149,7 +157,7 @@ function Signup() {
                 disabled={loading}
                 className="btn-primary group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? 'Criando conta...' : 'Criar conta'}
+                {loading ? t('auth.signup.submittingButton') : t('auth.signup.submitButton')}
               </button>
             </div>
           </form>
