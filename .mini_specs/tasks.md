@@ -129,6 +129,13 @@ Roadmap detalhado para implementação das melhorias na POC. As tasks estão org
   - Aplicar no Dashboard (logo discreto no header)
   - Tipografia Inter, responsividade completa
 
+- [x] **2.11** Ajustes de Layout e Tipografia
+  - **Problema**: Colisão de painéis no Login/Signup, fontes muito grandes
+  - Reduzir tamanho das fontes (especialmente tagline/hero title)
+  - Corrigir sobreposição de painéis (card do form sobre hero section)
+  - Ajustar espaçamentos e padding
+  - Validar visualmente com Playwright screenshots
+
 ---
 
 ## 🌍 Fase 3: Sistema de Internacionalização (i18n)
@@ -279,12 +286,12 @@ Roadmap detalhado para implementação das melhorias na POC. As tasks estão org
 ## 📊 Resumo de Progresso
 
 - **Fase 1 - UV + pyproject.toml**: 7/7 tasks ✅
-- **Fase 2 - Dark Mode + Identidade Visual**: 10/10 tasks ✅
+- **Fase 2 - Dark Mode + Identidade Visual**: 11/11 tasks ✅
 - **Fase 3 - i18n**: 0/10 tasks
 - **Fase 4 - Testes e Integração**: 0/7 tasks
 - **Fase 5 - Documentação**: 0/7 tasks
 
-**Total**: 17/41 tasks concluídas
+**Total**: 18/41 tasks concluídas
 
 ---
 

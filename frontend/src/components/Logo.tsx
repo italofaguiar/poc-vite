@@ -33,13 +33,13 @@ export function Logo({
   const sizeClasses = {
     sm: 'text-xl gap-1.5',
     md: 'text-2xl gap-2',
-    lg: 'text-5xl md:text-6xl gap-3',
+    lg: 'text-3xl md:text-4xl gap-2.5',
   };
 
   const emojiSizes = {
     sm: 'text-2xl',
     md: 'text-3xl',
-    lg: 'text-6xl md:text-7xl',
+    lg: 'text-4xl md:text-5xl',
   };
 
   const text = variant === 'full' ? 'PilotoDeVendas.IA' : 'PilotoDeVendas';
