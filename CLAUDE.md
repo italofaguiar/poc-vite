@@ -158,10 +158,26 @@ npm test  # Quando testes forem criados
 
 Os MCPs (Model Context Protocol) estão configurados no arquivo `.mcp.json` (versionado no Git):
 
-- **Playwright**: Testes E2E e automação de navegador
-- **Chrome DevTools**: Debug avançado, inspeção de elementos, network requests, performance
+- **Playwright**: Testes E2E e automação de navegador (funciona out-of-the-box)
+- **Chrome DevTools**: Debug avançado, inspeção de elementos, network requests, performance (requer setup WSL2)
 
-**Configuração**: O arquivo `.mcp.json` na raiz do projeto é compartilhado com toda a equipe. Não é necessário configurar MCPs localmente.
+**Configuração**: O arquivo `.mcp.json` na raiz do projeto é compartilhado com toda a equipe.
+
+### Usando Chrome DevTools MCP no WSL2
+
+O Chrome DevTools MCP requer uma instância do Chrome em execução com remote debugging. Antes de usar:
+
+```bash
+# Iniciar Chrome com remote debugging (deixar rodando em background)
+./scripts/start-chrome-debug.sh
+```
+
+Após isso, o Chrome DevTools MCP estará disponível para:
+- 📊 Network Waterfall (timing detalhado de requests)
+- 🍪 Cookies (inspecionar/modificar)
+- ⚡ Performance traces e Core Web Vitals
+- 🐛 Console (erros JavaScript em tempo real)
+- 📈 Coverage (código não utilizado)
 
 **Observação importante sobre Playwright**: Sempre iniciar testes com a janela maximizada usando `browser_resize` (width: 1920, height: 1080) logo após navegação. Isso garante que elementos responsivos sejam renderizados corretamente e evita problemas de layout em testes E2E.
 
