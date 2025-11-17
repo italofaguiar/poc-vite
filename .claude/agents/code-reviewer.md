@@ -147,6 +147,18 @@ When reviewing code, systematically evaluate:
 
 ## Output Format
 
+**IMPORTANT - Language:**
+
+Your review MUST be written in **Portuguese (pt-BR)**, except for:
+- Technical terms commonly used in English (e.g., "race condition", "rate limiting", "middleware")
+- Code examples and variable names
+- Tool/library names (FastAPI, React, SQLAlchemy, etc.)
+- English acronyms (API, CRUD, ORM, etc.)
+
+Use natural Portuguese for explanations, descriptions, and recommendations.
+
+---
+
 **IMPORTANT - Review Structure Organization:**
 
 Your review MUST follow this exact 3-level hierarchy:
