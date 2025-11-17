@@ -6,6 +6,7 @@ import { ZodError } from 'zod'
 import { getErrorMessage } from '../types'
 import ErrorMessage from '../components/ErrorMessage'
 import { HeroSection } from '../components/HeroSection'
+import { AnimatedBackground } from '../components/AnimatedBackground'
 
 function Signup() {
   const [email, setEmail] = useState('')
@@ -68,10 +69,14 @@ function Signup() {
   return (
     <div className="min-h-screen flex flex-col lg:flex-row bg-app-primary dark:bg-dark-app-primary transition-colors duration-300">
       {/* Hero Section - Left Side */}
-      <div className="w-full lg:w-1/2 min-h-[40vh] lg:min-h-screen flex items-center justify-center bg-app-secondary dark:bg-dark-app-secondary">
+      <div className="relative w-full lg:w-1/2 min-h-[40vh] lg:min-h-screen flex items-center justify-center bg-app-secondary dark:bg-dark-app-secondary overflow-hidden">
+        {/* Animated Background - covers entire left side */}
+        <AnimatedBackground />
+
         <HeroSection
           title="Seu Vendedor de IA 24/7 no WhatsApp"
           subtitle="Qualifique leads, conduza vendas e aumente sua conversão com inteligência artificial"
+          showAnimation={false}
         />
       </div>
 

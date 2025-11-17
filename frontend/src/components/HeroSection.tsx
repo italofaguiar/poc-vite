@@ -1,5 +1,4 @@
 import { Logo } from './Logo';
-import { AnimatedBackground } from './AnimatedBackground';
 
 interface HeroSectionProps {
   /**
@@ -31,10 +30,7 @@ export function HeroSection({
   className = ''
 }: HeroSectionProps) {
   return (
-    <div className={`relative flex flex-col items-center justify-center p-8 md:p-12 lg:p-16 ${className}`}>
-      {/* Animated Background */}
-      {showAnimation && <AnimatedBackground />}
-
+    <div className={`flex flex-col items-center justify-center p-8 md:p-12 lg:p-16 ${className}`}>
       {/* Content */}
       <div className="relative z-10 flex flex-col items-center text-center space-y-4 max-w-2xl">
         {/* Logo */}
