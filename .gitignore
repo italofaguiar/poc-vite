@@ -36,6 +36,7 @@ ENV/
 # Testing
 coverage/
 .pytest_cache/
+.playwright-mcp/
 
 # Misc
 *.bak
