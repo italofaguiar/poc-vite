@@ -70,6 +70,52 @@ uv run uvicorn app.main:app --reload
 - **Expiração**: 7 dias
 - **Proxy**: Vite redireciona `/api/*` para backend (`http://backend:8000`) - navegador vê mesmo domínio
 
+### Dark Mode e Sistema de Cores
+
+**Tema padrão**: Dark mode (verde/preto inspirado no pvia-lp)
+
+**Paleta de cores**:
+- **Dark Mode (default)**:
+  - Background: `#0a0a0a` (preto principal), `#111111` (preto secundário)
+  - Primary: `#00ff88` (verde brilhante), `#00cc6a` (verde escuro)
+  - Text: `#ffffff` (branco), `#b3b3b3` (cinza claro)
+  - Borders: `rgba(0, 255, 136, 0.1)` (verde translúcido)
+
+- **Light Mode**:
+  - Background: `#ffffff` (branco), `#f5f5f5` (cinza claro)
+  - Primary: `#00cc6a` (verde escuro), `#00a855` (verde mais escuro)
+  - Text: `#0a0a0a` (preto), `#666666` (cinza escuro)
+  - Borders: `rgba(0, 204, 106, 0.2)` (verde translúcido)
+
+**Implementação**:
+- `ThemeContext` (`frontend/src/contexts/ThemeContext.tsx`): gerencia estado do tema
+- Persistência em `localStorage` (key: `theme`)
+- Detecta preferência do sistema na primeira visita
+- Toggle disponível **apenas no Dashboard** (não em páginas de autenticação)
+
+**Classes Tailwind úteis**:
+```tsx
+// Backgrounds
+className="bg-app-primary dark:bg-dark-app-primary"
+className="bg-app-secondary dark:bg-dark-app-secondary"
+
+// Textos
+className="text-app-primary dark:text-dark-app-primary"
+className="text-app-secondary dark:text-dark-app-secondary"
+
+// Borders
+className="border-app-primary dark:border-dark-app-primary"
+
+// Botão primário com gradiente (classe custom em index.css)
+className="btn-primary"  // Gradiente verde + glow effect no hover
+```
+
+**Efeitos visuais**:
+- Gradiente linear nos botões primários: `linear-gradient(135deg, #00ff88, #00cc6a)`
+- Glow effect no hover: `box-shadow: 0 0 20px rgba(0, 255, 136, 0.4)`
+- Transições suaves: `transition-colors duration-300`
+- Recharts adapta cores ao tema (via `useTheme` hook)
+
 ### Estrutura de Diretórios
 ```
 backend/app/

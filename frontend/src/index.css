@@ -1,3 +1,35 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer components {
+  /* Primary button with gradient and glow effect */
+  .btn-primary {
+    @apply relative overflow-hidden;
+    background: linear-gradient(135deg, #00ff88, #00cc6a);
+    transition: all 0.3s ease;
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    box-shadow: 0 0 20px rgba(0, 255, 136, 0.4);
+    transform: translateY(-1px);
+  }
+
+  .btn-primary:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  /* Pulse effect for primary elements in dark mode */
+  @keyframes pulse-glow {
+    0%, 100% {
+      box-shadow: 0 0 10px rgba(0, 255, 136, 0.2);
+    }
+    50% {
+      box-shadow: 0 0 20px rgba(0, 255, 136, 0.4);
+    }
+  }
+
+  .dark .animate-pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
+}

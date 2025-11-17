@@ -40,3 +40,7 @@ tasks to create
     - puxa inspiracao do proj /home/italo/projects/pvia-lp
 - [ ] suporte multi-linguagem no frontend (por ora, só português e inglês)
 
+
+--- 
+
+- Fazer tanto na tela inicial como no dashboard uma identidade basica da app. observe https://pilotodevendas.com.br/ e veja a hero section. traga ela bem forte para as telas de login/signup. ja no dashboard deixe apenas o logo no header, alinhado a esquerda.

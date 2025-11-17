@@ -21,8 +21,8 @@ interface ErrorMessageProps {
  */
 function ErrorMessage({ message, className = '' }: ErrorMessageProps) {
   return (
-    <div className={`rounded-md bg-red-50 p-4 ${className}`}>
-      <p className="text-sm text-red-800">{message}</p>
+    <div className={`rounded-md bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-4 ${className}`}>
+      <p className="text-sm text-red-800 dark:text-red-400">{message}</p>
     </div>
   )
 }

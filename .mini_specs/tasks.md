@@ -66,57 +66,68 @@ Roadmap detalhado para implementação das melhorias na POC. As tasks estão org
 
 ### Tasks
 
-- [ ] **2.1** Setup Tailwind CSS com tema customizado
+- [x] **2.1** Setup Tailwind CSS com tema customizado
   - Configurar `tailwind.config.js` com cores personalizadas
   - Adicionar configuração de dark mode: `darkMode: 'class'`
   - Definir paleta de cores (dark/light) no tema
   - Testar que Tailwind está compilando corretamente
 
-- [ ] **2.2** Criar contexto de tema (`ThemeContext`)
+- [x] **2.2** Criar contexto de tema (`ThemeContext`)
   - Criar `frontend/src/contexts/ThemeContext.tsx`
   - Implementar `ThemeProvider` com estado (dark/light)
   - Implementar persistência em `localStorage` (key: `theme`)
   - Detectar preferência do sistema na primeira visita
   - Aplicar classe `dark` no elemento `<html>` quando dark mode ativo
 
-- [ ] **2.3** Criar componente `ThemeToggle`
+- [x] **2.3** Criar componente `ThemeToggle`
   - Botão com ícone de sol/lua (ou outro design)
   - Animação suave na transição (fade/slide)
   - Acessível (aria-label, keyboard navigation)
   - Estilizado com cores do design system
 
-- [ ] **2.4** Integrar tema no layout principal
+- [x] **2.4** Integrar tema no layout principal
   - Adicionar `ThemeProvider` no `App.tsx`
   - Adicionar `ThemeToggle` **apenas no Dashboard** (não no header global)
   - Posicionar toggle em local acessível (ex: canto superior direito do dashboard)
 
-- [ ] **2.5** Migrar estilos das páginas para suportar dark/light
+- [x] **2.5** Migrar estilos das páginas para suportar dark/light
   - **Login.tsx**: Aplicar classes Tailwind dark/light
   - **Signup.tsx**: Aplicar classes Tailwind dark/light
   - **Dashboard.tsx**: Aplicar classes Tailwind dark/light
   - Backgrounds, cards, inputs, buttons
 
-- [ ] **2.6** Migrar estilos dos componentes
+- [x] **2.6** Migrar estilos dos componentes
   - **ProtectedRoute**: (apenas se tiver estilos inline)
   - **Chart.tsx**: Atualizar cores dos gráficos (Recharts theme)
   - **Table.tsx**: Headers, rows, borders
   - **ErrorMessage**: Background, borda, texto
 
-- [ ] **2.7** Aplicar design inspirado em pvia-lp
+- [x] **2.7** Aplicar design inspirado em pvia-lp
   - Gradientes no botão primary: `linear-gradient(135deg, #00ff88, #00cc6a)`
   - Efeito de glow/shadow nos botões (hover)
   - Backdrop blur no header (se aplicável)
   - Animações suaves (transitions, pulse effect)
 
-- [ ] **2.8** Testar acessibilidade e contraste
+- [x] **2.8** Testar acessibilidade e contraste
   - Validar contraste de cores (WCAG AA mínimo)
   - Testar navegação por teclado
   - Testar em diferentes navegadores
 
-- [ ] **2.9** Documentar sistema de cores
+- [x] **2.9** Documentar sistema de cores
   - Criar `docs/design-system.md` ou adicionar no README
   - Documentar paleta de cores, uso de classes Tailwind
   - Exemplos de componentes
+
+- [ ] **2.10** Identidade Visual da Aplicação (Hero Section + Logo)
+  - **Objetivo**: Trazer identidade forte do site pilotodevendas.com.br para as telas
+  - **Detalhamento completo**: Ver `.mini_specs/fase2-identidade-visual.md`
+  - Componentes principais:
+    - Logo component (full + compact variants)
+    - AnimatedBackground (pulso radial verde-neon)
+    - HeroSection reutilizável
+  - Aplicar em Login/Signup (hero section forte)
+  - Aplicar no Dashboard (logo discreto no header)
+  - Tipografia Inter, responsividade completa
 
 ---
 
@@ -268,12 +279,12 @@ Roadmap detalhado para implementação das melhorias na POC. As tasks estão org
 ## 📊 Resumo de Progresso
 
 - **Fase 1 - UV + pyproject.toml**: 7/7 tasks ✅
-- **Fase 2 - Dark Mode**: 0/9 tasks
+- **Fase 2 - Dark Mode + Identidade Visual**: 9/10 tasks (Task 2.10 em andamento)
 - **Fase 3 - i18n**: 0/10 tasks
 - **Fase 4 - Testes e Integração**: 0/7 tasks
 - **Fase 5 - Documentação**: 0/7 tasks
 
-**Total**: 7/40 tasks concluídas
+**Total**: 16/41 tasks concluídas
 
 ---
 
