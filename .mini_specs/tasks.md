@@ -1,38 +1,38 @@
 # Tasks - POC PilotoDeVendas.IA
 
-Roadmap detalhado para implementaÁ„o das melhorias na POC. As tasks est„o organizadas em fases sequenciais.
+Roadmap detalhado para implementa√ß√£o das melhorias na POC. As tasks est√£o organizadas em fases sequenciais.
 
 ---
 
-## =Ê Fase 1: MigraÁ„o para UV + pyproject.toml
+## üì¶ Fase 1: Migra√ß√£o para UV + pyproject.toml
 
-**Objetivo**: Modernizar o gerenciamento de dependÍncias do backend Python usando UV e pyproject.toml.
+**Objetivo**: Modernizar o gerenciamento de depend√™ncias do backend Python usando UV e pyproject.toml.
 
 ### Tasks
 
 - [ ] **1.1** Criar `pyproject.toml` na raiz do backend
   - Definir metadata do projeto (name, version, description)
-  - Migrar dependÍncias de `requirements.txt` para `dependencies`
+  - Migrar depend√™ncias de `requirements.txt` para `dependencies`
   - Configurar `dev-dependencies` (pytest, ruff, mypy, etc.)
-  - Adicionar configuraÁıes do ruff, mypy, pytest no pyproject.toml
+  - Adicionar configura√ß√µes do ruff, mypy, pytest no pyproject.toml
 
 - [ ] **1.2** Atualizar `Dockerfile` do backend para usar UV
   - Instalar UV no container
-  - Ajustar comando de instalaÁ„o: `uv pip install --no-cache` í `uv sync`
-  - Otimizar layers do Docker (cache de dependÍncias)
+  - Ajustar comando de instala√ß√£o: `uv pip install --no-cache` ‚Üí `uv sync`
+  - Otimizar layers do Docker (cache de depend√™ncias)
 
 - [ ] **1.3** Atualizar `docker-compose.yml`
-  - Ajustar volumes se necess·rio
+  - Ajustar volumes se necess√°rio
   - Garantir que hot-reload continue funcionando
 
-- [ ] **1.4** Criar script de migraÁ„o local
+- [ ] **1.4** Criar script de migra√ß√£o local
   - Documentar como desenvolvedores devem migrar ambiente local
-  - Criar `scripts/setup-backend.sh` para automaÁ„o
+  - Criar `scripts/setup-backend.sh` para automa√ß√£o
 
-- [ ] **1.5** Atualizar documentaÁ„o
+- [ ] **1.5** Atualizar documenta√ß√£o
   - Atualizar `CLAUDE.md` com novos comandos UV
-  - Atualizar `README.md` se necess·rio
-  - Adicionar seÁ„o sobre UV no guia de desenvolvimento
+  - Atualizar `README.md` se necess√°rio
+  - Adicionar se√ß√£o sobre UV no guia de desenvolvimento
 
 - [ ] **1.6** Testar ambiente completo
   - Validar que `docker compose up --build` funciona
@@ -40,57 +40,57 @@ Roadmap detalhado para implementaÁ„o das melhorias na POC. As tasks est„o organi
   - Validar que endpoints da API funcionam
   - Validar que linting (ruff + mypy) funciona
 
-- [ ] **1.7** (Opcional) Remover `requirements.txt`
-  - Apenas apÛs confirmar que tudo funciona
-  - Manter por enquanto para backward compatibility se necess·rio
+- [ ] **1.7** Remover `requirements.txt`
+  - Remover arquivo completamente ap√≥s confirmar que tudo funciona com UV
+  - Atualizar `.gitignore` se necess√°rio
 
 ---
 
-## <® Fase 2: Sistema de Dark Mode
+## üé® Fase 2: Sistema de Dark Mode
 
 **Objetivo**: Implementar toggle de dark/light mode com default dark e tema verde/preto inspirado no pvia-lp.
 
 ### Design System
 
 **Cores Dark Mode (default)**:
-- Background: `#0a0a0a` (preto principal), `#111111` (preto secund·rio)
+- Background: `#0a0a0a` (preto principal), `#111111` (preto secund√°rio)
 - Primary: `#00ff88` (verde brilhante), `#00cc6a` (verde escuro)
 - Text: `#ffffff` (branco), `#b3b3b3` (cinza claro)
-- Borders: `rgba(0, 255, 136, 0.1)` (verde transl˙cido)
+- Borders: `rgba(0, 255, 136, 0.1)` (verde transl√∫cido)
 
 **Cores Light Mode**:
 - Background: `#ffffff` (branco), `#f5f5f5` (cinza claro)
 - Primary: `#00cc6a` (verde escuro), `#00a855` (verde mais escuro)
 - Text: `#0a0a0a` (preto), `#666666` (cinza escuro)
-- Borders: `rgba(0, 204, 106, 0.2)` (verde transl˙cido)
+- Borders: `rgba(0, 204, 106, 0.2)` (verde transl√∫cido)
 
 ### Tasks
 
 - [ ] **2.1** Setup Tailwind CSS com tema customizado
   - Configurar `tailwind.config.js` com cores personalizadas
-  - Adicionar configuraÁ„o de dark mode: `darkMode: 'class'`
+  - Adicionar configura√ß√£o de dark mode: `darkMode: 'class'`
   - Definir paleta de cores (dark/light) no tema
-  - Testar que Tailwind est· compilando corretamente
+  - Testar que Tailwind est√° compilando corretamente
 
 - [ ] **2.2** Criar contexto de tema (`ThemeContext`)
   - Criar `frontend/src/contexts/ThemeContext.tsx`
   - Implementar `ThemeProvider` com estado (dark/light)
-  - Implementar persistÍncia em `localStorage` (key: `theme`)
-  - Detectar preferÍncia do sistema na primeira visita
+  - Implementar persist√™ncia em `localStorage` (key: `theme`)
+  - Detectar prefer√™ncia do sistema na primeira visita
   - Aplicar classe `dark` no elemento `<html>` quando dark mode ativo
 
 - [ ] **2.3** Criar componente `ThemeToggle`
-  - Bot„o com Ìcone de sol/lua (ou outro design)
-  - AnimaÁ„o suave na transiÁ„o (fade/slide)
-  - AcessÌvel (aria-label, keyboard navigation)
+  - Bot√£o com √≠cone de sol/lua (ou outro design)
+  - Anima√ß√£o suave na transi√ß√£o (fade/slide)
+  - Acess√≠vel (aria-label, keyboard navigation)
   - Estilizado com cores do design system
 
 - [ ] **2.4** Integrar tema no layout principal
   - Adicionar `ThemeProvider` no `App.tsx`
-  - Adicionar `ThemeToggle` no header/navbar
-  - Garantir que toggle est· visÌvel em todas as p·ginas
+  - Adicionar `ThemeToggle` **apenas no Dashboard** (n√£o no header global)
+  - Posicionar toggle em local acess√≠vel (ex: canto superior direito do dashboard)
 
-- [ ] **2.5** Migrar estilos das p·ginas para suportar dark/light
+- [ ] **2.5** Migrar estilos das p√°ginas para suportar dark/light
   - **Login.tsx**: Aplicar classes Tailwind dark/light
   - **Signup.tsx**: Aplicar classes Tailwind dark/light
   - **Dashboard.tsx**: Aplicar classes Tailwind dark/light
@@ -98,19 +98,19 @@ Roadmap detalhado para implementaÁ„o das melhorias na POC. As tasks est„o organi
 
 - [ ] **2.6** Migrar estilos dos componentes
   - **ProtectedRoute**: (apenas se tiver estilos inline)
-  - **Chart.tsx**: Atualizar cores dos gr·ficos (Recharts theme)
+  - **Chart.tsx**: Atualizar cores dos gr√°ficos (Recharts theme)
   - **Table.tsx**: Headers, rows, borders
   - **ErrorMessage**: Background, borda, texto
 
 - [ ] **2.7** Aplicar design inspirado em pvia-lp
-  - Gradientes no bot„o primary: `linear-gradient(135deg, #00ff88, #00cc6a)`
-  - Efeito de glow/shadow nos botıes (hover)
-  - Backdrop blur no header (se aplic·vel)
-  - AnimaÁıes suaves (transitions, pulse effect)
+  - Gradientes no bot√£o primary: `linear-gradient(135deg, #00ff88, #00cc6a)`
+  - Efeito de glow/shadow nos bot√µes (hover)
+  - Backdrop blur no header (se aplic√°vel)
+  - Anima√ß√µes suaves (transitions, pulse effect)
 
 - [ ] **2.8** Testar acessibilidade e contraste
-  - Validar contraste de cores (WCAG AA mÌnimo)
-  - Testar navegaÁ„o por teclado
+  - Validar contraste de cores (WCAG AA m√≠nimo)
+  - Testar navega√ß√£o por teclado
   - Testar em diferentes navegadores
 
 - [ ] **2.9** Documentar sistema de cores
@@ -120,89 +120,91 @@ Roadmap detalhado para implementaÁ„o das melhorias na POC. As tasks est„o organi
 
 ---
 
-## < Fase 3: Sistema de InternacionalizaÁ„o (i18n)
+## üåç Fase 3: Sistema de Internacionaliza√ß√£o (i18n)
 
-**Objetivo**: Adicionar suporte a m˙ltiplos idiomas (portuguÍs e inglÍs) no frontend.
+**Objetivo**: Adicionar suporte a m√∫ltiplos idiomas (portugu√™s e ingl√™s) no frontend.
 
 ### Tasks
 
 - [ ] **3.1** Instalar e configurar react-i18next
   - `npm install react-i18next i18next i18next-browser-languagedetector`
-  - Criar `frontend/src/i18n/index.ts` com configuraÁ„o
+  - Criar `frontend/src/i18n/index.ts` com configura√ß√£o
   - Configurar `LanguageDetector` (localStorage + navigator.language)
-  - Definir `fallbackLng: 'pt'` (portuguÍs como padr„o)
+  - Definir `fallbackLng: 'pt'` (portugu√™s como padr√£o)
 
-- [ ] **3.2** Criar arquivos de traduÁ„o
-  - Criar `frontend/src/i18n/locales/pt.json` (portuguÍs)
-  - Criar `frontend/src/i18n/locales/en.json` (inglÍs)
+- [ ] **3.2** Criar arquivos de tradu√ß√£o
+  - Criar `frontend/src/i18n/locales/pt.json` (portugu√™s)
+  - Criar `frontend/src/i18n/locales/en.json` (ingl√™s)
   - Estruturar JSON por namespaces: `auth`, `dashboard`, `common`, `errors`
 
-- [ ] **3.3** Traduzir strings - AutenticaÁ„o
-  - Login: labels, placeholders, botıes, mensagens de erro
-  - Signup: labels, placeholders, botıes, mensagens de erro
-  - Logout, sess„o expirada
+- [ ] **3.3** Traduzir strings - Autentica√ß√£o
+  - Login: labels, placeholders, bot√µes, mensagens de erro
+  - Signup: labels, placeholders, bot√µes, mensagens de erro
+  - Logout, sess√£o expirada
 
 - [ ] **3.4** Traduzir strings - Dashboard
-  - TÌtulos de seÁıes
-  - Labels de mÈtricas (vendas, leads, convers„o)
-  - Tooltips, botıes de aÁ„o
+  - T√≠tulos de se√ß√µes
+  - Labels de m√©tricas (vendas, leads, convers√£o)
+  - Tooltips, bot√µes de a√ß√£o
 
 - [ ] **3.5** Traduzir strings - Componentes comuns
-  - ErrorMessage: mensagens genÈricas
+  - ErrorMessage: mensagens gen√©ricas
   - Loading states
-  - ValidaÁıes de formul·rio (Zod)
+  - Valida√ß√µes de formul√°rio (Zod)
+  - Documenta√ß√£o/help text (se existir)
 
 - [ ] **3.6** Traduzir mensagens de erro da API
-  - Backend retorna erros em inglÍs tÈcnico
-  - Criar mapeamento de cÛdigos de erro í mensagens i18n
+  - Backend retorna erros em ingl√™s t√©cnico
+  - Criar mapeamento de c√≥digos de erro ‚Üí mensagens i18n
   - Atualizar `getErrorMessage()` helper em `types/index.ts`
 
 - [ ] **3.7** Criar componente `LanguageToggle`
-  - Dropdown ou bot„o com bandeiras/siglas (PT/EN)
+  - Dropdown ou bot√£o com bandeiras/siglas (PT/EN)
   - Persistir escolha no `localStorage` (key: `language`)
   - Atualizar `i18n.changeLanguage()` ao trocar
+  - Posicionar **apenas no Dashboard** (pr√≥ximo ao ThemeToggle)
 
 - [ ] **3.8** Integrar i18n no app
   - Importar i18n config no `main.tsx`
-  - Adicionar `LanguageToggle` no header/dashboard
+  - Adicionar `LanguageToggle` **apenas no Dashboard**
   - Garantir que idioma persiste entre reloads
 
 - [ ] **3.9** Atualizar testes
   - Mockar i18n nos testes de componentes (Vitest)
-  - Validar que componentes renderizam com traduÁıes
-  - Testar troca de idioma (se aplic·vel)
+  - Validar que componentes renderizam com tradu√ß√µes
+  - Testar troca de idioma (se aplic√°vel)
 
 - [ ] **3.10** Documentar uso do i18n
-  - Atualizar `CLAUDE.md` com instruÁıes
-  - Como adicionar novas traduÁıes
+  - Atualizar `CLAUDE.md` com instru√ß√µes
+  - Como adicionar novas tradu√ß√µes
   - Como usar `useTranslation()` hook
 
 ---
 
-## >Í Fase 4: IntegraÁ„o e Testes
+## üß™ Fase 4: Integra√ß√£o e Testes
 
 **Objetivo**: Garantir que todas as features funcionam juntas e passar por testes manuais/automatizados.
 
 ### Tasks
 
 - [ ] **4.1** Testes manuais - Fluxo completo
-  - Signup í Login í Dashboard (ambos idiomas, ambos temas)
-  - Verificar que tema e idioma persistem apÛs reload
+  - Signup ‚Üí Login ‚Üí Dashboard (ambos idiomas, ambos temas)
+  - Verificar que tema e idioma persistem ap√≥s reload
   - Testar logout e re-login
   - Testar em diferentes navegadores (Chrome, Firefox, Safari)
 
 - [ ] **4.2** Testes automatizados - Dark mode
   - Adicionar testes no Vitest para `ThemeContext`
-  - Verificar persistÍncia em `localStorage`
-  - Verificar aplicaÁ„o de classe `dark` no HTML
+  - Verificar persist√™ncia em `localStorage`
+  - Verificar aplica√ß√£o de classe `dark` no HTML
 
 - [ ] **4.3** Testes automatizados - i18n
   - Adicionar testes para troca de idioma
-  - Verificar persistÍncia em `localStorage`
-  - Verificar que componentes renderizam traduÁıes corretas
+  - Verificar persist√™ncia em `localStorage`
+  - Verificar que componentes renderizam tradu√ß√µes corretas
 
 - [ ] **4.4** Testes E2E com Playwright (opcional)
-  - Criar teste E2E: signup í login í toggle tema í toggle idioma í logout
+  - Criar teste E2E: signup ‚Üí login ‚Üí toggle tema ‚Üí toggle idioma ‚Üí logout
   - Validar elementos visuais (screenshots diff em dark/light)
 
 - [ ] **4.5** Validar linting e build
@@ -211,50 +213,50 @@ Roadmap detalhado para implementaÁ„o das melhorias na POC. As tasks est„o organi
   - `docker compose exec backend sh /app/lint.sh` (sucesso)
 
 - [ ] **4.6** Testar acessibilidade
-  - Executar Lighthouse audit (acessibilidade e 90)
-  - Testar navegaÁ„o por teclado em todos os fluxos
-  - Testar com leitor de tela (NVDA/VoiceOver) - b·sico
+  - Executar Lighthouse audit (acessibilidade ‚â• 90)
+  - Testar navega√ß√£o por teclado em todos os fluxos
+  - Testar com leitor de tela (NVDA/VoiceOver) - b√°sico
 
 - [ ] **4.7** Revisar performance
   - Verificar tempo de carregamento inicial
-  - Verificar bundle size (n„o deve aumentar significativamente)
-  - Otimizar se necess·rio (code splitting, lazy loading)
+  - Verificar bundle size (n√£o deve aumentar significativamente)
+  - Otimizar se necess√°rio (code splitting, lazy loading)
 
 ---
 
-## =› Fase 5: DocumentaÁ„o e FinalizaÁ„o
+## üìù Fase 5: Documenta√ß√£o e Finaliza√ß√£o
 
-**Objetivo**: Atualizar toda a documentaÁ„o e preparar para prÛximas etapas.
+**Objetivo**: Atualizar toda a documenta√ß√£o e preparar para pr√≥ximas etapas.
 
 ### Tasks
 
 - [ ] **5.1** Atualizar `CLAUDE.md`
-  - Adicionar seÁ„o sobre UV + pyproject.toml
-  - Adicionar seÁ„o sobre Dark Mode (sistema de cores, ThemeContext)
-  - Adicionar seÁ„o sobre i18n (estrutura, como adicionar traduÁıes)
-  - Atualizar comandos de desenvolvimento se necess·rio
+  - Adicionar se√ß√£o sobre UV + pyproject.toml
+  - Adicionar se√ß√£o sobre Dark Mode (sistema de cores, ThemeContext)
+  - Adicionar se√ß√£o sobre i18n (estrutura, como adicionar tradu√ß√µes)
+  - Atualizar comandos de desenvolvimento se necess√°rio
 
 - [ ] **5.2** Atualizar `README.md`
   - Screenshots com novo visual (dark/light mode)
-  - Atualizar features: "<® Dark/Light mode" + "< i18n (PT/EN)"
-  - Atualizar instruÁıes de setup (UV)
+  - Atualizar features: "üé® Dark/Light mode" + "üåç i18n (PT/EN)"
+  - Atualizar instru√ß√µes de setup (UV)
 
-- [ ] **5.3** Criar `docs/design-system.md` (se n„o existir)
+- [ ] **5.3** Criar `docs/design-system.md` (se n√£o existir)
   - Documentar paleta de cores
   - Documentar componentes de tema
   - Exemplos de uso do Tailwind
 
-- [ ] **5.4** Criar `docs/i18n.md` (se necess·rio)
+- [ ] **5.4** Criar `docs/i18n.md` (se necess√°rio)
   - Como adicionar novos idiomas
-  - Como adicionar novas traduÁıes
+  - Como adicionar novas tradu√ß√µes
   - Estrutura dos arquivos JSON
 
-- [ ] **5.5** Atualizar `.env.example` (se necess·rio)
-  - Adicionar vari·veis relacionadas ao tema/idioma (se houver)
+- [ ] **5.5** Atualizar `.env.example` (se necess√°rio)
+  - Adicionar vari√°veis relacionadas ao tema/idioma (se houver)
 
 - [ ] **5.6** Criar CHANGELOG ou release notes
-  - Documentar mudanÁas principais
-  - Vers„o da POC (ex: v0.2.0)
+  - Documentar mudan√ßas principais
+  - Vers√£o da POC (ex: v0.2.0)
 
 - [ ] **5.7** Commit final e tag
   - Criar commit com mensagem descritiva
@@ -263,36 +265,36 @@ Roadmap detalhado para implementaÁ„o das melhorias na POC. As tasks est„o organi
 
 ---
 
-## =  Resumo de Progresso
+## üìä Resumo de Progresso
 
 - **Fase 1 - UV + pyproject.toml**: 0/7 tasks
 - **Fase 2 - Dark Mode**: 0/9 tasks
 - **Fase 3 - i18n**: 0/10 tasks
-- **Fase 4 - Testes e IntegraÁ„o**: 0/7 tasks
-- **Fase 5 - DocumentaÁ„o**: 0/7 tasks
+- **Fase 4 - Testes e Integra√ß√£o**: 0/7 tasks
+- **Fase 5 - Documenta√ß√£o**: 0/7 tasks
 
-**Total**: 0/40 tasks concluÌdas
+**Total**: 0/40 tasks conclu√≠das
 
 ---
 
-## <Ø Notas Importantes
+## üéØ Notas Importantes
 
-1. **Ordem de execuÁ„o**: As fases devem ser executadas sequencialmente (1 í 2 í 3 í 4 í 5).
-2. **Testes contÌnuos**: Ao finalizar cada fase, validar que nada quebrou antes de prosseguir.
-3. **KISS**: Manter soluÁıes simples. Evitar over-engineering.
+1. **Ordem de execu√ß√£o**: As fases devem ser executadas sequencialmente (1 ‚Üí 2 ‚Üí 3 ‚Üí 4 ‚Üí 5).
+2. **Testes cont√≠nuos**: Ao finalizar cada fase, validar que nada quebrou antes de prosseguir.
+3. **KISS**: Manter solu√ß√µes simples. Evitar over-engineering.
 4. **Commits frequentes**: Commitar ao final de cada task ou sub-fase.
-5. **Linting obrigatÛrio**: Sempre rodar linting antes de commitar.
+5. **Linting obrigat√≥rio**: Sempre rodar linting antes de commitar.
 
-## =Ä PrÛximos Passos (apÛs conclus„o)
+## üöÄ Pr√≥ximos Passos (ap√≥s conclus√£o)
 
-ApÛs concluir as 5 fases, a POC estar· com:
--  Gerenciamento moderno de dependÍncias (UV)
--  Interface moderna com dark/light mode (verde/preto)
--  Suporte a m˙ltiplos idiomas (PT/EN)
+Ap√≥s concluir as 5 fases, a POC estar√° com:
+- ‚úÖ Gerenciamento moderno de depend√™ncias (UV)
+- ‚úÖ Interface moderna com dark/light mode (verde/preto)
+- ‚úÖ Suporte a m√∫ltiplos idiomas (PT/EN)
 
-PossÌveis prÛximas features:
-- IntegraÁ„o com WhatsApp (core do produto)
-- Painel de analytics avanÁado
-- Sistema de notificaÁıes
+Poss√≠veis pr√≥ximas features:
+- Integra√ß√£o com WhatsApp (core do produto)
+- Painel de analytics avan√ßado
+- Sistema de notifica√ß√µes
 - Testes backend (pytest)
 - CI/CD pipeline

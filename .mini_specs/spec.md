@@ -32,6 +32,8 @@ esclareimentos
 
 ---
 
+tasks to create
+
 - [ ] uv+pyproject.toml para o backend python
 - [ ] Dark mode toggle no frontend (default dark)
     - tematica principal: use cores principais preto e verde (layout moderno, tipo spotify ou supabase)
