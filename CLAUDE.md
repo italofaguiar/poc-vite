@@ -116,6 +116,52 @@ className="btn-primary"  // Gradiente verde + glow effect no hover
 - Transições suaves: `transition-colors duration-300`
 - Recharts adapta cores ao tema (via `useTheme` hook)
 
+### Branding e Identidade Visual
+
+**Logo**: 🤖 + "PilotoDeVendas.IA" (emoji provisório, futura substituição por logo real)
+
+**Tipografia**: Inter (Google Fonts)
+- Pesos: 400 (regular), 600 (semibold), 700 (bold)
+- Headlines: Inter 600-700
+- Body text: Inter 400
+
+**Componentes de Branding**:
+
+**1. Logo Component** (`frontend/src/components/Logo.tsx`):
+```tsx
+<Logo variant="full" size="lg" />        // Hero sections: 🤖 PilotoDeVendas.IA
+<Logo variant="compact" size="sm" />     // Dashboard header: 🤖 PilotoDeVendas
+```
+- Props: `variant` (full/compact), `size` (sm/md/lg), `linkTo` (opcional), `className`
+- Adapta-se ao tema (verde-neon no texto)
+
+**2. AnimatedBackground** (`frontend/src/components/AnimatedBackground.tsx`):
+```tsx
+<AnimatedBackground />
+```
+- Pulso radial verde-neon animado (4s loop)
+- Três camadas com delays diferentes para profundidade
+- Usado nas hero sections de Login/Signup
+
+**3. HeroSection** (`frontend/src/components/HeroSection.tsx`):
+```tsx
+<HeroSection
+  title="Seu Vendedor de IA 24/7 no WhatsApp"
+  subtitle="Qualifique leads, conduza vendas e aumente sua conversão com inteligência artificial"
+  showAnimation={true}
+/>
+```
+- Props: `title`, `subtitle` (opcional), `showAnimation` (default: true)
+- Combina Logo + AnimatedBackground + Copy
+- Responsivo (stacks em mobile)
+
+**Layout das Páginas**:
+- **Login/Signup**: Duas colunas (hero section à esquerda, form à direita)
+  - Desktop: 50/50 split
+  - Mobile: Stacked (hero compacto no topo)
+- **Dashboard**: Logo discreto no header (alinhado à esquerda)
+  - Layout: `[Logo] | Dashboard | user@email | [ThemeToggle] [Sair]`
+
 ### Estrutura de Diretórios
 ```
 backend/app/
@@ -130,7 +176,9 @@ frontend/
 ├── vite.config.ts # Vite config + proxy (/api -> backend:8000)
 └── src/
     ├── pages/         # Login.tsx, Signup.tsx, Dashboard.tsx
-    ├── components/    # ProtectedRoute.tsx, Chart.tsx, Table.tsx, ErrorMessage.tsx
+    ├── components/    # ProtectedRoute, Chart, Table, ErrorMessage,
+    │                  # Logo, HeroSection, AnimatedBackground, ThemeToggle
+    ├── contexts/      # ThemeContext.tsx
     ├── services/      # api.ts (axios config + API calls)
     ├── types/         # index.ts (tipos centralizados + type guards)
     └── schemas/       # auth.ts, dashboard.ts (validação Zod)

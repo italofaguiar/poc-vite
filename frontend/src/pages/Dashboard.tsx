@@ -4,6 +4,7 @@ import { getDashboardData, logout } from '../services/api'
 import Chart from '../components/Chart'
 import Table from '../components/Table'
 import { ThemeToggle } from '../components/ThemeToggle'
+import { Logo } from '../components/Logo'
 import type { DashboardData, AsyncState } from '../types'
 import { getErrorMessage } from '../types'
 
@@ -76,19 +77,27 @@ function Dashboard() {
     <div className="min-h-screen bg-app-primary dark:bg-dark-app-primary transition-colors duration-300">
       {/* Header */}
       <header className="bg-app-secondary dark:bg-dark-app-secondary shadow border-b border-app-primary dark:border-dark-app-primary">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold text-app-primary dark:text-dark-app-primary">Dashboard</h1>
-            <p className="text-sm text-app-secondary dark:text-dark-app-secondary mt-1">{data.user_email}</p>
-          </div>
-          <div className="flex items-center gap-3">
-            <ThemeToggle />
-            <button
-              onClick={handleLogout}
-              className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
-            >
-              Sair
-            </button>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            {/* Left: Logo + User Info */}
+            <div className="flex items-center gap-4">
+              <Logo variant="compact" size="sm" />
+              <div className="border-l border-app-primary dark:border-dark-app-primary pl-4">
+                <h1 className="text-lg sm:text-xl font-bold text-app-primary dark:text-dark-app-primary">Dashboard</h1>
+                <p className="text-xs sm:text-sm text-app-secondary dark:text-dark-app-secondary">{data.user_email}</p>
+              </div>
+            </div>
+
+            {/* Right: Actions */}
+            <div className="flex items-center gap-3 justify-end sm:justify-start">
+              <ThemeToggle />
+              <button
+                onClick={handleLogout}
+                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors text-sm"
+              >
+                Sair
+              </button>
+            </div>
           </div>
         </div>
       </header>

@@ -7,6 +7,11 @@ export default {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+        headline: ['Inter', 'system-ui', 'sans-serif'],
+        body: ['Inter', 'system-ui', 'sans-serif'],
+      },
       colors: {
         // Dark mode colors (default)
         dark: {
@@ -60,6 +65,26 @@ export default {
       borderColor: {
         'app-primary': 'rgba(0, 204, 106, 0.2)',
         'dark-app-primary': 'rgba(0, 255, 136, 0.1)',
+      },
+      backgroundImage: {
+        'gradient-radial': 'radial-gradient(circle, var(--tw-gradient-stops))',
+      },
+      animation: {
+        'pulse-radial': 'pulseRadial 4s ease-in-out infinite',
+        'pulse-radial-delayed': 'pulseRadial 4s ease-in-out infinite 1s',
+        'pulse-radial-slow': 'pulseRadial 6s ease-in-out infinite',
+      },
+      keyframes: {
+        pulseRadial: {
+          '0%, 100%': {
+            transform: 'scale(1)',
+            opacity: '0.3',
+          },
+          '50%': {
+            transform: 'scale(1.2)',
+            opacity: '0.5',
+          },
+        },
       },
     },
   },
