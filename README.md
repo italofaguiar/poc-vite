@@ -182,6 +182,7 @@ VITE_API_URL=http://localhost:8000
 - `CLAUDE.md` - Guia para desenvolvimento com Claude Code
 - `docs/1.contexto.md` - Contexto completo do projeto
 - `.mini_specs/tasks.md` - Roadmap da POC (8 fases)
+- **`docs/todo/`** - Estratégias e tarefas futuras (deployment, escalabilidade, etc)
 
 ## Licença
 

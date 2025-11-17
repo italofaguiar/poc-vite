@@ -62,7 +62,7 @@ def signup(user_data: UserSignup, response: Response, db: Session = Depends(get_
         max_age=COOKIE_MAX_AGE,
         httponly=True,
         samesite="lax",
-        secure=False  # Set to True in production (HTTPS only)
+        secure=False  # TODO: Set to True in production (HTTPS only)
     )
 
     return new_user
