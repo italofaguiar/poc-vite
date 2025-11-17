@@ -131,26 +131,26 @@
 
 ## Fase 8: Integração & Testes
 
-- [ ] Subir ambiente completo com `docker-compose up --build`
-- [ ] Testar fluxo completo:
-  - [ ] Acessar http://localhost:5173
-  - [ ] Criar nova conta (signup)
-  - [ ] Verificar redirecionamento para dashboard
-  - [ ] Verificar gráfico e tabela renderizando
-  - [ ] Fazer logout
-  - [ ] Fazer login novamente com mesma conta
-  - [ ] Verificar que dashboard carrega corretamente
-- [ ] Validar cookies no DevTools:
-  - [ ] Cookie HttpOnly presente após login
-  - [ ] Cookie removido após logout
-- [ ] Validar CORS:
-  - [ ] Verificar que requests do frontend funcionam
-  - [ ] Verificar headers CORS no Network tab
-- [ ] Criar `README.md` básico:
-  - [ ] Instruções para rodar com docker-compose
-  - [ ] Variáveis de ambiente necessárias
-  - [ ] Endpoints da API
-  - [ ] Screenshots (opcional)
+- [x] Subir ambiente completo com `docker-compose up --build`
+- [x] Testar fluxo completo:
+  - [x] Acessar http://localhost:5173
+  - [x] Criar nova conta (signup)
+  - [x] Verificar redirecionamento para dashboard
+  - [x] Verificar gráfico e tabela renderizando
+  - [x] Fazer logout
+  - [x] Fazer login novamente com mesma conta
+  - [x] Verificar que dashboard carrega corretamente
+- [x] Validar cookies no DevTools:
+  - [x] Cookie HttpOnly presente após login
+  - [x] Cookie removido após logout
+- [x] Validar CORS:
+  - [x] Verificar que requests do frontend funcionam
+  - [x] Verificar headers CORS no Network tab
+- [x] Criar `README.md` básico:
+  - [x] Instruções para rodar com docker-compose
+  - [x] Variáveis de ambiente necessárias
+  - [x] Endpoints da API
+  - [x] Screenshots (opcional)
 
 ---
 

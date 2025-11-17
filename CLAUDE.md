@@ -111,6 +111,20 @@ cd frontend
 npm test  # Quando testes forem criados
 ```
 
+## Princípios de Desenvolvimento
+
+### KISS: Keep It Simple, Stupid!
+**Princípio fundamental**: Sempre escolher a solução mais simples que funcione. Evitar over-engineering.
+
+- Preferir soluções diretas a arquiteturas complexas
+- Não adicionar abstrações/patterns sem necessidade clara
+- Código legível > código "elegante"
+- MVP funcional > solução "perfeita"
+
+## MCPs Disponíveis
+
+Playwright e Chrome DevTools MCPs estão disponíveis para testes E2E e debug.
+
 ## Endpoints da API
 
 - `GET /` - Health check
