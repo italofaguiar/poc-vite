@@ -10,6 +10,29 @@ Esta é uma POC do **PilotoDeVendas.IA** - uma aplicação SaaS para automação
 
 ## Arquitetura
 
+### Decisões Técnicas
+
+**Por que Vite (não NextJS)?**
+- App é dashboard interno (sem necessidade de SSR/SEO)
+- Equipe tem expertise limitada em Node/TS - Vite é mais simples
+- Backend Python já existe como API central
+- NextJS adicionaria complexidade desnecessária (BFF, deployment extra, learning curve)
+
+**Por que Session-based com cookies HttpOnly (não JWT)?**
+- Mais seguro contra XSS (JWT em localStorage é vulnerável)
+- Permite revogação instantânea de sessão (crítico para sistema de vendas)
+- Mais simples que infraestrutura JWT completa (refresh tokens, rotação, blacklist)
+
+**Por que backend único Python (sem BFF Node)?**
+- FastAPI já existente e robusto
+- BFF seria overhead de manutenção/deployment para equipe pequena
+- KISS: uma stack, um deploy, um ponto de falha
+
+**Produção (CloudRun):**
+- Recomendado: mesmo domínio (`app.pilotodevendas.ia`) servindo frontend estático + API
+- FastAPI serve `/` (SPA) + `/api/*` (endpoints) - sem CORS necessário
+- Cookies: `SameSite=Lax, Secure=True` (máxima segurança)
+
 ### Stack
 - **Backend**: Python 3.12, FastAPI (async), SQLAlchemy ORM, Postgres
 - **Frontend**: React 18, Vite, TailwindCSS, React Router, Axios
