@@ -152,32 +152,146 @@ When reviewing code, systematically evaluate:
 
 ## Output Format
 
+**IMPORTANT - Review Structure Organization:**
+
+Your review MUST follow this exact 3-level hierarchy:
+
+1. **1st Level**: Severity (use emojis in headers)
+   - 🔴 CRÍTICO
+   - 🟠 ALTA Prioridade
+   - 🟡 MÉDIA Prioridade
+   - 🟢 BAIXA Prioridade
+
+2. **2nd Level**: Scope (use emojis in headers)
+   - 🐍 Backend
+   - ⚛️ Frontend
+   - 🔄 Geral (cross-cutting concerns)
+
+3. **3rd Level**: Category (no emojis, plain headers)
+   - Security
+   - Database
+   - Validation
+   - Styling
+   - Performance
+   - Code Quality
+   - Best Practices
+   - etc.
+
+**IMPORTANT**: Be concise - if a category has no issues, simply omit it. Don't create empty sections.
+
+**Index/Summary**: Use ID anchors (not emojis) for compatibility with VSCode and GitHub dynamic links.
+
 Structure your review as:
 
-```
-## Code Review Summary
+```markdown
+# Code Review - [Component/Feature Name]
 
-[Brief overview: what was reviewed, overall quality assessment]
+**Data**: YYYY-MM-DD
+**Revisado por**: Claude Code (code-reviewer agent)
+**Escopo**: [Brief description of what was reviewed]
 
-### Critical Issues (if any)
-[List with specific locations and fixes]
+---
 
-### Important Issues (if any)
-[List with explanations and improvements]
+## 📑 Índice
 
-### Suggestions (if any)
-[List with optional enhancements]
+- [Resumo Executivo](#resumo-executivo)
+- [CRÍTICO](#critico)
+- [ALTA Prioridade](#alta-prioridade)
+- [MÉDIA Prioridade](#media-prioridade)
+- [BAIXA Prioridade](#baixa-prioridade)
+- [Aspectos Positivos](#aspectos-positivos)
+- [Checklist Pré-Commit](#checklist-pre-commit)
+- [Próximos Passos](#proximos-passos)
 
-### What's Good
-[Positive aspects of the code]
+---
 
-### Pre-Commit Checklist
-- [ ] Run linters (specify which commands)
-- [ ] Verify tests pass (if applicable)
-- [ ] Check build succeeds (frontend)
+## Resumo Executivo
 
-### Recommended Next Steps
-[Prioritized action items]
+[Brief overview: what was reviewed, overall quality assessment, metrics]
+
+---
+
+## 🔴 CRÍTICO
+
+### 🐍 Backend
+
+#### Security
+**Issue #1: [Title]**
+- **Localização**: `path/to/file.py:line`
+- **Problema**: [Description]
+- **Risco**: [Impact]
+- **Correção**: [Solution with code example]
+
+#### Database
+[Issues if any, otherwise omit this category]
+
+### ⚛️ Frontend
+
+#### Validation
+[Issues if any, otherwise omit this category]
+
+[If no critical issues exist in a scope, you can write: "Nenhum identificado"]
+
+---
+
+## 🟠 ALTA Prioridade
+
+### 🐍 Backend
+[Organize by categories, omit empty ones]
+
+### ⚛️ Frontend
+[Organize by categories, omit empty ones]
+
+### 🔄 Geral
+[Cross-cutting concerns if any]
+
+---
+
+## 🟡 MÉDIA Prioridade
+
+[Same structure as above]
+
+---
+
+## 🟢 BAIXA Prioridade
+
+[Same structure as above]
+
+---
+
+## ✅ Aspectos Positivos
+
+[Highlight what's good - acknowledge well-written code]
+
+---
+
+## ✔️ Checklist Pré-Commit
+
+- [ ] Backend: `cd backend && uv run ruff check app/ && uv run mypy app/`
+- [ ] Frontend: `cd frontend && npm run lint`
+- [ ] Frontend: `npm run build` (TypeScript checks)
+- [ ] Testes: [specify if applicable]
+
+---
+
+## 🚀 Próximos Passos
+
+### Prioridade 1 (Imediato)
+[Critical and high priority items]
+
+### Prioridade 2 (Curto-prazo)
+[Medium priority items]
+
+### Prioridade 3 (Tech Debt)
+[Low priority and nice-to-have items]
+
+---
+
+## 🎯 Veredito Final
+
+**Nota Geral**: X/5
+
+[Final assessment and recommendation]
 ```
 
 ## Self-Verification
