@@ -134,14 +134,28 @@ python -c "from app.database import engine; from app.models import Base; Base.me
 ```
 
 ### Testing
+
+**Frontend** (Vitest + React Testing Library):
 ```bash
-# Backend
+cd frontend
+npm test              # Modo watch (dev)
+npm run test:run      # Executar testes uma vez (CI)
+npm run test:ui       # Interface visual do Vitest
+
+# Dentro do container
+docker compose exec frontend npm test
+```
+
+**Cobertura de testes atual**:
+- ✅ Schemas Zod (auth.test.ts, dashboard.test.ts) - 31 testes
+- ✅ Type guards e helpers (types/index.test.ts) - 16 testes
+- ✅ Componentes críticos (ProtectedRoute, Login, Signup) - 23 testes
+- **Total**: 70 testes passando
+
+**Backend**:
+```bash
 cd backend
 pytest  # Quando testes forem criados
-
-# Frontend
-cd frontend
-npm test  # Quando testes forem criados
 ```
 
 ## Princípios de Desenvolvimento
