@@ -1,6 +1,34 @@
 # PilotoDeVendas.IA - POC de Autenticação
 
-POC para validação da arquitetura de autenticação do PilotoDeVendas.IA - um SaaS de automação de vendas via WhatsApp com IA.
+## Sobre o Projeto
+
+**PilotoDeVendas.IA** é uma plataforma SaaS de automação de vendas via WhatsApp com Inteligência Artificial, voltada para pequenos e médios empresários.
+
+### Capacidades da Plataforma
+
+A plataforma opera em dois modos:
+- **Modo Piloto**: IA assume a negociação de forma autônoma
+- **Modo Copiloto**: Auxilia vendedores humanos em tempo real com sugestões de respostas
+
+**Principais funcionalidades:**
+- 💬 Integração com WhatsApp (oficial WABA e não-oficial Z-API/Evolution API)
+- 🤖 Qualificação de leads (SDR) e suporte a vendas com IA
+- 🔄 Sincronização em tempo real com CRM da empresa (via webhooks)
+- 📚 RAG (Retrieval-Augmented Generation) com base de conhecimento da empresa
+- 🎙️ Processamento e resposta de áudio com clonagem de voz
+- 📄 Interpretação de imagens, PDF, DOCX
+- 📅 Régua de follow-up customizável
+- 🧠 Aprendizado contínuo (IA aprende com dúvidas para não repetir perguntas)
+- 📊 Dashboards de métricas de performance
+- 🔍 Auditoria de atendimentos humanos com extração de insights
+- 🔗 Integrações (Google Calendar, CRMs, Stripe, etc.)
+
+### Sobre esta POC
+
+Este repositório contém uma **POC (Proof of Concept)** focada em validar a **arquitetura de autenticação** para o frontend da aplicação:
+- Backend Python (FastAPI) + Frontend React (Vite) + PostgreSQL
+- Autenticação session-based com cookies HttpOnly
+- Decisão técnica: **Vite** (não NextJS) - ver `CLAUDE.md` para justificativas
 
 ## Stack Tecnológica
 
@@ -167,7 +195,7 @@ VITE_API_URL=http://localhost:8000
 - ✅ `Access-Control-Allow-Credentials: true`
 - ✅ Frontend consegue fazer requests com cookies
 
-## Próximos Passos (Produção)
+## Próximos Passos (Produção - Infraestrutura)
 
 1. **Redis**: Substituir sessões in-memory por Redis
 2. **HTTPS**: Configurar SSL/TLS em produção
@@ -176,6 +204,24 @@ VITE_API_URL=http://localhost:8000
 5. **Monitoring**: Logs estruturados, métricas, alertas
 6. **Rate Limiting**: Proteção contra brute force
 7. **Testes automatizados**: Unit tests + integration tests
+
+## Roadmap do Produto
+
+### Curto Prazo (2 meses)
+**Frontend da aplicação:**
+- ✅ Autenticação (email/senha + OAuth Google) - **POC concluída**
+- ⏳ Configuração de agentes de IA (prompts, tools, régua de follow-up)
+- ⏳ Gestão de RAG (upload de arquivos + integração com Google Drive)
+- ⏳ Dashboards de performance dos agentes
+
+### Médio Prazo (4 meses)
+**Plataforma completa:**
+- Gestão de usuários (vendedores, admins, permissões)
+- Interface de atendimento (similar ao WhatsApp Web)
+- Modo Copiloto (análise em tempo real + sugestões de respostas)
+- Logs de atendimentos de vendedores humanos
+- Assinaturas e pagamentos (Stripe)
+- Integrações nativas com CRMs populares e Google Calendar
 
 ## Documentação Adicional
 
