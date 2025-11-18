@@ -446,11 +446,17 @@ O Playwright fornece automação completa de navegador com acesso a:
 
 ## Endpoints da API
 
-- `GET /` - Health check
+**Health & Info:**
+- `GET /health` - Health check (dev + prod, usado por Cloud Run)
+- `GET /` - 404 (dev) ou SPA index.html (prod)
+
+**Autenticação:**
 - `POST /api/auth/signup` - Criar conta (retorna cookie)
 - `POST /api/auth/login` - Login (retorna cookie)
 - `POST /api/auth/logout` - Logout (remove cookie)
 - `GET /api/auth/me` - Verificar sessão ativa
+
+**Dashboard:**
 - `GET /api/dashboard/data` - Dados do dashboard (protegido)
 
 ## Notas Importantes

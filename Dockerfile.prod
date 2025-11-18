@@ -1,0 +1,94 @@
+# Multi-stage Dockerfile for Cloud Run deployment
+# Stage 1: Build frontend (React + Vite)
+# Stage 2: Build Python dependencies
+# Stage 3: Final production image (runtime only, no build tools)
+
+# ================================
+# Stage 1: Frontend Builder
+# ================================
+FROM node:20-alpine AS frontend-builder
+
+WORKDIR /frontend
+
+# Copy package files
+COPY frontend/package*.json ./
+
+# Install dependencies
+RUN npm ci --only=production
+
+# Copy frontend source
+COPY frontend/ ./
+
+# Build frontend for production
+# Output: /frontend/dist/
+RUN npm run build
+
+# ================================
+# Stage 2: Python Dependencies Builder
+# ================================
+FROM python:3.12-slim AS python-builder
+
+WORKDIR /build
+
+# Install build dependencies (gcc for compiling psycopg2, greenlet, etc.)
+RUN apt-get update && apt-get install -y \
+    gcc \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install UV
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Add UV to PATH
+ENV PATH="/root/.local/bin:$PATH"
+
+# Copy dependency files
+COPY backend/pyproject.toml backend/.python-version ./
+
+# Install Python dependencies (production only, no dev tools)
+# UV creates .venv with all compiled packages
+RUN uv sync --no-dev --no-cache
+
+# ================================
+# Stage 3: Final Production Image
+# ================================
+FROM python:3.12-slim
+
+WORKDIR /app
+
+# Install ONLY runtime dependencies (no gcc, no build tools)
+# psycopg2-binary is already compiled in .venv from previous stage
+RUN apt-get update && apt-get install -y \
+    libpq5 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy Python virtual environment from builder stage
+COPY --from=python-builder /build/.venv /app/.venv
+
+# Copy backend application code
+COPY backend/app ./app
+
+# Copy built frontend from stage 1
+COPY --from=frontend-builder /frontend/dist ./static
+
+# Add .venv to PATH (no UV needed in final image)
+ENV PATH="/app/.venv/bin:$PATH"
+
+# Create non-root user for security
+RUN useradd -m -u 1000 appuser && \
+    chown -R appuser:appuser /app
+
+USER appuser
+
+# Cloud Run expects port 8080 by default
+EXPOSE 8080
+
+# Environment variable for production
+ENV ENVIRONMENT=production
+
+# Health check (Cloud Run will use HTTP endpoint)
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8080/health').read()" || exit 1
+
+# Start server on port 8080 (using Python directly from .venv, no UV)
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]

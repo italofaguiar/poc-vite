@@ -1,4 +1,8 @@
+from pathlib import Path
+
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
+from starlette.responses import FileResponse
 
 from app.routers import auth, dashboard
 
@@ -9,24 +13,50 @@ app = FastAPI(
     version="0.1.0"
 )
 
-# CORS not needed - Vite proxy handles routing from same origin
+# CORS not needed - same origin in production, Vite proxy in dev
 
-# Include routers
-app.include_router(auth.router)
-app.include_router(dashboard.router)
-
-
-# Health check endpoint
-@app.get("/", tags=["health"])
+# Health check endpoint (used by Cloud Run and monitoring)
+# Available in both dev and production
+@app.get("/health", tags=["health"])
 def health_check():
     """
-    Health check endpoint.
+    Health check endpoint for monitoring and orchestration platforms.
 
     Returns:
-        Status message
+        dict: Service health status and metadata
     """
+    static_dir = Path(__file__).parent.parent / "static"
+    mode = "production" if static_dir.exists() else "development"
+
     return {
         "status": "healthy",
         "service": "PilotoDeVendas.IA API",
-        "version": "0.1.0"
+        "version": "0.1.0",
+        "mode": mode
     }
+
+
+# Include routers (API routes must come before static files)
+app.include_router(auth.router)
+app.include_router(dashboard.router)
+
+# Serve static files in production (when STATIC_DIR exists)
+STATIC_DIR = Path(__file__).parent.parent / "static"
+if STATIC_DIR.exists() and STATIC_DIR.is_dir():
+    # Mount static assets (CSS, JS, images, etc.)
+    app.mount("/assets", StaticFiles(directory=STATIC_DIR / "assets"), name="assets")
+
+    # Serve index.html for all non-API routes (SPA fallback)
+    @app.get("/{full_path:path}", tags=["spa"])
+    async def serve_spa(full_path: str):
+        """
+        Serve SPA for all non-API routes.
+        Falls back to index.html for client-side routing.
+        """
+        # Check if file exists in static dir
+        file_path = STATIC_DIR / full_path
+        if file_path.exists() and file_path.is_file():
+            return FileResponse(file_path)
+
+        # Fallback to index.html for SPA routing
+        return FileResponse(STATIC_DIR / "index.html")
