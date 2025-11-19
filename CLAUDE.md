@@ -490,3 +490,10 @@ O Playwright fornece automação completa de navegador com acesso a:
    - **Backend**: `cd backend && uv run ruff check app/ && uv run mypy app/` (ambos devem passar)
    - Isso garante qualidade de código e evita problemas de build em produção
 8. **Git**: **NUNCA** use `git commit --amend`. Sempre crie novos commits. Isso preserva o histórico completo e evita problemas de sincronização.
+
+
+## Conventions
+
+- By "CC", we mean "Claude Code"
+- Screenshots/Prints: `/mnt/c/Users/italo/OneDrive/Imagens/Screenshots` (Windows folder accessible via in WSL)
+    - default use: pegue o print mais recente -> `ls -lt /mnt/c/Users/italo/OneDrive/Imagens/Screenshots | head -n 1`
