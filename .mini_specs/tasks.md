@@ -6,27 +6,32 @@ Implementar autenticação via Google OAuth2 no frontend, mantendo a arquitetura
 
 ---
 
-## Fase 1: Configuração do Google Cloud Console
+## Fase 1: Infraestrutura GCP via Terraform
 
 ### Objetivo
-Configurar projeto no Google Cloud Platform e obter credenciais OAuth2.
+Provisionar recursos de infraestrutura OAuth2 no GCP usando Terraform.
 
 ### Tasks
-- [ ] Criar projeto no Google Cloud Console (ou usar existente)
-- [ ] Habilitar Google+ API ou Google Identity Services
-- [ ] Criar credenciais OAuth 2.0 (Client ID + Client Secret)
-  - Tipo: "Web application"
-  - Authorized redirect URIs:
-    - Dev: `http://localhost:5173/api/auth/google/callback`
-    - Prod: `https://app.pilotodevendas.ia/api/auth/google/callback`
-- [ ] Configurar OAuth consent screen (nome, logo, domínios autorizados)
-- [ ] Adicionar Client ID e Client Secret ao `.env` do backend:
+- [ ] **Aguardar infraestrutura**: As demandas de OAuth já foram especificadas em `/home/italo/projects/pvia-infra/.mini_specs/spec.md`
+  - Secret Manager: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `SECRET_KEY`
+  - OAuth 2.0 Client credentials (Web application)
+  - APIs habilitadas (Secret Manager, Identity)
+  - Permissões IAM (Cloud Run SA acessa secrets)
+- [ ] **Após Terraform aplicado**: Obter valores reais de Client ID/Secret
+  - Se Terraform criou: usar outputs do Terraform
+  - Se manual no Console: copiar valores da tela de OAuth credentials
+- [ ] Adicionar valores ao `.env` local para desenvolvimento:
   ```bash
   GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
   GOOGLE_CLIENT_SECRET=your-client-secret
   GOOGLE_REDIRECT_URI=http://localhost:5173/api/auth/google/callback
   ```
 - [ ] Atualizar `.env.example` com novas variáveis (sem valores reais)
+
+**Observação**: Redirect URIs configurados via Terraform:
+- Dev (Vite): `http://localhost:5173/api/auth/google/callback`
+- Dev (Dockerfile.prod): `http://localhost:8080/api/auth/google/callback`
+- Prod: `https://app.pilotodevendas.com.br/api/auth/google/callback`
 
 ---
 
@@ -45,8 +50,9 @@ Estender modelo `User` para suportar múltiplos métodos de autenticação.
   ```python
   password: Mapped[Optional[str]] = mapped_column(String, nullable=True)
   ```
-- [ ] Criar migração Alembic (ou permitir auto-criação das tabelas com novos campos)
 - [ ] Atualizar schema Pydantic `UserResponse` (`backend/app/schemas.py`) para incluir `auth_provider`
+
+**Observação**: Não precisa de Alembic - banco SQLite é recriado a cada deploy (POC). As tabelas são criadas automaticamente via `Base.metadata.create_all()` no startup.
 
 ---
 
