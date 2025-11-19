@@ -1,0 +1,17 @@
+# Cloud Build configuration for poc-vite
+# Builds Docker image and pushes to Artifact Registry
+# Terraform manages Cloud Run deployment
+
+steps:
+  # Build da imagem usando Dockerfile.prod
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-f'
+      - 'Dockerfile.prod'
+      - '-t'
+      - 'us-east1-docker.pkg.dev/pilotodevendas-prod/containers/poc-vite:latest'
+      - '.'
+
+images:
+  - 'us-east1-docker.pkg.dev/pilotodevendas-prod/containers/poc-vite:latest'
