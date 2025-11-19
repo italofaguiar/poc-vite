@@ -6,8 +6,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Esta é uma POC do **PilotoDeVendas.IA** - uma aplicação SaaS para automação de vendas via WhatsApp com IA. A POC foca em validar a arquitetura de autenticação: backend Python (FastAPI) + frontend React (Vite) + Postgres.
 
-**Leia sempre**: `docs/poc/1.contexto.md` - contém contexto completo do projeto (documento histórico da análise Vite vs NextJS), tech stack principal, e diretrizes (KISS, MVP em 2 meses).
-
 ## Visão do Produto Completo
 
 **PilotoDeVendas.IA** é uma plataforma SaaS de automação de vendas via WhatsApp com IA para pequenos e médios empresários.
@@ -43,7 +41,7 @@ Esta é uma POC do **PilotoDeVendas.IA** - uma aplicação SaaS para automação
 
 ### Equipe
 - **Atual**: 1 dev (expertise Python muito alta, Node/TS/React básico)
-- **Em 3 meses**: +1 fullstack junior
+- **Em 2 meses no max**: +1 fullstack junior
 - **Ferramenta**: Claude Code MAX ilimitado (acelera desenvolvimento, inclusive em techs menos dominadas)
 
 ### Timeline e Objetivos
@@ -59,7 +57,7 @@ Esta é uma POC do **PilotoDeVendas.IA** - uma aplicação SaaS para automação
 - **KISS primeiro**: Na dúvida entre simplicidade e boas práticas complexas, tender ao simples (mas consultar em casos críticos)
 - **Python first**: Manter stack principal em Python sempre que possível (expertise + código existente)
 - **Sem SEO**: App é dashboard interno (não precisa SSR/SEO) - landing page de marketing é separada (NextJS)
-- **BFF**: Abertos a inserir BFF em Node/NextJS **se e somente se** trouxer benefícios claros no contexto (até agora não traz)
+
 
 ## Roadmap e Evolução
 
@@ -88,7 +86,6 @@ Esta é uma POC do **PilotoDeVendas.IA** - uma aplicação SaaS para automação
 - Equipe tem expertise limitada em Node/TS - Vite é mais simples
 - Backend Python já existe como API central
 - NextJS adicionaria complexidade desnecessária (BFF, deployment extra, learning curve)
-- **Decisão documentada**: Ver `docs/poc/1.contexto.md` para análise completa
 
 **Por que Session-based com cookies HttpOnly (não JWT)?**
 - Mais seguro contra XSS (JWT em localStorage é vulnerável)
@@ -151,16 +148,16 @@ gcloud builds submit --tag REGION-docker.pkg.dev/PROJECT/pilotodevendas/app --fi
 gcloud run deploy pilotodevendas --image ... --add-cloudsql-instances ...
 ```
 
-Ver `docs/deployment.md` para instruções completas.
-
 ### Gerenciamento de Dependências
 
 **Backend**: Usa **UV** (gerenciador moderno de pacotes Python) com `pyproject.toml`.
 
 - Dependências definidas em `backend/pyproject.toml`
+- **Versão do Python**: Definida em `backend/.python-version` (3.12)
+- UV gerencia Python automaticamente (instala versão correta via `uv python install`)
 - UV é instalado automaticamente no Docker
 - Mais rápido que pip tradicional
-- Setup local: `./scripts/setup-backend.sh` (instala UV + dependências)
+- Setup local: `./scripts/setup-dev.sh` (instala UV + Python + dependências)
 
 **Comandos UV úteis**:
 ```bash
@@ -327,9 +324,34 @@ frontend/
 
 ## Comandos
 
-### Desenvolvimento
+### Setup Inicial (Primeira Vez)
+
+**IMPORTANTE**: Execute este script antes de abrir o projeto na IDE pela primeira vez:
+
 ```bash
-# Subir ambiente completo
+# Setup completo do ambiente de desenvolvimento
+./scripts/setup-dev.sh
+```
+
+Este script:
+- ✅ Instala UV (gerenciador de pacotes Python moderno)
+- ✅ Instala Python 3.12 automaticamente via UV (não precisa instalar manualmente!)
+- ✅ Instala dependências do backend (FastAPI, SQLAlchemy, etc.)
+- ✅ Verifica Node 18+ e instala dependências do frontend (React, TypeScript, etc.)
+- ✅ Configura ambiente para IDEs (PyLance, TypeScript LSP)
+
+**Requisitos**: Apenas Node.js 18+ e curl. Python **não** é necessário (UV instala automaticamente).
+
+**Quando usar?**
+- Primeira vez clonando o repositório
+- Após adicionar novas dependências
+- Quando sua IDE reclama de imports/tipos não encontrados
+- Para novos desenvolvedores da equipe
+
+### Desenvolvimento
+
+```bash
+# Subir ambiente completo (recomendado)
 docker compose up --build
 
 # Subir só backend (útil para debug)
@@ -357,9 +379,6 @@ npm run lint         # Executar ESLint (deve passar com 0 erros/warnings)
 
 ### Backend
 ```bash
-# Setup inicial (apenas primeira vez ou para novos devs)
-./scripts/setup-backend.sh
-
 # Dentro do container ou localmente
 cd backend
 uv run uvicorn app.main:app --reload  # Dev server (porta 8000)
@@ -369,10 +388,9 @@ uv sync
 
 # Adicionar nova dependência
 uv add <pacote>
-
-# Criar tabelas manualmente (se necessário)
-python -c "from app.database import engine; from app.models import Base; Base.metadata.create_all(bind=engine)"
 ```
+
+**Nota**: As tabelas do banco de dados são criadas automaticamente no startup da aplicação (`@app.on_event("startup")`). Não é necessário rodar scripts manuais.
 
 ### Testing
 
