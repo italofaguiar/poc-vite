@@ -1,0 +1,228 @@
+# Tasks: Login via Google OAuth2
+
+## 📋 Visão Geral
+
+Implementar autenticação via Google OAuth2 no frontend, mantendo a arquitetura session-based existente (cookies HttpOnly). Usuários poderão fazer login com Google ou email/senha, e contas com mesmo email serão linkadas automaticamente.
+
+---
+
+## Fase 1: Configuração do Google Cloud Console
+
+### Objetivo
+Configurar projeto no Google Cloud Platform e obter credenciais OAuth2.
+
+### Tasks
+- [ ] Criar projeto no Google Cloud Console (ou usar existente)
+- [ ] Habilitar Google+ API ou Google Identity Services
+- [ ] Criar credenciais OAuth 2.0 (Client ID + Client Secret)
+  - Tipo: "Web application"
+  - Authorized redirect URIs:
+    - Dev: `http://localhost:5173/api/auth/google/callback`
+    - Prod: `https://app.pilotodevendas.ia/api/auth/google/callback`
+- [ ] Configurar OAuth consent screen (nome, logo, domínios autorizados)
+- [ ] Adicionar Client ID e Client Secret ao `.env` do backend:
+  ```bash
+  GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
+  GOOGLE_CLIENT_SECRET=your-client-secret
+  GOOGLE_REDIRECT_URI=http://localhost:5173/api/auth/google/callback
+  ```
+- [ ] Atualizar `.env.example` com novas variáveis (sem valores reais)
+
+---
+
+## Fase 2: Backend - Modelo de Dados
+
+### Objetivo
+Estender modelo `User` para suportar múltiplos métodos de autenticação.
+
+### Tasks
+- [ ] Adicionar campo `auth_provider` ao modelo `User` (`backend/app/models.py`):
+  ```python
+  auth_provider: Mapped[str] = mapped_column(String, default="email")  # "email" ou "google"
+  google_id: Mapped[Optional[str]] = mapped_column(String, nullable=True, unique=True)
+  ```
+- [ ] Tornar campo `password` opcional (nullable) para usuários Google:
+  ```python
+  password: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+  ```
+- [ ] Criar migração Alembic (ou permitir auto-criação das tabelas com novos campos)
+- [ ] Atualizar schema Pydantic `UserResponse` (`backend/app/schemas.py`) para incluir `auth_provider`
+
+---
+
+## Fase 3: Backend - Dependências e Utilitários
+
+### Objetivo
+Instalar bibliotecas OAuth2 e criar helpers para validação de token Google.
+
+### Tasks
+- [ ] Instalar biblioteca `authlib` (recomendada para OAuth2):
+  ```bash
+  cd backend && uv add authlib requests
+  ```
+- [ ] Criar arquivo `backend/app/oauth.py` com funções:
+  - `get_google_oauth_client()` - configurar Authlib OAuth client
+  - `verify_google_token(token: str)` - validar ID token do Google
+  - `get_google_user_info(token: str)` - extrair email/nome do token JWT
+- [ ] Adicionar validação de env vars no startup (`backend/app/main.py`):
+  ```python
+  if not os.getenv("GOOGLE_CLIENT_ID"):
+      logger.warning("GOOGLE_CLIENT_ID não configurado - OAuth Google desabilitado")
+  ```
+
+---
+
+## Fase 4: Backend - Endpoints OAuth
+
+### Objetivo
+Implementar fluxo OAuth2 Authorization Code no backend.
+
+### Tasks
+- [ ] Criar endpoint `GET /api/auth/google/login` (`backend/app/routers/auth.py`):
+  - Gera authorization URL do Google
+  - Redireciona usuário para tela de consent do Google
+  - Inclui `state` parameter (CSRF protection)
+- [ ] Criar endpoint `GET /api/auth/google/callback` (`backend/app/routers/auth.py`):
+  - Recebe `code` e `state` do Google
+  - Valida `state` (prevenir CSRF)
+  - Troca `code` por `access_token` (POST para Google)
+  - Valida `id_token` e extrai email/nome
+  - **Lógica de criação/linking**:
+    - Busca usuário por `google_id`
+    - Se não existe, busca por `email`:
+      - Se existe: **linkar** (`google_id = id_do_google`, `auth_provider = "google"`)
+      - Se não existe: **criar** novo User (`auth_provider = "google"`, `password = None`)
+    - Cria sessão (igual ao login email/senha)
+    - Retorna cookie `session_id` (HttpOnly, Secure, SameSite=Lax)
+  - Redireciona para `/dashboard` (ou URL de origem)
+- [ ] Adicionar tratamento de erros OAuth (token inválido, consent negado, state mismatch)
+
+---
+
+## Fase 5: Frontend - UI do Botão Google
+
+### Objetivo
+Adicionar botão "Sign in with Google" nas páginas de Login e Signup.
+
+### Tasks
+- [ ] Criar componente `GoogleSignInButton.tsx` (`frontend/src/components/GoogleSignInButton.tsx`):
+  - Botão estilizado seguindo design do Google (branco, logo G colorido)
+  - Ao clicar: redireciona para `GET /api/auth/google/login`
+  - Estados de loading (desabilitar durante redirect)
+- [ ] Integrar `GoogleSignInButton` na página `Login.tsx`:
+  - Posicionar acima do formulário email/senha
+  - Adicionar separador visual ("ou continue com email")
+- [ ] Integrar `GoogleSignInButton` na página `Signup.tsx`:
+  - Mesmo layout do Login
+- [ ] Adicionar `data-testid` para testes E2E (`data-testid="google-signin-button"`)
+
+---
+
+## Fase 6: Frontend - Callback e Estados
+
+### Objetivo
+Criar página de callback para processar retorno do Google e exibir estados de loading/erro.
+
+### Tasks
+- [ ] Criar página `GoogleCallback.tsx` (`frontend/src/pages/GoogleCallback.tsx`):
+  - Rota: `/auth/google/callback` (mesma do backend, mas SPA intercepta)
+  - Estados: `loading`, `success`, `error`
+  - Aguardar processamento do backend
+  - Redirecionar para `/dashboard` em caso de sucesso
+  - Exibir erro amigável em caso de falha (com link para voltar ao Login)
+- [ ] Adicionar rota no React Router (`frontend/src/main.tsx`):
+  ```tsx
+  { path: "/auth/google/callback", element: <GoogleCallback /> }
+  ```
+- [ ] Atualizar serviço `api.ts` para verificar sessão após callback:
+  - Chamar `GET /api/auth/me` para confirmar login bem-sucedido
+
+---
+
+## Fase 7: Testes e Validação
+
+### Objetivo
+Garantir que fluxo OAuth funciona em todos os cenários (happy path + edge cases).
+
+### Tasks
+- [ ] **Testes E2E (Playwright)**:
+  - [ ] Cenário 1: Login com Google (novo usuário) → criar conta → dashboard
+  - [ ] Cenário 2: Login com Google (usuário existente via email/senha) → linkar → dashboard
+  - [ ] Cenário 3: Login com Google (usuário existente via Google) → login → dashboard
+  - [ ] Cenário 4: Usuário nega consent do Google → voltar para Login com mensagem de erro
+  - [ ] Cenário 5: Token inválido/expirado → erro 401 → voltar para Login
+- [ ] **Testes Unitários (Backend)**:
+  - [ ] `test_verify_google_token()` - validar token JWT do Google
+  - [ ] `test_create_user_via_google()` - criar novo usuário
+  - [ ] `test_link_existing_user()` - linkar conta email/senha com Google
+  - [ ] `test_google_callback_invalid_state()` - rejeitar state CSRF inválido
+- [ ] **Testes Manuais**:
+  - [ ] Login via Google em navegador privado (novo usuário)
+  - [ ] Logout e login novamente via Google
+  - [ ] Criar conta via email/senha, logout, login via Google com mesmo email (verificar linking)
+  - [ ] Verificar que cookie `session_id` é criado corretamente
+  - [ ] Verificar que usuário é redirecionado corretamente após callback
+
+---
+
+## Fase 8: Segurança e Boas Práticas
+
+### Objetivo
+Implementar proteções contra ataques comuns em fluxos OAuth.
+
+### Tasks
+- [ ] **CSRF Protection**: Validar `state` parameter no callback (gerado aleatoriamente no `/login`)
+- [ ] **Token Validation**: Sempre validar `id_token` assinado pelo Google (não confiar apenas no `access_token`)
+- [ ] **HTTPS Only (Produção)**: Configurar `GOOGLE_REDIRECT_URI` com HTTPS em prod
+- [ ] **Secrets Management**: Garantir que `GOOGLE_CLIENT_SECRET` nunca é commitado (.gitignore `.env`)
+- [ ] **Rate Limiting**: Adicionar rate limit nos endpoints OAuth (prevenir abuse)
+- [ ] **Logging**: Logar tentativas de login OAuth (sucesso/falha) para auditoria
+- [ ] **Error Handling**: Nunca expor detalhes internos em mensagens de erro (ex: "token inválido" em vez de stacktrace)
+
+---
+
+## Fase 9: Documentação e Deploy
+
+### Objetivo
+Atualizar documentação e preparar deploy em produção.
+
+### Tasks
+- [ ] Atualizar `CLAUDE.md`:
+  - Adicionar seção "OAuth2 - Google Sign-In"
+  - Documentar fluxo de autenticação (diagrama ou texto)
+  - Explicar linking de contas
+- [ ] Atualizar `README.md`:
+  - Instruções de setup do Google Cloud Console
+  - Como obter Client ID/Secret
+  - Configuração de variáveis de ambiente
+- [ ] Atualizar `docs/deployment.md`:
+  - Configurar secrets no GCP Secret Manager (`GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`)
+  - Atualizar redirect URI para domínio de produção
+  - Verificar CORS (não deve ser necessário se mesmo domínio)
+- [ ] Criar PR com todas as mudanças:
+  - Backend: models, routers, oauth.py
+  - Frontend: GoogleSignInButton, GoogleCallback, rotas
+  - Testes E2E e unitários
+  - Documentação atualizada
+
+---
+
+## ✅ Critérios de Aceitação
+
+- [ ] Usuário pode fazer login com Google em 1 clique (sem pedir dados adicionais)
+- [ ] Contas com mesmo email são linkadas automaticamente (email/senha + Google)
+- [ ] Sessão é criada via cookie HttpOnly (mesma arquitetura do login email/senha)
+- [ ] Fluxo OAuth protegido contra CSRF (validação de `state`)
+- [ ] Tokens do Google são validados no backend (não confiar no frontend)
+- [ ] Testes E2E cobrem happy path + edge cases
+- [ ] Documentação atualizada (CLAUDE.md, README.md, deployment.md)
+- [ ] Deploy em produção com secrets no Secret Manager
+
+---
+
+## 📚 Recursos e Referências
+
+- [Google OAuth2 Documentation](https://developers.google.com/identity/protocols/oauth2)
+- [Authlib - Python OAuth Library](https://docs.authlib.org/en/latest/)
+- [Google Sign-In Button Guidelines](https://developers.google.com/identity/branding-guidelines)
+- [OWASP OAuth Security Cheatsheet](https://cheatsheetseries.owasp.org/cheatsheets/OAuth2_Cheat_Sheet.html)

@@ -4,5 +4,4 @@ Deve ser um documento markdown separado por Fases e em cada fase deve haver um c
 
 Por fim, uma vez aprovadas as tasks, iremos executar as tasks para construir a poc.
 
-
-
+- habilitar o login via Google (OAuth2) no frontend
