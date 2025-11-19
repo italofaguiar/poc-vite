@@ -226,11 +226,6 @@ Atualizar documentação e preparar deploy em produção.
 
 ---
 
-## Conventions
-
-- By "CC", we mean "Claude Code"
-- Screenshots/Prints: `~/screenshots` (mounted from Windows via devcontainer in WSL)
-    - default use: pegue o print mais recente -> `ls -lt ~/screenshots | head -1`
 
 ## 📚 Recursos e Referências
 
