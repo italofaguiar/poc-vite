@@ -4,6 +4,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from starlette.responses import FileResponse
 
+from app.database import Base, engine
 from app.routers import auth, dashboard
 
 # Create FastAPI app
@@ -12,6 +13,14 @@ app = FastAPI(
     description="Backend API for PilotoDeVendas.IA POC",
     version="0.1.0"
 )
+
+
+# Startup event: create database tables
+@app.on_event("startup")
+def startup_event():
+    """Create database tables on startup."""
+    Base.metadata.create_all(bind=engine)
+
 
 # CORS not needed - same origin in production, Vite proxy in dev
 

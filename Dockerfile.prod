@@ -6,15 +6,15 @@
 # ================================
 # Stage 1: Frontend Builder
 # ================================
-FROM node:20-alpine AS frontend-builder
+FROM node:20-slim AS frontend-builder
 
 WORKDIR /frontend
 
 # Copy package files
 COPY frontend/package*.json ./
 
-# Install dependencies
-RUN npm ci --only=production
+# Install dependencies (including devDependencies for build tools like Vite)
+RUN npm ci
 
 # Copy frontend source
 COPY frontend/ ./
@@ -90,5 +90,5 @@ ENV ENVIRONMENT=production
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
     CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8080/health').read()" || exit 1
 
-# Start server on port 8080 (using Python directly from .venv, no UV)
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]
+# Start server on port 8080 (using Python module instead of script to avoid path issues)
+CMD ["python", "-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]
