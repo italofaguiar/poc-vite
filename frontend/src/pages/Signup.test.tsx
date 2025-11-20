@@ -53,9 +53,9 @@ describe('Signup', () => {
     await user.click(submitButton);
 
     await waitFor(() => {
-      // HTML5 email validation might show "Email invalido" for empty/invalid format
+      // HTML5 email validation might show "Email inválido" for empty/invalid format
       expect(
-        screen.getByText(/Email (e obrigatorio|invalido)/)
+        screen.getByText(/Email (é obrigatório|inválido)/)
       ).toBeInTheDocument();
     });
   });
@@ -83,7 +83,7 @@ describe('Signup', () => {
 
     await waitFor(() => {
       expect(
-        screen.getByText('Senha deve ter no minimo 6 caracteres')
+        screen.getByText('Senha deve ter no mínimo 6 caracteres')
       ).toBeInTheDocument();
     });
   });
@@ -128,7 +128,7 @@ describe('Signup', () => {
 
     await waitFor(() => {
       expect(
-        screen.getByText(/Email (e obrigatorio|invalido)/)
+        screen.getByText(/Email (é obrigatório|inválido)/)
       ).toBeInTheDocument();
     });
 
@@ -138,7 +138,7 @@ describe('Signup', () => {
     // Error should be cleared
     await waitFor(() => {
       expect(
-        screen.queryByText(/Email (e obrigatorio|invalido)/)
+        screen.queryByText(/Email (é obrigatório|inválido)/)
       ).not.toBeInTheDocument();
     });
   });
@@ -249,9 +249,13 @@ describe('Signup', () => {
 
   it('should disable inputs during submission', async () => {
     const user = userEvent.setup();
-    vi.mocked(api.signup).mockImplementation(
-      () => new Promise(() => {}) // Never resolves
-    );
+
+    // Create a promise that never resolves to keep loading state
+    let resolveSignup: () => void;
+    const signupPromise = new Promise<{ message: string }>((resolve) => {
+      resolveSignup = () => resolve({ message: 'Success' });
+    });
+    vi.mocked(api.signup).mockReturnValue(signupPromise);
 
     render(
       <BrowserRouter>
@@ -263,13 +267,21 @@ describe('Signup', () => {
     const passwordInput = screen.getByLabelText(/Senha/i) as HTMLInputElement;
     const submitButton = screen.getByRole('button', { name: /Criar conta/i });
 
+    // Type and wait for values to be set
     await user.type(emailInput, 'test@example.com');
     await user.type(passwordInput, 'password123');
+
+    // Verify values are set before clicking
+    expect(emailInput.value).toBe('test@example.com');
+    expect(passwordInput.value).toBe('password123');
+
     await user.click(submitButton);
 
+    // Verify inputs are disabled during submission
     await waitFor(() => {
       expect(emailInput).toBeDisabled();
       expect(passwordInput).toBeDisabled();
+      expect(submitButton).toBeDisabled();
     });
   });
 
