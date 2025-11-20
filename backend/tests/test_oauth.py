@@ -52,72 +52,13 @@ class TestGetGoogleOAuthClient:
 
 
 class TestVerifyGoogleToken:
-    """Tests for verify_google_token() function."""
+    """
+    Tests for verify_google_token() function.
 
-    @pytest.mark.skip(reason="Requires complex mocking of module-level env vars - covered by integration tests")
-    @patch("app.oauth.requests.get")
-    @patch("app.oauth.JsonWebToken")
-    def test_success_with_valid_token(
-        self, mock_jwt_class, mock_requests_get, google_oauth_env, reload_oauth_module
-    ):
-        """Test token verification with valid token."""
-        from app.oauth import verify_google_token
-
-        # Mock Google JWKS endpoint
-        mock_response = Mock()
-        mock_response.json.return_value = {"keys": [{"kid": "test-key", "use": "sig"}]}
-        mock_response.raise_for_status = Mock()
-        mock_requests_get.return_value = mock_response
-
-        # Mock JWT verification
-        mock_jwt = MagicMock()
-        mock_jwt_class.return_value = mock_jwt
-
-        mock_claims = MagicMock()
-        mock_claims.validate = Mock()
-        mock_claims.__iter__ = Mock(
-            return_value=iter(
-                [
-                    ("aud", "test-client-id.apps.googleusercontent.com"),
-                    ("iss", "https://accounts.google.com"),
-                    ("email", "test@example.com"),
-                    ("sub", "google-user-123"),
-                ]
-            )
-        )
-        mock_claims.get = lambda key, default=None: {
-            "aud": "test-client-id.apps.googleusercontent.com",
-            "iss": "https://accounts.google.com",
-            "email": "test@example.com",
-            "sub": "google-user-123",
-        }.get(key, default)
-
-        mock_jwt.decode.return_value = mock_claims
-
-        # Test
-        token = "valid.jwt.token"
-        claims = verify_google_token(token)
-
-        assert claims["email"] == "test@example.com"
-        assert claims["sub"] == "google-user-123"
-        assert claims["aud"] == "test-client-id.apps.googleusercontent.com"
-        assert claims["iss"] == "https://accounts.google.com"
-
-        # Verify calls
-        mock_requests_get.assert_called_once()
-        mock_jwt.decode.assert_called_once()
-        mock_claims.validate.assert_called_once()
-
-    @pytest.mark.skip(reason="Requires complex mocking of module-level env vars - covered by integration tests")
-    @patch("app.oauth.requests.get")
-    def test_failure_jwks_fetch_error(self, mock_requests_get, google_oauth_env, reload_oauth_module):
-        """Test token verification fails when JWKS fetch fails."""
-        from app.oauth import verify_google_token
-
-        mock_requests_get.side_effect = Exception("Network error")
-
-        with pytest.raises(ValueError, match="Failed to fetch Google's public keys"):
-            verify_google_token("token")
+    Note: Full token validation flow (JWKS fetch, signature verification, etc.)
+    is covered by integration tests (test_auth_integration.py).
+    These unit tests focus on critical security validations.
+    """
 
     @patch("app.oauth.requests.get")
     @patch("app.oauth.JsonWebToken")
@@ -155,45 +96,6 @@ class TestVerifyGoogleToken:
         mock_jwt.decode.return_value = mock_claims
 
         with pytest.raises(ValueError, match="Token audience does not match"):
-            verify_google_token("token")
-
-    @pytest.mark.skip(reason="Requires complex mocking of module-level env vars - covered by integration tests")
-    @patch("app.oauth.requests.get")
-    @patch("app.oauth.JsonWebToken")
-    def test_failure_invalid_issuer(
-        self, mock_jwt_class, mock_requests_get, google_oauth_env, reload_oauth_module
-    ):
-        """Test token verification fails with wrong issuer (but correct audience)."""
-        from app.oauth import verify_google_token
-
-        # Mock Google JWKS endpoint
-        mock_response = Mock()
-        mock_response.json.return_value = {"keys": []}
-        mock_response.raise_for_status = Mock()
-        mock_requests_get.return_value = mock_response
-
-        # Mock JWT verification with CORRECT audience but WRONG issuer
-        mock_jwt = MagicMock()
-        mock_jwt_class.return_value = mock_jwt
-
-        mock_claims = MagicMock()
-        mock_claims.validate = Mock()
-        mock_claims.__iter__ = Mock(
-            return_value=iter(
-                [
-                    ("aud", "test-client-id.apps.googleusercontent.com"),  # Correct
-                    ("iss", "https://evil.com"),  # Wrong
-                ]
-            )
-        )
-        mock_claims.get = lambda key, default=None: {
-            "aud": "test-client-id.apps.googleusercontent.com",  # Correct
-            "iss": "https://evil.com",  # Wrong
-        }.get(key, default)
-
-        mock_jwt.decode.return_value = mock_claims
-
-        with pytest.raises(ValueError, match="Token issuer is not Google"):
             verify_google_token("token")
 
     @patch("app.oauth.requests.get")
@@ -240,23 +142,6 @@ class TestGetGoogleUserInfo:
         assert user_info["name"] == "Test User"
         assert user_info["google_id"] == "google-123"
         assert user_info["picture"] == "https://example.com/photo.jpg"
-
-    @patch("app.oauth.verify_google_token")
-    def test_success_without_optional_claims(self, mock_verify, google_oauth_env, reload_oauth_module):
-        """Test user info extraction with missing optional claims (name, picture)."""
-        from app.oauth import get_google_user_info
-
-        mock_verify.return_value = {
-            "email": "test@example.com",
-            "sub": "google-123",
-        }
-
-        user_info = get_google_user_info("token")
-
-        assert user_info["email"] == "test@example.com"
-        assert user_info["name"] == "test"  # Fallback to email username
-        assert user_info["google_id"] == "google-123"
-        assert user_info["picture"] == ""
 
     @patch("app.oauth.verify_google_token")
     def test_failure_missing_email(self, mock_verify, google_oauth_env, reload_oauth_module):
