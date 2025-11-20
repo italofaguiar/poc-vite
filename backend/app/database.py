@@ -5,30 +5,23 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 # Get database URL from environment variable
-# Default:
-# - Development (Docker Compose): PostgreSQL
-# - Production (Cloud Run sem Cloud SQL): SQLite em memória
+# Defaults:
+# - Development (Docker Compose): PostgreSQL localhost
+# - Production (Cloud Run): Configurado via Terraform (SQLite ou PostgreSQL)
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
     "postgresql://postgres:postgres@localhost:5432/pilotodevendas"
 )
 
-# Se não houver DATABASE_URL configurado e não estiver acessível, usar SQLite
-# (Cloud Run inicial antes de configurar Cloud SQL via Terraform)
-try:
-    # Tentar conectar ao PostgreSQL configurado
-    engine = create_engine(DATABASE_URL)
-    # Test connection
-    with engine.connect() as conn:
-        pass
-except Exception:
-    # Fallback para SQLite em memória (Cloud Run sem Cloud SQL)
-    print("⚠️  PostgreSQL not available, using SQLite in-memory (data will be lost on restart)")
-    DATABASE_URL = "sqlite:///:memory:"
+# Create SQLAlchemy engine
+# SQLite precisa de check_same_thread=False para FastAPI (async)
+if DATABASE_URL.startswith("sqlite"):
     engine = create_engine(
         DATABASE_URL,
-        connect_args={"check_same_thread": False}  # Necessário para SQLite
+        connect_args={"check_same_thread": False}
     )
+else:
+    engine = create_engine(DATABASE_URL)
 
 # Create SessionLocal class
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
