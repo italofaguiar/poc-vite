@@ -96,13 +96,8 @@ gcloud secrets versions list google-client-id --project=pilotodevendas-prod
 
 **Testar build local:**
 ```bash
-docker build -f Dockerfile.prod -t test .
-docker run -p 8080:8080 \
-  -e ENVIRONMENT=production \
-  -e DATABASE_URL=sqlite:///tmp/poc.db \
-  test
-
-# Acessar: http://localhost:8080/health
+# Script completo que testa build + health check + endpoints
+./scripts/test-production-build.sh
 ```
 
 ---
