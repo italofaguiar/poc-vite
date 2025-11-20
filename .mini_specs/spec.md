@@ -11,20 +11,14 @@ Obs: adicione algo nessa linha no inicio de tasks.md:
 obs: Inclusive, se necessário, pode fazer testes em passos intermediários dentro da propria fase. 
 ```
 
+Pode sobre escrever o arquivo tasks.md sem problema. Só garanta que ele está em UTF-8 e você vai escrever em UTF-8.
+
 ---
 
-- [x] habilitar o login via Google (OAuth2) no frontend
-- [x] teste google login remoto
-  - [x] test all local, 
-  - [x] deploy e
-  - [x]  testar remoto!
-- [ ] gh actions com tests+deploy.. JA FAZ O PR
-- [ ] botao google embaixo, nao?
-- [ ] garantir que cada novo /me com sucesso prolonga a sessao atual (se existir). obviamente, se passar muito tempo, a sessao expira e o usuario precisa logar de novo
-- [ ] resolver testes intermitentes do frontend
 
+- [ ] preparar o projeto para usar o padrao consadrado de CI/CD para usar git hub actions para build, test e deploy automatico no cloud run. 
+- [ ] Naturalmente, para isso eu quero que não aconteça o merge caso de algum problema no teste. 
+- [ ] Me ajude também a configurar a questão do permissionamento do GitHub Actions lá no meu GCP no meu Cloud Run. 
+- [ ] quero que, na etapa teste, rode os tests equivalente ao 'make test' (unitários backend + frontend)
 
-- [ ] migrar para Mapped em vez de usar Column  
-- [ ] precisava msm o secret ser gerado no terraform com toda aquela complicacao? nao poderia ser um random value no codigo?
-- [ ] Entender melhor como ta sendo usado o session_id (cripto, db, etc)
 

@@ -1,269 +1,405 @@
-# Tasks: Login via Google OAuth2
-
-## 📋 Visão Geral
-
-Implementar autenticação via Google OAuth2 no frontend, mantendo a arquitetura session-based existente (cookies HttpOnly). Usuários poderão fazer login com Google ou email/senha, e contas com mesmo email serão linkadas automaticamente.
+# Tasks: CI/CD com GitHub Actions para Cloud Run
 
 **CRÍTICO**: Siga o seguinte ciclo para cada fase:
 > implemente uma fase → testa "manual" → commita → atualiza tasks.md
- 
-obs: Inclusive, se necessário, pode fazer testes em passos intermediários dentro da propria fase
+
+**Obs**: Inclusive, se necessário, pode fazer testes em passos intermediários dentro da própria fase.
 
 ---
 
-## Fase 1: Infraestrutura GCP via Terraform ✅
+## Fase 1: Configuração de Permissionamento GCP (Workload Identity Federation)
 
-### Objetivo
-Provisionar recursos de infraestrutura OAuth2 no GCP usando Terraform.
+**Objetivo**: Permitir que GitHub Actions faça deploy no Cloud Run sem usar service account keys (abordagem mais segura).
 
-### Tasks
-- [x] **Aguardar infraestrutura**: As demandas de OAuth já foram especificadas em `/home/italo/projects/pvia-infra/.mini_specs/spec.md`
-  - Secret Manager: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `SECRET_KEY`
-  - OAuth 2.0 Client credentials (Web application)
-  - APIs habilitadas (Secret Manager, Identity)
-  - Permissões IAM (Cloud Run SA acessa secrets)
-- [x] **Após Terraform aplicado**: Obter valores reais de Client ID/Secret
-  - Client ID: `<VALOR_OBTIDO_DO_GCP_CONSOLE>`
-  - Client Secret: `<VALOR_OBTIDO_DO_GCP_CONSOLE>`
-- [x] Adicionar valores ao `.env` local para desenvolvimento:
-  ```bash
-  GOOGLE_CLIENT_ID=<YOUR_CLIENT_ID>.apps.googleusercontent.com
-  GOOGLE_CLIENT_SECRET=<YOUR_CLIENT_SECRET>
-  GOOGLE_REDIRECT_URI=http://localhost:5173/api/auth/google/callback
-  ```
-- [x] Atualizar `.env.example` com novas variáveis (sem valores reais)
+**Responsável**: Agente Terraform (você vai passar essas orientações para ele)
 
-**Observação**: Redirect URIs configurados via Terraform:
-- Dev (Vite): `http://localhost:5173/api/auth/google/callback`
-- Dev (Dockerfile.prod): `http://localhost:8080/api/auth/google/callback`
-- Prod: `https://app.pilotodevendas.com.br/api/auth/google/callback`
+### Orientações para o Agente Terraform
+
+O GitHub Actions precisa se autenticar no GCP para fazer build e deploy. A abordagem recomendada é **Workload Identity Federation** (não usa chaves JSON, mais seguro).
+
+**O que precisa ser provisionado via Terraform:**
+
+1. **Workload Identity Pool**:
+   ```hcl
+   resource "google_iam_workload_identity_pool" "github_actions" {
+     workload_identity_pool_id = "github-actions-pool"
+     display_name              = "GitHub Actions Pool"
+     description               = "Workload Identity Pool for GitHub Actions"
+   }
+   ```
+
+2. **Workload Identity Provider** (GitHub):
+   ```hcl
+   resource "google_iam_workload_identity_pool_provider" "github" {
+     workload_identity_pool_id          = google_iam_workload_identity_pool.github_actions.workload_identity_pool_id
+     workload_identity_pool_provider_id = "github-provider"
+     display_name                       = "GitHub Provider"
+
+     attribute_mapping = {
+       "google.subject"       = "assertion.sub"
+       "attribute.actor"      = "assertion.actor"
+       "attribute.repository" = "assertion.repository"
+     }
+
+     oidc {
+       issuer_uri = "https://token.actions.githubusercontent.com"
+     }
+   }
+   ```
+
+3. **Service Account** para GitHub Actions:
+   ```hcl
+   resource "google_service_account" "github_actions" {
+     account_id   = "github-actions-deployer"
+     display_name = "GitHub Actions Deployer"
+     description  = "Service Account used by GitHub Actions to deploy to Cloud Run"
+   }
+   ```
+
+4. **Permissões necessárias** (IAM Roles):
+   ```hcl
+   # Cloud Run Admin (deploy services)
+   resource "google_project_iam_member" "github_actions_cloudrun" {
+     project = var.project_id
+     role    = "roles/run.admin"
+     member  = "serviceAccount:${google_service_account.github_actions.email}"
+   }
+
+   # Artifact Registry Writer (push images)
+   resource "google_project_iam_member" "github_actions_artifact_registry" {
+     project = var.project_id
+     role    = "roles/artifactregistry.writer"
+     member  = "serviceAccount:${google_service_account.github_actions.email}"
+   }
+
+   # Cloud Build Editor (submit builds)
+   resource "google_project_iam_member" "github_actions_cloudbuild" {
+     project = var.project_id
+     role    = "roles/cloudbuild.builds.editor"
+     member  = "serviceAccount:${google_service_account.github_actions.email}"
+   }
+
+   # Service Account User (impersonate service account)
+   resource "google_project_iam_member" "github_actions_sa_user" {
+     project = var.project_id
+     role    = "roles/iam.serviceAccountUser"
+     member  = "serviceAccount:${google_service_account.github_actions.email}"
+   }
+   ```
+
+5. **Binding do Workload Identity** (permite GitHub assumir o SA):
+   ```hcl
+   resource "google_service_account_iam_member" "github_actions_workload_identity" {
+     service_account_id = google_service_account.github_actions.name
+     role               = "roles/iam.workloadIdentityUser"
+     member             = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.github_actions.name}/attribute.repository/SEU_USUARIO_GITHUB/poc-vite"
+   }
+   ```
+
+   **IMPORTANTE**: Substitua `SEU_USUARIO_GITHUB` pelo nome correto do usuário/org no GitHub (ex: `italobusi` se o repo for `italobusi/poc-vite`).
+
+6. **Outputs necessários** (para configurar GitHub Actions):
+   ```hcl
+   output "github_actions_workload_identity_provider" {
+     description = "Workload Identity Provider name for GitHub Actions"
+     value       = google_iam_workload_identity_pool_provider.github.name
+   }
+
+   output "github_actions_service_account_email" {
+     description = "Service Account email for GitHub Actions"
+     value       = google_service_account.github_actions.email
+   }
+   ```
+
+**Validação**: Após aplicar o Terraform, retorne os outputs para uso nas próximas fases.
+
+### Checklist
+
+- [ ] Criar Workload Identity Pool no GCP
+- [ ] Criar Workload Identity Provider (GitHub OIDC)
+- [ ] Criar Service Account `github-actions-deployer`
+- [ ] Conceder roles necessários ao SA (Cloud Run Admin, Artifact Registry Writer, Cloud Build Editor, SA User)
+- [ ] Configurar binding Workload Identity (GitHub → SA)
+- [ ] Executar `terraform apply` e validar outputs
+- [ ] Documentar outputs (Workload Identity Provider name + SA email) para uso no GitHub Actions
 
 ---
 
-## Fase 2: Backend - Modelo de Dados ✅
+## Fase 2: Criação do Workflow GitHub Actions
 
-### Objetivo
-Estender modelo `User` para suportar múltiplos métodos de autenticação.
+**Objetivo**: Criar pipeline CI/CD que roda lint, testes, build e deploy no Cloud Run.
 
-### Tasks
-- [x] Adicionar campo `auth_provider` ao modelo `User` (`backend/app/models.py`):
-  ```python
-  auth_provider = Column(String, default="email", nullable=False)  # "email" ou "google"
-  google_id = Column(String, nullable=True, unique=True, index=True)
-  ```
-- [x] Tornar campo `password` opcional (nullable) para usuários Google:
-  ```python
-  password_hash = Column(String, nullable=True)  # Optional for OAuth users
-  ```
-- [x] Atualizar schema Pydantic `UserResponse` (`backend/app/schemas.py`) para incluir `auth_provider`
+### Checklist
 
-**Observação**: Não precisa de Alembic - banco SQLite é recriado a cada deploy (POC). As tabelas são criadas automaticamente via `Base.metadata.create_all()` no startup.
+- [ ] Criar arquivo `.github/workflows/ci-cd.yml`
+- [ ] Configurar trigger: apenas branch `main` (push)
+- [ ] **Job 1 - Lint**:
+  - [ ] Instalar UV (backend)
+  - [ ] Instalar Node (frontend)
+  - [ ] Rodar `make lint` (backend + frontend)
+  - [ ] Falhar workflow se lint falhar
+- [ ] **Job 2 - Test** (roda em paralelo com Lint):
+  - [ ] Instalar UV (backend)
+  - [ ] Instalar Node (frontend)
+  - [ ] Rodar `make test` (testes unitários backend + frontend)
+  - [ ] Falhar workflow se testes falharem
+- [ ] **Job 3 - Build and Deploy** (depende de Lint + Test):
+  - [ ] Autenticar no GCP via Workload Identity
+  - [ ] Submit build via Cloud Build (`gcloud builds submit --config cloudbuild.yaml`)
+  - [ ] Aguardar build completar
+  - [ ] Atualizar Cloud Run para puxar nova imagem
+  - [ ] Validar deploy (curl no /health)
+- [ ] Testar workflow localmente com `act` (opcional)
+- [ ] Commit do arquivo workflow
 
----
+**Arquivo exemplo**: `.github/workflows/ci-cd.yml`
 
-## Fase 3: Backend - Dependências e Utilitários ✅
+```yaml
+name: CI/CD
 
-### Objetivo
-Instalar bibliotecas OAuth2 e criar helpers para validação de token Google.
+on:
+  push:
+    branches:
+      - main
 
-### Tasks
-- [x] Instalar biblioteca `authlib` (recomendada para OAuth2):
-  ```bash
-  cd backend && uv add authlib requests httpx
-  ```
-- [x] Criar arquivo `backend/app/oauth.py` com funções:
-  - `get_google_oauth_client()` - configurar Authlib OAuth client
-  - `verify_google_token(token: str)` - validar ID token do Google
-  - `get_google_user_info(token: str)` - extrair email/nome do token JWT
-- [x] Adicionar validação de env vars no startup (`backend/app/main.py`):
-  ```python
-  if not os.getenv("GOOGLE_CLIENT_ID"):
-      logger.warning("GOOGLE_CLIENT_ID não configurado - OAuth Google desabilitado")
-  ```
-- [x] Atualizar `.env.example` com variáveis `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REDIRECT_URI`
+env:
+  PROJECT_ID: pilotodevendas-prod
+  REGION: us-east1
+  SERVICE_NAME: poc-vite
+  IMAGE: us-east1-docker.pkg.dev/pilotodevendas-prod/containers/poc-vite:latest
 
----
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-## Fase 4: Backend - Endpoints OAuth ✅
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
 
-### Objetivo
-Implementar fluxo OAuth2 Authorization Code no backend.
+      - name: Install UV
+        run: curl -LsSf https://astral.sh/uv/install.sh | sh
 
-### Tasks
-- [x] Criar endpoint `GET /api/auth/google/login` (`backend/app/routers/auth.py`):
-  - Gera authorization URL do Google
-  - Redireciona usuário para tela de consent do Google
-  - Inclui `state` parameter (CSRF protection)
-- [x] Criar endpoint `GET /api/auth/google/callback` (`backend/app/routers/auth.py`):
-  - Recebe `code` e `state` do Google
-  - Valida `state` (prevenir CSRF)
-  - Troca `code` por `access_token` (POST para Google)
-  - Valida `id_token` e extrai email/nome
-  - **Lógica de criação/linking**:
-    - Busca usuário por `google_id`
-    - Se não existe, busca por `email`:
-      - Se existe: **linkar** (`google_id = id_do_google`, `auth_provider = "google"`)
-      - Se não existe: **criar** novo User (`auth_provider = "google"`, `password = None`)
-    - Cria sessão (igual ao login email/senha)
-    - Retorna cookie `session_id` (HttpOnly, Secure, SameSite=Lax)
-  - Redireciona para `/dashboard` (ou URL de origem)
-- [x] Adicionar tratamento de erros OAuth (token inválido, consent negado, state mismatch)
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
 
----
+      - name: Install frontend dependencies
+        run: cd frontend && npm ci
 
-## Fase 5: Frontend - UI do Botão Google ✅
+      - name: Run lint (backend + frontend)
+        run: |
+          export PATH="$HOME/.local/bin:$PATH"
+          make lint
 
-### Objetivo
-Adicionar botão "Sign in with Google" nas páginas de Login e Signup.
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-### Tasks
-- [x] Criar componente `GoogleSignInButton.tsx` (`frontend/src/components/GoogleSignInButton.tsx`):
-  - Botão estilizado seguindo design do Google (branco, logo G colorido)
-  - Ao clicar: redireciona para `GET /api/auth/google/login`
-  - Estados de loading (desabilitar durante redirect)
-- [x] Integrar `GoogleSignInButton` na página `Login.tsx`:
-  - Posicionar acima do formulário email/senha
-  - Adicionar separador visual ("ou continue com email")
-- [x] Integrar `GoogleSignInButton` na página `Signup.tsx`:
-  - Mesmo layout do Login
-- [x] Adicionar `data-testid` para testes E2E (`data-testid="google-signin-button"`)
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
 
----
+      - name: Install UV
+        run: curl -LsSf https://astral.sh/uv/install.sh | sh
 
-## Fase 6: Frontend - Callback e Estados ⏭️ PULADA (Decisão KISS)
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
 
-### Decisão Arquitetural
-**Optamos por manter a arquitetura atual (servidor processa tudo) por:**
-- ✅ Fluxo OAuth é instantâneo (<500ms) - não precisa loading intermediário
-- ✅ Backend já faz todo processamento server-side (mais seguro)
-- ✅ `ProtectedRoute` já trata erros (redirect para login)
-- ✅ Padrão usado por GitHub, GitLab, Slack, Notion
-- ✅ Menos código = menos bugs = mais fácil de manter
-- ✅ Prioridade KISS (POC → MVP rápido)
+      - name: Install frontend dependencies
+        run: cd frontend && npm ci
 
-**Arquitetura mantida:**
+      - name: Run tests (backend + frontend)
+        run: |
+          export PATH="$HOME/.local/bin:$PATH"
+          make test
+
+  build-and-deploy:
+    name: Build and Deploy
+    runs-on: ubuntu-latest
+    needs: [lint, test]
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT_EMAIL }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Build image via Cloud Build
+        run: |
+          gcloud builds submit \
+            --config cloudbuild.yaml \
+            --project=${{ env.PROJECT_ID }}
+
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run services update ${{ env.SERVICE_NAME }} \
+            --project=${{ env.PROJECT_ID }} \
+            --region=${{ env.REGION }} \
+            --image=${{ env.IMAGE }}
+
+      - name: Verify deployment
+        run: |
+          SERVICE_URL=$(gcloud run services describe ${{ env.SERVICE_NAME }} \
+            --project=${{ env.PROJECT_ID }} \
+            --region=${{ env.REGION }} \
+            --format="value(status.url)")
+
+          echo "Service URL: $SERVICE_URL"
+
+          # Wait for deployment to stabilize
+          sleep 10
+
+          # Test health endpoint
+          curl -f "$SERVICE_URL/health" || exit 1
+
+          echo "✅ Deployment successful!"
 ```
-Botão Google → /api/auth/google/login → Google OAuth
-              → /api/auth/google/callback (backend processa)
-              → Redirect 302 para /dashboard (com cookie) ✅
+
+---
+
+## Fase 3: Configuração de Secrets no GitHub
+
+**Objetivo**: Adicionar secrets necessários para o workflow no repositório GitHub.
+
+### Checklist
+
+- [ ] Acessar GitHub: `Settings` → `Secrets and variables` → `Actions`
+- [ ] Adicionar secret `GCP_WORKLOAD_IDENTITY_PROVIDER`:
+  - Valor: output do Terraform `github_actions_workload_identity_provider`
+  - Formato: `projects/PROJECT_NUMBER/locations/global/workloadIdentityPools/github-actions-pool/providers/github-provider`
+- [ ] Adicionar secret `GCP_SERVICE_ACCOUNT_EMAIL`:
+  - Valor: output do Terraform `github_actions_service_account_email`
+  - Formato: `github-actions-deployer@pilotodevendas-prod.iam.gserviceaccount.com`
+- [ ] Validar que secrets foram salvos corretamente
+
+**Como obter os valores**:
+```bash
+# Após terraform apply na Fase 1
+cd ~/projects/pvia-infra/terraform
+terraform output github_actions_workload_identity_provider
+terraform output github_actions_service_account_email
 ```
 
-### Tasks (Não aplicáveis)
-- [x] ~~Criar página `GoogleCallback.tsx`~~ - Não necessário (backend faz tudo)
-- [x] ~~Adicionar rota no React Router~~ - Não necessário
-- [x] ~~Atualizar serviço `api.ts`~~ - Já funcionando via ProtectedRoute
+---
+
+## Fase 4: Teste Manual do Pipeline
+
+**Objetivo**: Validar que o CI/CD funciona end-to-end.
+
+### Checklist
+
+- [ ] Fazer uma alteração trivial no código (ex: adicionar comentário em README)
+- [ ] Criar commit e push para branch `main`
+- [ ] Acessar GitHub Actions e observar workflow executando
+- [ ] **Validar Job Lint**:
+  - [ ] Backend lint passou (ruff + mypy)
+  - [ ] Frontend lint passou (eslint)
+- [ ] **Validar Job Test**:
+  - [ ] Testes backend passaram
+  - [ ] Testes frontend passaram
+- [ ] **Validar Job Build and Deploy**:
+  - [ ] Autenticação GCP funcionou
+  - [ ] Cloud Build completou com sucesso
+  - [ ] Cloud Run foi atualizado
+  - [ ] Health check passou
+- [ ] Acessar URL do Cloud Run e validar manualmente:
+  - [ ] Frontend carrega
+  - [ ] Login funciona
+  - [ ] Dashboard carrega
+- [ ] Verificar logs do Cloud Run se houver problemas
+
+**Troubleshooting comum**:
+- **Lint falha**: Rodar `make lint` localmente e corrigir erros antes de commitar
+- **Testes falham**: Rodar `make test` localmente e corrigir
+- **Auth GCP falha**: Verificar secrets do GitHub e outputs do Terraform
+- **Build falha**: Verificar logs do Cloud Build no GCP Console
+- **Deploy falha**: Verificar permissões do SA no Cloud Run
 
 ---
 
-## Fase 7: Testes e Validação ✅ COMPLETA
+## Fase 5: Ajustes e Documentação
 
-### Objetivo
-Garantir que fluxo OAuth funciona em todos os cenários (happy path + edge cases).
+**Objetivo**: Documentar processo, adicionar melhorias e garantir que time pode usar CI/CD.
 
-### Tasks
-- [x] **Testes de Integração (Backend)** - ✅ COMPLETO (5 testes - 100% passing)
-  - [x] `backend/tests/test_auth_integration.py` - Testes de fluxo completo
-  - [x] **Cenário Crítico**: Linking Google + Email/Senha → ✅ Testado e funcionando
-  - [x] Criação de novo usuário via Google → ✅ Testado
-  - [x] Login usuário Google existente → ✅ Testado
-  - [x] Signup e login com email/senha → ✅ Testado
-  - [x] Validação de senha incorreta → ✅ Testado
-- [x] **Testes Unitários (Backend)** - ✅ COMPLETO (9 testes relevantes)
-  - [x] `backend/tests/test_oauth.py` - Validações críticas de segurança
-  - [x] `TestGetGoogleOAuthClient` - 3 testes (criação + validação env vars)
-  - [x] `TestVerifyGoogleToken` - 2 testes (audience, signature)
-  - [x] `TestGetGoogleUserInfo` - 4 testes (extração de claims, validações)
-  - [x] Fixtures reutilizáveis: `test_db`, `client`, `google_oauth_env`
-  - ✅ Removidos testes skipped (complexidade desnecessária)
-- [x] **Testes Manuais** - ✅ COMPLETO
-  - [x] Login via Google (novo usuário) → dashboard ✅
-  - [x] Login via Google (usuário existente) → dashboard ✅
-  - [x] Cookie `session_id` criado corretamente ✅
-  - [x] Redirect 302 → `/dashboard` funcionando ✅
-  - [x] Linking de contas testado via testes de integração ✅
+### Checklist
 
-**Decisão KISS**: Testes E2E Playwright de edge cases (consent negado, token inválido)
-foram considerados desnecessários para MVP. Cenários críticos cobertos por testes de integração.
+- [ ] **Documentar CI/CD** (criar `docs/ci-cd.md`):
+  - [ ] Como funciona o workflow
+  - [ ] Quando o deploy acontece (push na main)
+  - [ ] Como debugar falhas no workflow
+  - [ ] Como adicionar novos jobs/steps
+- [ ] **Atualizar README.md**:
+  - [ ] Adicionar badge do GitHub Actions (opcional)
+  - [ ] Mencionar que deploy é automático na main
+  - [ ] Reforçar importância de `make lint` e `make test` antes de push
+- [ ] **Branch Protection Rules no GitHub** (se disponível no plano grátis):
+  - [ ] Require status checks before merging (lint + test devem passar)
+  - [ ] Require branches to be up to date
+- [ ] **Melhorias opcionais**:
+  - [ ] Adicionar notificações de deploy (Slack, Discord, email)
+  - [ ] Cache de dependências do UV/npm para builds mais rápidos
+  - [ ] Deploy preview em PRs (staging environment)
+  - [ ] Rollback automático se health check falhar
 
-**Resultado Final: 14 testes passando (5 integração + 9 unitários) - 0 failed, 0 skipped**
+**Validação final**: Fazer um commit final de documentação e observar workflow rodar com sucesso.
 
 ---
 
-## Fase 8: Segurança e Boas Práticas ✅ COMPLETA
+## Observações Importantes
 
-### Objetivo
-Implementar proteções contra ataques comuns em fluxos OAuth.
+1. **Linting como gate de qualidade**: O workflow falha se lint não passar. Isso força boas práticas e código limpo.
 
-### Tasks
-- [x] **CSRF Protection**: Validar `state` parameter no callback (gerado aleatoriamente no `/login`)
-  - ✅ Authlib SessionMiddleware gerencia state automaticamente (`backend/app/main.py:53`)
-- [x] **Token Validation**: Sempre validar `id_token` assinado pelo Google (não confiar apenas no `access_token`)
-  - ✅ ID Token validado: assinatura, audience, issuer (`backend/app/oauth.py:56-102`)
-- [x] **HTTPS Only (Produção)**: Configurar `GOOGLE_REDIRECT_URI` com HTTPS em prod
-  - ✅ Detecção automática de ambiente (`backend/app/routers/auth.py:26`)
-  - ✅ `ENVIRONMENT=production` → `secure=True` nos cookies
-  - ✅ Terraform atualizado com `GOOGLE_REDIRECT_URI=https://poc-vite-uasawowwvq-ue.a.run.app/api/auth/google/callback`
-  - ✅ Deploy realizado com sucesso em produção
-- [x] **Secrets Management**: Garantir que `GOOGLE_CLIENT_SECRET` nunca é commitado (.gitignore `.env`)
-  - ✅ `.env` no `.gitignore`
-  - ✅ Produção usa Secret Manager (Terraform)
-- [x] **Error Handling**: Nunca expor detalhes internos em mensagens de erro
-  - ✅ Exceções tratadas sem expor stacktraces (`backend/app/routers/auth.py:224-265`)
+2. **Testes bloqueiam deploy**: Deploy só acontece se lint + test passarem. Isso evita bugs em produção.
 
-### Deploy em Produção
-- [x] Build via Cloud Build: `gcloud builds submit --config cloudbuild.yaml`
-- [x] Deploy no Cloud Run: `gcloud run services update poc-vite`
-- [x] Health check em produção: `{"mode": "production", "status": "healthy"}`
-- [x] OAuth testado: Redirect para Google funcionando corretamente
-- [x] Frontend SPA servido corretamente pelo FastAPI
+3. **Workload Identity > Service Account Keys**: Mais seguro, sem chaves JSON commitadas ou vazadas.
 
-**URL de Produção**: https://poc-vite-229191889267.us-east1.run.app
+4. **Build via Cloud Build**: Usa `cloudbuild.yaml` existente, que já está otimizado (multi-stage build).
+
+5. **Deploy apenas na main**: Branches de feature não fazem deploy automaticamente. Isso evita deploys acidentais.
+
+6. **Secrets gerenciados pelo Terraform**: DATABASE_URL, SECRET_KEY, OAuth credentials já estão no Secret Manager e são injetados automaticamente pelo Cloud Run.
+
+7. **Branch Protection**: Se disponível no plano grátis do GitHub, configure para exigir que lint+test passem antes do merge. Caso contrário, o workflow já serve como gate de qualidade (vai falhar no deploy se testes falharem).
+
+8. **Paralelização**: Lint e Test rodam em paralelo para economizar tempo. Deploy só roda após ambos passarem.
+
+9. **Health check**: Workflow valida que deploy foi bem-sucedido fazendo curl no `/health` endpoint.
+
+10. **Iteração**: Após primeira implementação, você pode adicionar melhorias (cache, notificações, preview deploys) conforme necessário.
 
 ---
 
-## Fase 9: Documentação e Deploy
+## Roadmap Futuro (Fora do escopo desta POC)
 
-### Objetivo
-Atualizar documentação e preparar deploy em produção.
-
-### Tasks
-- [ ] Atualizar `CLAUDE.md`:
-  - Adicionar seção "OAuth2 - Google Sign-In"
-  - Documentar fluxo de autenticação (diagrama ou texto)
-  - Explicar linking de contas
-- [ ] Atualizar `README.md`:
-  - Instruções de setup do Google Cloud Console
-  - Como obter Client ID/Secret
-  - Configuração de variáveis de ambiente
-- [ ] Atualizar `docs/deployment.md`:
-  - Configurar secrets no GCP Secret Manager (`GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`)
-  - Atualizar redirect URI para domínio de produção
-  - Verificar CORS (não deve ser necessário se mesmo domínio)
-- [ ] Criar PR com todas as mudanças:
-  - Backend: models, routers, oauth.py
-  - Frontend: GoogleSignInButton, GoogleCallback, rotas
-  - Testes E2E e unitários
-  - Documentação atualizada
-
----
-
-## ✅ Critérios de Aceitação
-
-- [ ] Usuário pode fazer login com Google em 1 clique (sem pedir dados adicionais)
-- [ ] Contas com mesmo email são linkadas automaticamente (email/senha + Google)
-- [ ] Sessão é criada via cookie HttpOnly (mesma arquitetura do login email/senha)
-- [ ] Fluxo OAuth protegido contra CSRF (validação de `state`)
-- [ ] Tokens do Google são validados no backend (não confiar no frontend)
-- [ ] Testes E2E cobrem happy path + edge cases
-- [ ] Documentação atualizada (CLAUDE.md, README.md, deployment.md)
-- [ ] Deploy em produção com secrets no Secret Manager
-
----
-
-
-## 📚 Recursos e Referências
-
-- [Google OAuth2 Documentation](https://developers.google.com/identity/protocols/oauth2)
-- [Authlib - Python OAuth Library](https://docs.authlib.org/en/latest/)
-- [Google Sign-In Button Guidelines](https://developers.google.com/identity/branding-guidelines)
-- [OWASP OAuth Security Cheatsheet](https://cheatsheetseries.owasp.org/cheatsheets/OAuth2_Cheat_Sheet.html)
+- Ambientes de staging/homologação
+- Deploy preview em Pull Requests
+- Testes E2E no CI (Playwright)
+- Rollback automático se métricas de erro dispararem
+- Deploy canary (gradual rollout)
+- Integração com ferramentas de observabilidade (Datadog, Sentry)
