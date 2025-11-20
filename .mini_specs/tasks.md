@@ -111,22 +111,22 @@ Implementar fluxo OAuth2 Authorization Code no backend.
 
 ---
 
-## Fase 5: Frontend - UI do Botão Google
+## Fase 5: Frontend - UI do Botão Google ✅
 
 ### Objetivo
 Adicionar botão "Sign in with Google" nas páginas de Login e Signup.
 
 ### Tasks
-- [ ] Criar componente `GoogleSignInButton.tsx` (`frontend/src/components/GoogleSignInButton.tsx`):
+- [x] Criar componente `GoogleSignInButton.tsx` (`frontend/src/components/GoogleSignInButton.tsx`):
   - Botão estilizado seguindo design do Google (branco, logo G colorido)
   - Ao clicar: redireciona para `GET /api/auth/google/login`
   - Estados de loading (desabilitar durante redirect)
-- [ ] Integrar `GoogleSignInButton` na página `Login.tsx`:
+- [x] Integrar `GoogleSignInButton` na página `Login.tsx`:
   - Posicionar acima do formulário email/senha
   - Adicionar separador visual ("ou continue com email")
-- [ ] Integrar `GoogleSignInButton` na página `Signup.tsx`:
+- [x] Integrar `GoogleSignInButton` na página `Signup.tsx`:
   - Mesmo layout do Login
-- [ ] Adicionar `data-testid` para testes E2E (`data-testid="google-signin-button"`)
+- [x] Adicionar `data-testid` para testes E2E (`data-testid="google-signin-button"`)
 
 ---
 
