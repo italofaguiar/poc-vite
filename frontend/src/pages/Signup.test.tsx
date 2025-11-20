@@ -251,9 +251,8 @@ describe('Signup', () => {
     const user = userEvent.setup();
 
     // Create a promise that never resolves to keep loading state
-    let resolveSignup: () => void;
-    const signupPromise = new Promise<{ message: string }>((resolve) => {
-      resolveSignup = () => resolve({ message: 'Success' });
+    const signupPromise = new Promise<{ message: string }>(() => {
+      // Never resolves - keeps loading state active
     });
     vi.mocked(api.signup).mockReturnValue(signupPromise);
 
