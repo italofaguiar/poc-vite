@@ -187,12 +187,11 @@ async def google_login(request: Request):
         raise HTTPException(
             status_code=500,
             detail=f"Google OAuth not configured: {str(e)}"
-        )
+        ) from e
 
     # Generate authorization URL (Authlib manages state automatically via SessionMiddleware)
     redirect_uri = GOOGLE_REDIRECT_URI or request.url_for("google_callback")
-    authorization_url = await oauth.google.authorize_redirect(request, str(redirect_uri))  # type: ignore[union-attr]
-
+    authorization_url = await oauth.google.authorize_redirect(request, str(redirect_uri))
     return authorization_url
 
 
@@ -236,11 +235,11 @@ async def google_callback(
         raise HTTPException(
             status_code=500,
             detail=f"Google OAuth not configured: {str(e)}"
-        )
+        ) from e
 
     # Exchange authorization code for tokens (Authlib validates state automatically)
     try:
-        token = await oauth.google.authorize_access_token(request)  # type: ignore[union-attr]
+        token = await oauth.google.authorize_access_token(request)
     except Exception as e:
         import logging
         logger = logging.getLogger(__name__)
@@ -248,7 +247,7 @@ async def google_callback(
         raise HTTPException(
             status_code=401,
             detail=f"Failed to exchange authorization code: {str(e)}"
-        )
+        ) from e
 
     # Extract and verify ID token
     id_token = token.get("id_token")
@@ -265,7 +264,7 @@ async def google_callback(
         raise HTTPException(
             status_code=401,
             detail=f"Invalid token: {str(e)}"
-        )
+        ) from e
 
     email = user_info["email"]
     google_id = user_info["google_id"]

@@ -3,6 +3,9 @@
 # Default target
 .DEFAULT_GOAL := help
 
+# Add common UV installation paths to PATH
+export PATH := $(HOME)/.local/bin:/usr/local/bin:$(PATH)
+
 help: ## Show this help message
 	@echo "Available commands:"
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-25s\033[0m %s\n", $$1, $$2}'
@@ -13,24 +16,17 @@ help: ## Show this help message
 
 test: test-backend test-frontend ## Run all tests (backend + frontend) - LOCAL
 
-test-backend: ## Run backend tests (pytest) - LOCAL (falls back to Docker if UV not installed)
-	@command -v uv >/dev/null 2>&1 && (cd backend && uv run pytest tests/ -v) || \
-	(echo "⚠️  UV not found locally. Install with: ./scripts/setup-dev.sh" && \
-	 echo "📦 Falling back to Docker..." && \
-	 docker compose exec backend pytest tests/ -v)
+test-backend: ## Run backend tests (pytest) - LOCAL (requires UV)
+	cd backend && uv run pytest tests/ -v
 
 test-backend-watch: ## Run backend tests in watch mode - LOCAL
-	@command -v uv >/dev/null 2>&1 && (cd backend && uv run pytest tests/ -v --watch) || \
-	(echo "⚠️  UV not found. Install with: ./scripts/setup-dev.sh" && exit 1)
+	cd backend && uv run pytest tests/ -v --watch
 
-test-frontend: ## Run frontend tests (vitest) - LOCAL (falls back to Docker if npm not found)
-	@command -v npm >/dev/null 2>&1 && (cd frontend && npm test) || \
-	(echo "⚠️  npm not found locally. Falling back to Docker..." && \
-	 docker compose exec frontend npm test)
+test-frontend: ## Run frontend tests (vitest) - LOCAL (requires npm)
+	cd frontend && npm test
 
 test-frontend-run: ## Run frontend tests once (CI mode) - LOCAL
-	@command -v npm >/dev/null 2>&1 && (cd frontend && npm run test:run) || \
-	(echo "⚠️  npm not found. Install Node.js or use: make test-frontend-docker" && exit 1)
+	cd frontend && npm run test:run
 
 #==========================================
 # Linting (LOCAL - fast, recommended)
@@ -38,16 +34,12 @@ test-frontend-run: ## Run frontend tests once (CI mode) - LOCAL
 
 lint: lint-backend lint-frontend ## Run all linters - LOCAL
 
-lint-backend: ## Run backend linters (ruff + mypy) - LOCAL (falls back to Docker if UV not installed)
-	@command -v uv >/dev/null 2>&1 && (cd backend && uv run ruff check app/ && uv run mypy app/) || \
-	(echo "⚠️  UV not found. Install with: ./scripts/setup-dev.sh" && \
-	 echo "📦 Falling back to Docker..." && \
-	 docker compose exec backend sh -c "ruff check app/ && mypy app/")
+lint-backend: ## Run backend linters (ruff + mypy) - LOCAL (requires UV)
+	cd backend && uv run ruff check app/
+	cd backend && uv run mypy app/
 
-lint-frontend: ## Run frontend linter (eslint) - LOCAL (falls back to Docker if npm not found)
-	@command -v npm >/dev/null 2>&1 && (cd frontend && npm run lint) || \
-	(echo "⚠️  npm not found. Falling back to Docker..." && \
-	 docker compose exec frontend npm run lint)
+lint-frontend: ## Run frontend linter (eslint) - LOCAL (requires npm)
+	cd frontend && npm run lint
 
 #==========================================
 # Application lifecycle (Docker Compose)
