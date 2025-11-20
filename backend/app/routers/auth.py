@@ -1,6 +1,3 @@
-import secrets
-from datetime import datetime, timedelta
-
 from fastapi import APIRouter, Cookie, Depends, HTTPException, Request, Response
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
@@ -22,12 +19,6 @@ router = APIRouter(prefix="/api/auth", tags=["auth"])
 # Cookie configuration
 COOKIE_NAME = "session_id"
 COOKIE_MAX_AGE = 60 * 60 * 24 * 7  # 7 days in seconds
-
-# OAuth state storage (CSRF protection)
-# Format: {state: (timestamp, redirect_url)}
-# In production, use Redis with TTL
-oauth_states: dict[str, tuple[datetime, str]] = {}
-STATE_EXPIRATION = timedelta(minutes=10)
 
 
 @router.post("/signup", response_model=UserResponse, status_code=201)
@@ -176,12 +167,12 @@ def get_current_user(
 
 
 @router.get("/google/login")
-async def google_login():
+async def google_login(request: Request):
     """
     Initiate Google OAuth2 login flow.
 
     Generates authorization URL and redirects user to Google consent screen.
-    Includes CSRF protection via state parameter.
+    Includes CSRF protection via state parameter (managed by Authlib).
 
     Returns:
         RedirectResponse: Redirect to Google authorization URL
@@ -197,36 +188,17 @@ async def google_login():
             detail=f"Google OAuth not configured: {str(e)}"
         )
 
-    # Generate random state for CSRF protection
-    state = secrets.token_urlsafe(32)
+    # Generate authorization URL (Authlib manages state automatically via SessionMiddleware)
+    redirect_uri = GOOGLE_REDIRECT_URI or request.url_for("google_callback")
+    authorization_url = await oauth.google.authorize_redirect(request, str(redirect_uri))  # type: ignore[union-attr]
 
-    # Store state with timestamp (expires in 10 minutes)
-    oauth_states[state] = (datetime.now(), "/dashboard")
-
-    # Clean up expired states
-    _cleanup_expired_states()
-
-    # Generate authorization URL (use configured redirect URI from env)
-    result = await oauth.google.create_authorization_url(  # type: ignore[union-attr]
-        GOOGLE_REDIRECT_URI,
-        state=state
-    )
-
-    # Extract URL from result (Authlib may return just URL or dict with 'url' key)
-    if isinstance(result, dict):
-        authorization_url = result.get("url", str(result))
-    else:
-        authorization_url = str(result)
-
-    return RedirectResponse(url=authorization_url)
+    return authorization_url
 
 
 @router.get("/google/callback")
 async def google_callback(
     request: Request,
     response: Response,
-    code: str | None = None,
-    state: str | None = None,
     error: str | None = None,
     db: Session = Depends(get_db)
 ):
@@ -239,8 +211,6 @@ async def google_callback(
     Args:
         request: FastAPI Request object
         response: FastAPI Response object to set cookies
-        code: Authorization code from Google
-        state: State parameter for CSRF protection
         error: Error from Google (if user denied consent)
         db: Database session
 
@@ -248,7 +218,7 @@ async def google_callback(
         RedirectResponse: Redirect to dashboard on success
 
     Raises:
-        HTTPException 400: If state is invalid or missing
+        HTTPException 400: If user denied consent
         HTTPException 401: If token is invalid or user info cannot be retrieved
         HTTPException 500: If OAuth client is not configured
     """
@@ -259,27 +229,6 @@ async def google_callback(
             detail=f"Google authentication failed: {error}"
         )
 
-    # Validate required parameters
-    if not code or not state:
-        raise HTTPException(
-            status_code=400,
-            detail="Missing code or state parameter"
-        )
-
-    # Validate state (CSRF protection)
-    if state not in oauth_states:
-        raise HTTPException(
-            status_code=400,
-            detail="Invalid or expired state parameter"
-        )
-
-    # Get redirect URL and remove state from storage
-    _, redirect_url = oauth_states.pop(state)
-
-    # Check state expiration
-    # Note: Already validated by presence in dict (expired states are cleaned up)
-    # TODO Certeza desse clean up? Porque ele foi feito na etapa anterior de enviar para a página de consentimento. 
-
     try:
         oauth = get_google_oauth_client()
     except ValueError as e:
@@ -288,7 +237,7 @@ async def google_callback(
             detail=f"Google OAuth not configured: {str(e)}"
         )
 
-    # Exchange authorization code for tokens
+    # Exchange authorization code for tokens (Authlib validates state automatically)
     try:
         token = await oauth.google.authorize_access_token(request)  # type: ignore[union-attr]
     except Exception as e:
@@ -357,16 +306,4 @@ async def google_callback(
     )
 
     # Redirect to dashboard
-    return RedirectResponse(url=redirect_url, status_code=303)
-
-
-def _cleanup_expired_states():
-    """Remove expired OAuth states (older than STATE_EXPIRATION)."""
-    now = datetime.now()
-    expired_keys = [
-        state
-        for state, (timestamp, _) in oauth_states.items()
-        if now - timestamp > STATE_EXPIRATION
-    ]
-    for key in expired_keys:
-        oauth_states.pop(key, None)
+    return RedirectResponse(url="/dashboard", status_code=303)
