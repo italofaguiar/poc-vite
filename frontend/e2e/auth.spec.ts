@@ -5,20 +5,40 @@ import { test, expect } from '@playwright/test';
  *
  * Prerequisites:
  * - Docker Compose running (docker compose up -d)
- * - User already created: teste.e2e@example.com / senha123
  *
  * Run:
  * - npm run test:e2e
  */
 
+const TEST_USER = {
+  email: 'e2e.test@example.com',
+  password: 'senha123',
+};
+
 test.describe('Authentication Flow', () => {
-  test('should login with email and password', async ({ page }) => {
+  // Setup: Ensure test user exists
+  test.beforeAll(async ({ request }) => {
+    try {
+      // Try to create test user
+      await request.post('/api/auth/signup', {
+        data: TEST_USER,
+      });
+    } catch (error: any) {
+      // Only ignore if user already exists (400 Bad Request)
+      // Any other error (500, network, etc.) should fail the test
+      if (error.status !== 400) {
+        throw error;
+      }
+    }
+  });
+
+  test('should login with credentials and access dashboard successfully', async ({ page }) => {
     // Navigate to login page
     await page.goto('/login');
 
     // Fill login form
-    await page.getByLabel(/email/i).fill('teste.e2e@example.com');
-    await page.getByLabel(/senha/i).fill('senha123');
+    await page.getByLabel(/email/i).fill(TEST_USER.email);
+    await page.getByLabel(/senha/i).fill(TEST_USER.password);
 
     // Submit form
     await page.getByRole('button', { name: /entrar/i }).click();
@@ -27,10 +47,13 @@ test.describe('Authentication Flow', () => {
     await expect(page).toHaveURL('/dashboard');
 
     // Should show user email in dashboard
-    await expect(page.getByText('teste.e2e@example.com')).toBeVisible();
+    await expect(page.getByText(TEST_USER.email)).toBeVisible();
 
     // Should show dashboard content (chart and table)
     await expect(page.getByRole('heading', { name: /evolução de vendas/i })).toBeVisible();
     await expect(page.getByRole('heading', { name: /produtos/i })).toBeVisible();
+
+    // Final verification: Confirm we're on the dashboard page
+    await expect(page.getByRole('heading', { name: /dashboard/i })).toBeVisible();
   });
 });

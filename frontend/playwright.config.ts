@@ -41,7 +41,7 @@ export default defineConfig({
     screenshot: 'only-on-failure',
 
     // Headless mode (no browser window)
-    headless: false,
+    headless: true,
   },
 
   // Browser projects
