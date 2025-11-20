@@ -69,35 +69,9 @@ gcloud run services logs tail poc-vite \
 
 ---
 
-## Atualizar Secrets OAuth (primeira vez)
+## Secrets OAuth
 
-**Secrets já existem** (criados pelo Terraform com valores placeholder e depois eu já rodei).
-
-Para atualizar com credenciais reais do Google Console:
-
-```bash
-# 1. Obter credentials do Google Cloud Console
-# https://console.cloud.google.com/apis/credentials
-
-# 2. Atualizar secrets
-echo -n "SEU_GOOGLE_CLIENT_ID_REAL" | \
-  gcloud secrets versions add google-client-id \
-  --project=pilotodevendas-prod \
-  --data-file=-
-
-echo -n "SEU_GOOGLE_CLIENT_SECRET_REAL" | \
-  gcloud secrets versions add google-client-secret \
-  --project=pilotodevendas-prod \
-  --data-file=-
-
-# 3. Cloud Run automaticamente usa nova versão (:latest)
-# Opcional: Forçar restart
-gcloud run services update poc-vite \
-  --project=pilotodevendas-prod \
-  --region=us-east1
-```
-
-**Nota:** `secret-key` foi gerado automaticamente pelo Terraform (não precisa atualizar).
+✅ **Secrets já configurados** (Google OAuth credentials atualizados manualmente após provisionamento do Terraform).
 
 ---
 
