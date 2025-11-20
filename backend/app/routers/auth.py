@@ -241,6 +241,9 @@ async def google_callback(
     try:
         token = await oauth.google.authorize_access_token(request)  # type: ignore[union-attr]
     except Exception as e:
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"OAuth token exchange failed: {type(e).__name__}: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=401,
             detail=f"Failed to exchange authorization code: {str(e)}"
@@ -295,15 +298,17 @@ async def google_callback(
     # Create session
     session_id = create_session(user.id)  # type: ignore[arg-type]
 
-    # Set cookie
-    response.set_cookie(
+    # Redirect to dashboard with cookie
+    # Using 302 (Found) instead of 303 to preserve cookie behavior
+    redirect_response = RedirectResponse(url="/dashboard", status_code=302)
+    redirect_response.set_cookie(
         key=COOKIE_NAME,
         value=session_id,
         max_age=COOKIE_MAX_AGE,
         httponly=True,
-        samesite="lax",
-        secure=False  # TODO: Set to True in production (HTTPS only)
+        samesite="lax",  # Lax works with same-site redirects (Google → our domain)
+        secure=False,  # Set to True in production (HTTPS only)
+        path="/"  # Explicitly set path to ensure cookie is sent to all routes
     )
 
-    # Redirect to dashboard
-    return RedirectResponse(url="/dashboard", status_code=303)
+    return redirect_response
