@@ -23,10 +23,10 @@ test.describe('Authentication Flow', () => {
       await request.post('/api/auth/signup', {
         data: TEST_USER,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Only ignore if user already exists (400 Bad Request)
       // Any other error (500, network, etc.) should fail the test
-      if (error.status !== 400) {
+      if (typeof error === 'object' && error !== null && 'status' in error && error.status !== 400) {
         throw error;
       }
     }

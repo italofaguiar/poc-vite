@@ -191,7 +191,7 @@ async def google_login(request: Request):
 
     # Generate authorization URL (Authlib manages state automatically via SessionMiddleware)
     redirect_uri = GOOGLE_REDIRECT_URI or request.url_for("google_callback")
-    authorization_url = await oauth.google.authorize_redirect(request, str(redirect_uri))
+    authorization_url = await oauth.google.authorize_redirect(request, str(redirect_uri)) # pyright: ignore[reportOptionalMemberAccess]
     return authorization_url
 
 
@@ -237,7 +237,7 @@ async def google_callback(
 
     # Exchange authorization code for tokens (Authlib validates state automatically)
     try:
-        token = await oauth.google.authorize_access_token(request)
+        token = await oauth.google.authorize_access_token(request) # pyright: ignore[reportOptionalMemberAccess]
     except Exception as e:
         import logging
         logger = logging.getLogger(__name__)
