@@ -278,6 +278,7 @@ async def google_callback(
 
     # Check state expiration
     # Note: Already validated by presence in dict (expired states are cleaned up)
+    # TODO Certeza desse clean up? Porque ele foi feito na etapa anterior de enviar para a página de consentimento. 
 
     try:
         oauth = get_google_oauth_client()
