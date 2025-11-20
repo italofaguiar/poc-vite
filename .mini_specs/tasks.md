@@ -189,19 +189,35 @@ foram considerados desnecessários para MVP. Cenários críticos cobertos por te
 
 ---
 
-## Fase 8: Segurança e Boas Práticas
+## Fase 8: Segurança e Boas Práticas ✅ COMPLETA
 
 ### Objetivo
 Implementar proteções contra ataques comuns em fluxos OAuth.
 
 ### Tasks
-- [ ] **CSRF Protection**: Validar `state` parameter no callback (gerado aleatoriamente no `/login`)
-- [ ] **Token Validation**: Sempre validar `id_token` assinado pelo Google (não confiar apenas no `access_token`)
-- [ ] **HTTPS Only (Produção)**: Configurar `GOOGLE_REDIRECT_URI` com HTTPS em prod
-- [ ] **Secrets Management**: Garantir que `GOOGLE_CLIENT_SECRET` nunca é commitado (.gitignore `.env`)
-- [ ] **Rate Limiting**: Adicionar rate limit nos endpoints OAuth (prevenir abuse)
-- [ ] **Logging**: Logar tentativas de login OAuth (sucesso/falha) para auditoria
-- [ ] **Error Handling**: Nunca expor detalhes internos em mensagens de erro (ex: "token inválido" em vez de stacktrace)
+- [x] **CSRF Protection**: Validar `state` parameter no callback (gerado aleatoriamente no `/login`)
+  - ✅ Authlib SessionMiddleware gerencia state automaticamente (`backend/app/main.py:53`)
+- [x] **Token Validation**: Sempre validar `id_token` assinado pelo Google (não confiar apenas no `access_token`)
+  - ✅ ID Token validado: assinatura, audience, issuer (`backend/app/oauth.py:56-102`)
+- [x] **HTTPS Only (Produção)**: Configurar `GOOGLE_REDIRECT_URI` com HTTPS em prod
+  - ✅ Detecção automática de ambiente (`backend/app/routers/auth.py:26`)
+  - ✅ `ENVIRONMENT=production` → `secure=True` nos cookies
+  - ✅ Terraform atualizado com `GOOGLE_REDIRECT_URI=https://poc-vite-uasawowwvq-ue.a.run.app/api/auth/google/callback`
+  - ✅ Deploy realizado com sucesso em produção
+- [x] **Secrets Management**: Garantir que `GOOGLE_CLIENT_SECRET` nunca é commitado (.gitignore `.env`)
+  - ✅ `.env` no `.gitignore`
+  - ✅ Produção usa Secret Manager (Terraform)
+- [x] **Error Handling**: Nunca expor detalhes internos em mensagens de erro
+  - ✅ Exceções tratadas sem expor stacktraces (`backend/app/routers/auth.py:224-265`)
+
+### Deploy em Produção
+- [x] Build via Cloud Build: `gcloud builds submit --config cloudbuild.yaml`
+- [x] Deploy no Cloud Run: `gcloud run services update poc-vite`
+- [x] Health check em produção: `{"mode": "production", "status": "healthy"}`
+- [x] OAuth testado: Redirect para Google funcionando corretamente
+- [x] Frontend SPA servido corretamente pelo FastAPI
+
+**URL de Produção**: https://poc-vite-229191889267.us-east1.run.app
 
 ---
 

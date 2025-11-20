@@ -1,3 +1,5 @@
+import os
+
 from fastapi import APIRouter, Cookie, Depends, HTTPException, Request, Response
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
@@ -19,6 +21,9 @@ router = APIRouter(prefix="/api/auth", tags=["auth"])
 # Cookie configuration
 COOKIE_NAME = "session_id"
 COOKIE_MAX_AGE = 60 * 60 * 24 * 7  # 7 days in seconds
+
+# Environment detection (same logic as main.py health check)
+IS_PRODUCTION = os.getenv("ENVIRONMENT", "development") == "production"
 
 
 @router.post("/signup", response_model=UserResponse, status_code=201)
@@ -63,7 +68,7 @@ def signup(user_data: UserSignup, response: Response, db: Session = Depends(get_
         max_age=COOKIE_MAX_AGE,
         httponly=True,
         samesite="lax",
-        secure=False  # TODO: Set to True in production (HTTPS only)
+        secure=IS_PRODUCTION  # HTTPS only in production
     )
 
     return new_user
@@ -104,7 +109,7 @@ def login(credentials: UserLogin, response: Response, db: Session = Depends(get_
         max_age=COOKIE_MAX_AGE,
         httponly=True,
         samesite="lax",
-        secure=False  # Set to True in production (HTTPS only)
+        secure=IS_PRODUCTION  # HTTPS only in production
     )
 
     return user
@@ -305,7 +310,7 @@ async def google_callback(
         max_age=COOKIE_MAX_AGE,
         httponly=True,
         samesite="lax",  # Lax works with same-site redirects (Google → our domain)
-        secure=False,  # Set to True in production (HTTPS only)
+        secure=IS_PRODUCTION,  # HTTPS only in production
         path="/"  # Explicitly set path to ensure cookie is sent to all routes
     )
 
