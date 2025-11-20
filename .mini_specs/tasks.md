@@ -4,29 +4,34 @@
 
 Implementar autenticação via Google OAuth2 no frontend, mantendo a arquitetura session-based existente (cookies HttpOnly). Usuários poderão fazer login com Google ou email/senha, e contas com mesmo email serão linkadas automaticamente.
 
+**CRÍTICO**: Siga o seguinte ciclo para cada fase:
+> implemente uma fase → testa "manual" → commita → atualiza tasks.md
+ 
+obs: Inclusive, se necessário, pode fazer testes em passos intermediários dentro da propria fase
+
 ---
 
-## Fase 1: Infraestrutura GCP via Terraform
+## Fase 1: Infraestrutura GCP via Terraform ✅
 
 ### Objetivo
 Provisionar recursos de infraestrutura OAuth2 no GCP usando Terraform.
 
 ### Tasks
-- [ ] **Aguardar infraestrutura**: As demandas de OAuth já foram especificadas em `/home/italo/projects/pvia-infra/.mini_specs/spec.md`
+- [x] **Aguardar infraestrutura**: As demandas de OAuth já foram especificadas em `/home/italo/projects/pvia-infra/.mini_specs/spec.md`
   - Secret Manager: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `SECRET_KEY`
   - OAuth 2.0 Client credentials (Web application)
   - APIs habilitadas (Secret Manager, Identity)
   - Permissões IAM (Cloud Run SA acessa secrets)
-- [ ] **Após Terraform aplicado**: Obter valores reais de Client ID/Secret
-  - Se Terraform criou: usar outputs do Terraform
-  - Se manual no Console: copiar valores da tela de OAuth credentials
-- [ ] Adicionar valores ao `.env` local para desenvolvimento:
+- [x] **Após Terraform aplicado**: Obter valores reais de Client ID/Secret
+  - Client ID: `<VALOR_OBTIDO_DO_GCP_CONSOLE>`
+  - Client Secret: `<VALOR_OBTIDO_DO_GCP_CONSOLE>`
+- [x] Adicionar valores ao `.env` local para desenvolvimento:
   ```bash
-  GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
-  GOOGLE_CLIENT_SECRET=your-client-secret
+  GOOGLE_CLIENT_ID=<YOUR_CLIENT_ID>.apps.googleusercontent.com
+  GOOGLE_CLIENT_SECRET=<YOUR_CLIENT_SECRET>
   GOOGLE_REDIRECT_URI=http://localhost:5173/api/auth/google/callback
   ```
-- [ ] Atualizar `.env.example` com novas variáveis (sem valores reais)
+- [x] Atualizar `.env.example` com novas variáveis (sem valores reais)
 
 **Observação**: Redirect URIs configurados via Terraform:
 - Dev (Vite): `http://localhost:5173/api/auth/google/callback`
@@ -35,46 +40,47 @@ Provisionar recursos de infraestrutura OAuth2 no GCP usando Terraform.
 
 ---
 
-## Fase 2: Backend - Modelo de Dados
+## Fase 2: Backend - Modelo de Dados ✅
 
 ### Objetivo
 Estender modelo `User` para suportar múltiplos métodos de autenticação.
 
 ### Tasks
-- [ ] Adicionar campo `auth_provider` ao modelo `User` (`backend/app/models.py`):
+- [x] Adicionar campo `auth_provider` ao modelo `User` (`backend/app/models.py`):
   ```python
-  auth_provider: Mapped[str] = mapped_column(String, default="email")  # "email" ou "google"
-  google_id: Mapped[Optional[str]] = mapped_column(String, nullable=True, unique=True)
+  auth_provider = Column(String, default="email", nullable=False)  # "email" ou "google"
+  google_id = Column(String, nullable=True, unique=True, index=True)
   ```
-- [ ] Tornar campo `password` opcional (nullable) para usuários Google:
+- [x] Tornar campo `password` opcional (nullable) para usuários Google:
   ```python
-  password: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+  password_hash = Column(String, nullable=True)  # Optional for OAuth users
   ```
-- [ ] Atualizar schema Pydantic `UserResponse` (`backend/app/schemas.py`) para incluir `auth_provider`
+- [x] Atualizar schema Pydantic `UserResponse` (`backend/app/schemas.py`) para incluir `auth_provider`
 
 **Observação**: Não precisa de Alembic - banco SQLite é recriado a cada deploy (POC). As tabelas são criadas automaticamente via `Base.metadata.create_all()` no startup.
 
 ---
 
-## Fase 3: Backend - Dependências e Utilitários
+## Fase 3: Backend - Dependências e Utilitários ✅
 
 ### Objetivo
 Instalar bibliotecas OAuth2 e criar helpers para validação de token Google.
 
 ### Tasks
-- [ ] Instalar biblioteca `authlib` (recomendada para OAuth2):
+- [x] Instalar biblioteca `authlib` (recomendada para OAuth2):
   ```bash
-  cd backend && uv add authlib requests
+  cd backend && uv add authlib requests httpx
   ```
-- [ ] Criar arquivo `backend/app/oauth.py` com funções:
+- [x] Criar arquivo `backend/app/oauth.py` com funções:
   - `get_google_oauth_client()` - configurar Authlib OAuth client
   - `verify_google_token(token: str)` - validar ID token do Google
   - `get_google_user_info(token: str)` - extrair email/nome do token JWT
-- [ ] Adicionar validação de env vars no startup (`backend/app/main.py`):
+- [x] Adicionar validação de env vars no startup (`backend/app/main.py`):
   ```python
   if not os.getenv("GOOGLE_CLIENT_ID"):
       logger.warning("GOOGLE_CLIENT_ID não configurado - OAuth Google desabilitado")
   ```
+- [x] Atualizar `.env.example` com variáveis `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REDIRECT_URI`
 
 ---
 

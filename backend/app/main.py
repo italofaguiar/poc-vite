@@ -1,3 +1,5 @@
+import logging
+import os
 from pathlib import Path
 
 from fastapi import FastAPI
@@ -6,6 +8,9 @@ from starlette.responses import FileResponse
 
 from app.database import Base, engine
 from app.routers import auth, dashboard
+
+# Configure logging
+logger = logging.getLogger(__name__)
 
 # Create FastAPI app
 app = FastAPI(
@@ -18,8 +23,20 @@ app = FastAPI(
 # Startup event: create database tables
 @app.on_event("startup")
 def startup_event():
-    """Create database tables on startup."""
+    """Create database tables on startup and validate environment variables."""
     Base.metadata.create_all(bind=engine)
+
+    # Validate Google OAuth configuration
+    if not os.getenv("GOOGLE_CLIENT_ID"):
+        logger.warning("GOOGLE_CLIENT_ID não configurado - OAuth Google desabilitado")
+    if not os.getenv("GOOGLE_CLIENT_SECRET"):
+        logger.warning("GOOGLE_CLIENT_SECRET não configurado - OAuth Google desabilitado")
+
+    # Log OAuth status
+    if os.getenv("GOOGLE_CLIENT_ID") and os.getenv("GOOGLE_CLIENT_SECRET"):
+        logger.info("Google OAuth configurado corretamente")
+    else:
+        logger.warning("Google OAuth não está totalmente configurado")
 
 
 # CORS not needed - same origin in production, Vite proxy in dev
