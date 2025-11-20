@@ -71,7 +71,7 @@ gcloud run services logs tail poc-vite \
 
 ## Atualizar Secrets OAuth (primeira vez)
 
-**Secrets já existem** (criados pelo Terraform com valores placeholder).
+**Secrets já existem** (criados pelo Terraform com valores placeholder e depois eu já rodei).
 
 Para atualizar com credenciais reais do Google Console:
 
