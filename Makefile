@@ -1,4 +1,4 @@
-.PHONY: help up down restart logs test test-backend test-frontend lint lint-backend lint-frontend clean
+.PHONY: help up down restart logs test test-backend test-frontend test-e2e test-all lint lint-backend lint-frontend clean
 
 # Default target
 .DEFAULT_GOAL := help
@@ -14,7 +14,7 @@ help: ## Show this help message
 # Testing (LOCAL - fast, recommended)
 #==========================================
 
-test: test-backend test-frontend ## Run all tests (backend + frontend) - LOCAL
+test: test-backend test-frontend ## Run unit tests (backend + frontend) - LOCAL
 
 test-backend: ## Run backend tests (pytest) - LOCAL (requires UV)
 	cd backend && uv run pytest tests/ -v
@@ -22,11 +22,16 @@ test-backend: ## Run backend tests (pytest) - LOCAL (requires UV)
 test-backend-watch: ## Run backend tests in watch mode - LOCAL
 	cd backend && uv run pytest tests/ -v --watch
 
-test-frontend: ## Run frontend tests (vitest) - LOCAL (requires npm)
+test-frontend: ## Run frontend unit tests (vitest) - LOCAL (requires npm)
 	cd frontend && npm test
 
-test-frontend-run: ## Run frontend tests once (CI mode) - LOCAL
+test-frontend-run: ## Run frontend unit tests once (CI mode) - LOCAL
 	cd frontend && npm run test:run
+
+test-e2e: ## Run E2E tests (Playwright) - LOCAL (requires Docker Compose up)
+	cd frontend && npm run test:e2e
+
+test-all: test-backend test-frontend-run test-e2e ## Run ALL tests (unit + E2E) - LOCAL
 
 #==========================================
 # Linting (LOCAL - fast, recommended)
