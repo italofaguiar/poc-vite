@@ -159,6 +159,7 @@ def get_current_user(
         raise HTTPException(status_code=401, detail="Invalid or expired session")
 
     # Get user from database
+    # TODO isso nao geraria excesso de queris no banco?
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=401, detail="User not found")
