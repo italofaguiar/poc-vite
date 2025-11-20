@@ -120,6 +120,10 @@ Esta é uma POC do **PilotoDeVendas.IA** - uma aplicação SaaS para automação
 
 **Arquivo**: `docs/deployment.md` - guia completo de deploy no GCP Cloud Run
 
+**🏗️ Infraestrutura Terraform**: Toda a infraestrutura GCP (Cloud Run, Cloud SQL, Secret Manager, networking, etc.) já está provisionada e gerenciada via Terraform em `/home/italo/projects/pvia-infra/terraform/main.tf`.
+
+**⚠️ CRÍTICO**: O repositório de infraestrutura (`pvia-infra`) é **READ-ONLY** - JAMAIS altere arquivos Terraform. Consulte apenas para entender recursos provisionados, variáveis e outputs.
+
 **Arquitetura de produção**:
 - **Container único**: `Dockerfile.prod` (3-stage build otimizado)
   - Stage 1: Build do frontend (Node + Vite → `/dist`)

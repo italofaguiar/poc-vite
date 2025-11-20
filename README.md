@@ -220,15 +220,20 @@ VITE_API_URL=http://localhost:8000
 - ✅ `Access-Control-Allow-Credentials: true`
 - ✅ Frontend consegue fazer requests com cookies
 
-## Próximos Passos (Produção - Infraestrutura)
+## Infraestrutura (Produção)
+
+**🏗️ Infraestrutura gerenciada via Terraform**: Toda a infraestrutura GCP (Cloud Run, Cloud SQL, Secret Manager, etc.) já está previamente provisionada e gerenciada via Terraform no repositório externo `/home/italo/projects/pvia-infra/terraform/main.tf`.
+
+**⚠️ CRÍTICO**: O projeto de infraestrutura é **READ-ONLY** - jamais altere arquivos Terraform. Consulte apenas para entender a arquitetura.
+
+## Próximos Passos (Produção - Aplicação)
 
 1. **Redis**: Substituir sessões in-memory por Redis
 2. **HTTPS**: Configurar SSL/TLS em produção
 3. **Domínio único**: Servir frontend + backend no mesmo domínio (evita CORS)
-4. **CloudRun + CloudSQL**: Deploy em GCP
-5. **Monitoring**: Logs estruturados, métricas, alertas
-6. **Rate Limiting**: Proteção contra brute force
-7. **Testes automatizados**: Unit tests + integration tests
+4. **Monitoring**: Logs estruturados, métricas, alertas
+5. **Rate Limiting**: Proteção contra brute force
+6. **Testes automatizados**: Unit tests + integration tests
 
 ## Roadmap do Produto
 
