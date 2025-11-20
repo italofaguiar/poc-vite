@@ -382,6 +382,8 @@ npm run dev          # Dev server (porta 5173)
 npm run build        # Build para produção (verifica tipos TypeScript)
 npm run preview      # Preview do build
 npm run lint         # Executar ESLint (deve passar com 0 erros/warnings)
+npm test             # Testes unitários (watch mode)
+npm run test:e2e     # Testes E2E com Playwright (requer Docker Compose up)
 ```
 
 ### Backend
@@ -417,6 +419,19 @@ docker compose exec frontend npm test
 - ✅ Type guards e helpers (types/index.test.ts) - 16 testes
 - ✅ Componentes críticos (ProtectedRoute, Login, Signup) - 23 testes
 - **Total**: 70 testes passando
+
+**Frontend E2E** (Playwright):
+```bash
+# Setup inicial (primeira vez)
+npm install
+npx playwright install chromium
+
+# Rodar testes E2E (Docker Compose deve estar rodando)
+docker compose up -d
+npm run test:e2e        # Headless
+npm run test:e2e:ui     # Com interface
+npm run test:all        # Unitários + E2E
+```
 
 **Backend**:
 ```bash
