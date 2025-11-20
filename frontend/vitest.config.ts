@@ -12,6 +12,12 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: './vitest.setup.ts',
     css: true,
+    // Exclude Playwright E2E tests (they use different test runner)
+    exclude: [
+      '**/node_modules/**',
+      '**/dist/**',
+      '**/e2e/**', // Playwright tests
+    ],
   },
   resolve: {
     alias: {

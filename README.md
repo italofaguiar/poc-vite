@@ -72,6 +72,8 @@ docker compose up --build
 
 ### Comandos Úteis
 
+**Makefile**: O projeto inclui um `Makefile` com atalhos para testes, linting, logs, gerenciamento do banco e mais. Execute `make help` para ver todos os comandos disponíveis.
+
 ```bash
 # Subir apenas backend + database
 docker compose up backend db
@@ -113,6 +115,7 @@ VITE_API_URL=http://localhost:8000
 
 ### Autenticação
 
+**Email/Senha:**
 - `POST /api/auth/signup` - Criar nova conta
   - Body: `{"email": "user@example.com", "password": "senha123"}`
   - Resposta: 201 Created + cookie `session_id`
@@ -121,6 +124,15 @@ VITE_API_URL=http://localhost:8000
   - Body: `{"email": "user@example.com", "password": "senha123"}`
   - Resposta: 200 OK + cookie `session_id`
 
+**OAuth Google:**
+- `GET /api/auth/google/login` - Iniciar fluxo OAuth
+  - Resposta: 302 Redirect para Google consent screen
+
+- `GET /api/auth/google/callback` - Callback após autorização
+  - Query params: `code`, `state` (gerenciados pelo Google)
+  - Resposta: 302 Redirect para `/dashboard` + cookie `session_id`
+
+**Sessão:**
 - `POST /api/auth/logout` - Fazer logout
   - Headers: Cookie `session_id`
   - Resposta: 200 OK (remove cookie)
@@ -168,10 +180,23 @@ VITE_API_URL=http://localhost:8000
 
 ## Fluxo de Autenticação
 
+### Email/Senha (Tradicional)
 1. **Signup**: Usuário cria conta → backend valida → cria hash bcrypt → salva no DB → cria sessão → retorna cookie
 2. **Login**: Usuário faz login → backend valida credenciais → cria sessão → retorna cookie
 3. **Acesso Protegido**: Request com cookie → backend valida sessão → permite acesso
 4. **Logout**: Request para logout → backend invalida sessão → remove cookie
+
+### OAuth Google (Account Linking)
+1. **Redirect para Google**: `GET /api/auth/google/login` → redireciona para consentimento do Google
+2. **Callback**: Google retorna com código → backend valida token → extrai email e google_id
+3. **Merge/Criação de Usuário** (ver `backend/app/routers/auth.py:273-297`):
+   - Busca usuário por `google_id` → se encontrar, usa esse usuário
+   - Se não encontrar por `google_id`, busca por `email`:
+     - **Usuário já existe** (criado via email/senha): vincula `google_id` à conta existente (merge)
+     - **Usuário não existe**: cria novo usuário com `auth_provider="google"`
+4. **Sessão**: Cria sessão e retorna cookie → redireciona para dashboard
+
+**Importante**: OAuth Google faz **account linking** automático - se você já tem conta com aquele email (criada via signup tradicional), o login do Google vincula sua conta Google à conta existente, não cria duplicata.
 
 ## Validações Realizadas
 
@@ -195,15 +220,20 @@ VITE_API_URL=http://localhost:8000
 - ✅ `Access-Control-Allow-Credentials: true`
 - ✅ Frontend consegue fazer requests com cookies
 
-## Próximos Passos (Produção - Infraestrutura)
+## Infraestrutura (Produção)
+
+**🏗️ Infraestrutura gerenciada via Terraform**: Toda a infraestrutura GCP (Cloud Run, Cloud SQL, Secret Manager, etc.) já está previamente provisionada e gerenciada via Terraform no repositório externo `/home/italo/projects/pvia-infra/terraform/main.tf`.
+
+**⚠️ CRÍTICO**: O projeto de infraestrutura é **READ-ONLY** - jamais altere arquivos Terraform. Consulte apenas para entender a arquitetura.
+
+## Próximos Passos (Produção - Aplicação)
 
 1. **Redis**: Substituir sessões in-memory por Redis
 2. **HTTPS**: Configurar SSL/TLS em produção
 3. **Domínio único**: Servir frontend + backend no mesmo domínio (evita CORS)
-4. **CloudRun + CloudSQL**: Deploy em GCP
-5. **Monitoring**: Logs estruturados, métricas, alertas
-6. **Rate Limiting**: Proteção contra brute force
-7. **Testes automatizados**: Unit tests + integration tests
+4. **Monitoring**: Logs estruturados, métricas, alertas
+5. **Rate Limiting**: Proteção contra brute force
+6. **Testes automatizados**: Unit tests + integration tests
 
 ## Roadmap do Produto
 

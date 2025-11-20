@@ -11,14 +11,10 @@ Obs: adicione algo nessa linha no inicio de tasks.md:
 obs: Inclusive, se necessário, pode fazer testes em passos intermediários dentro da propria fase. 
 ```
 
-Pode sobre escrever o arquivo tasks.md sem problema. Só garanta que ele está em UTF-8 e você vai escrever em UTF-8.
-
 ---
 
-
-- [ ] preparar o projeto para usar o padrao consadrado de CI/CD para usar git hub actions para build, test e deploy automatico no cloud run. 
-- [ ] Naturalmente, para isso eu quero que não aconteça o merge caso de algum problema no teste. 
-- [ ] Me ajude também a configurar a questão do permissionamento do GitHub Actions lá no meu GCP no meu Cloud Run. 
-- [ ] quero que, na etapa teste, rode os tests equivalente ao 'make test' (unitários backend + frontend)
-
-
+- [x] habilitar o login via Google (OAuth2) no frontend
+- [x] teste google login remoto
+  - [x] test all local, 
+  - [x] deploy e
+  - [x]  testar remoto!

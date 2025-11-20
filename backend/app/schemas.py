@@ -19,6 +19,7 @@ class UserResponse(BaseModel):
     """Schema for user response (excludes password)."""
     id: int
     email: str
+    auth_provider: str  # "email" or "google"
     created_at: datetime
 
     class Config:

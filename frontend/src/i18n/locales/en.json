@@ -34,6 +34,11 @@
     "hero": {
       "title": "Your 24/7 AI Sales Agent on WhatsApp",
       "subtitle": "Qualify leads, drive sales and increase your conversion with artificial intelligence"
+    },
+    "google": {
+      "signInButton": "Continue with Google",
+      "signingIn": "Signing in...",
+      "separator": "or continue with email"
     }
   },
   "dashboard": {
