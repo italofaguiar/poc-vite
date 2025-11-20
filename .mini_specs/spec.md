@@ -14,8 +14,11 @@ obs: Inclusive, se necessário, pode fazer testes em passos intermediários dent
 ---
 
 - [x] habilitar o login via Google (OAuth2) no frontend
+- [ ] test all local, deploy e testar remoto!
+- [ ] gh actions com tests+deploy.. JA FAZ O PR
 - [ ] botao google embaixo, nao?
 - [ ] garantir que cada novo /me com sucesso prolonga a sessao atual (se existir). obviamente, se passar muito tempo, a sessao expira e o usuario precisa logar de novo
+- [ ] resolver testes intermitentes do frontend
 
 
 - [ ] migrar para Mapped em vez de usar Column  
