@@ -1,5 +1,7 @@
+import os
 
-from fastapi import APIRouter, Cookie, Depends, HTTPException, Response
+from fastapi import APIRouter, Cookie, Depends, HTTPException, Request, Response
+from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
 from app.auth import (
@@ -11,6 +13,7 @@ from app.auth import (
 )
 from app.database import get_db
 from app.models import User
+from app.oauth import GOOGLE_REDIRECT_URI, get_google_oauth_client, get_google_user_info
 from app.schemas import UserLogin, UserResponse, UserSignup
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
@@ -18,6 +21,9 @@ router = APIRouter(prefix="/api/auth", tags=["auth"])
 # Cookie configuration
 COOKIE_NAME = "session_id"
 COOKIE_MAX_AGE = 60 * 60 * 24 * 7  # 7 days in seconds
+
+# Environment detection (same logic as main.py health check)
+IS_PRODUCTION = os.getenv("ENVIRONMENT", "development") == "production"
 
 
 @router.post("/signup", response_model=UserResponse, status_code=201)
@@ -62,7 +68,7 @@ def signup(user_data: UserSignup, response: Response, db: Session = Depends(get_
         max_age=COOKIE_MAX_AGE,
         httponly=True,
         samesite="lax",
-        secure=False  # TODO: Set to True in production (HTTPS only)
+        secure=IS_PRODUCTION  # HTTPS only in production
     )
 
     return new_user
@@ -103,7 +109,7 @@ def login(credentials: UserLogin, response: Response, db: Session = Depends(get_
         max_age=COOKIE_MAX_AGE,
         httponly=True,
         samesite="lax",
-        secure=False  # Set to True in production (HTTPS only)
+        secure=IS_PRODUCTION  # HTTPS only in production
     )
 
     return user
@@ -158,8 +164,154 @@ def get_current_user(
         raise HTTPException(status_code=401, detail="Invalid or expired session")
 
     # Get user from database
+    # TODO isso nao geraria excesso de queris no banco?
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=401, detail="User not found")
 
     return user
+
+
+@router.get("/google/login")
+async def google_login(request: Request):
+    """
+    Initiate Google OAuth2 login flow.
+
+    Generates authorization URL and redirects user to Google consent screen.
+    Includes CSRF protection via state parameter (managed by Authlib).
+
+    Returns:
+        RedirectResponse: Redirect to Google authorization URL
+
+    Raises:
+        HTTPException 500: If Google OAuth is not configured
+    """
+    try:
+        oauth = get_google_oauth_client()
+    except ValueError as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Google OAuth not configured: {str(e)}"
+        ) from e
+
+    # Generate authorization URL (Authlib manages state automatically via SessionMiddleware)
+    redirect_uri = GOOGLE_REDIRECT_URI or request.url_for("google_callback")
+    authorization_url = await oauth.google.authorize_redirect(request, str(redirect_uri)) # pyright: ignore[reportOptionalMemberAccess]
+    return authorization_url
+
+
+@router.get("/google/callback")
+async def google_callback(
+    request: Request,
+    error: str | None = None,
+    db: Session = Depends(get_db)
+):
+    """
+    Handle Google OAuth2 callback.
+
+    Validates state (CSRF), exchanges code for tokens, creates/links user,
+    and creates session.
+
+    Args:
+        request: FastAPI Request object
+        error: Error from Google (if user denied consent)
+        db: Database session
+
+    Returns:
+        RedirectResponse: Redirect to dashboard on success
+
+    Raises:
+        HTTPException 400: If user denied consent
+        HTTPException 401: If token is invalid or user info cannot be retrieved
+        HTTPException 500: If OAuth client is not configured
+    """
+    # Check if user denied consent
+    if error:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Google authentication failed: {error}"
+        )
+
+    try:
+        oauth = get_google_oauth_client()
+    except ValueError as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Google OAuth not configured: {str(e)}"
+        ) from e
+
+    # Exchange authorization code for tokens (Authlib validates state automatically)
+    try:
+        token = await oauth.google.authorize_access_token(request) # pyright: ignore[reportOptionalMemberAccess]
+    except Exception as e:
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"OAuth token exchange failed: {type(e).__name__}: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=401,
+            detail=f"Failed to exchange authorization code: {str(e)}"
+        ) from e
+
+    # Extract and verify ID token
+    id_token = token.get("id_token")
+    if not id_token:
+        raise HTTPException(
+            status_code=401,
+            detail="No ID token received from Google"
+        )
+
+    # Get user info from ID token
+    try:
+        user_info = get_google_user_info(id_token)
+    except ValueError as e:
+        raise HTTPException(
+            status_code=401,
+            detail=f"Invalid token: {str(e)}"
+        ) from e
+
+    email = user_info["email"]
+    google_id = user_info["google_id"]
+
+    # Find or create user
+    # 1. Try to find user by google_id
+    user = db.query(User).filter(User.google_id == google_id).first()
+
+    if not user:
+        # 2. If not found, try to find by email (link existing account)
+        user = db.query(User).filter(User.email == email).first()
+
+        if user:
+            # Link existing account with Google
+            user.google_id = google_id  # type: ignore[assignment]
+            user.auth_provider = "google"  # type: ignore[assignment]
+            db.commit()
+            db.refresh(user)
+        else:
+            # 3. Create new user
+            user = User(
+                email=email,
+                auth_provider="google",
+                google_id=google_id,
+                password_hash=None  # OAuth users don't need password
+            )
+            db.add(user)
+            db.commit()
+            db.refresh(user)
+
+    # Create session
+    session_id = create_session(user.id)  # type: ignore[arg-type]
+
+    # Redirect to dashboard with cookie
+    # Using 302 (Found) instead of 303 to preserve cookie behavior
+    redirect_response = RedirectResponse(url="/dashboard", status_code=302)
+    redirect_response.set_cookie(
+        key=COOKIE_NAME,
+        value=session_id,
+        max_age=COOKIE_MAX_AGE,
+        httponly=True,
+        samesite="lax",  # Lax works with same-site redirects (Google → our domain)
+        secure=IS_PRODUCTION,  # HTTPS only in production
+        path="/"  # Explicitly set path to ensure cookie is sent to all routes
+    )
+
+    return redirect_response

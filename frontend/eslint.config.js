@@ -9,6 +9,28 @@ export default [
   {
     ignores: ['dist/**', 'node_modules/**', '.playwright-mcp/**'],
   },
+  // Node.js environment for config files
+  {
+    files: ['*.config.ts', '*.config.js'],
+    languageOptions: {
+      parser: tsparser,
+      parserOptions: {
+        ecmaVersion: 'latest',
+        sourceType: 'module',
+      },
+      globals: {
+        process: 'readonly',
+        console: 'readonly',
+      },
+    },
+    plugins: {
+      '@typescript-eslint': tseslint,
+    },
+    rules: {
+      ...js.configs.recommended.rules,
+      ...tseslint.configs.recommended.rules,
+    },
+  },
   {
     files: ['**/*.{ts,tsx}'],
     languageOptions: {

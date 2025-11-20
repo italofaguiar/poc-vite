@@ -5,13 +5,23 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 # Get database URL from environment variable
+# Defaults:
+# - Development (Docker Compose): PostgreSQL localhost
+# - Production (Cloud Run): Configurado via Terraform (SQLite ou PostgreSQL)
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
     "postgresql://postgres:postgres@localhost:5432/pilotodevendas"
 )
 
 # Create SQLAlchemy engine
-engine = create_engine(DATABASE_URL)
+# SQLite precisa de check_same_thread=False para FastAPI (async)
+if DATABASE_URL.startswith("sqlite"):
+    engine = create_engine(
+        DATABASE_URL,
+        connect_args={"check_same_thread": False}
+    )
+else:
+    engine = create_engine(DATABASE_URL)
 
 # Create SessionLocal class
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

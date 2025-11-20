@@ -19,7 +19,10 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedIndexedAccess": true
+    "noUncheckedIndexedAccess": true,
+
+    /* Node.js types for config files */
+    "types": ["node"]
   },
-  "include": ["src"]
+  "include": ["src", "*.config.ts", "e2e"]
 }

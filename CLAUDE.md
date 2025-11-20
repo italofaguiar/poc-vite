@@ -120,6 +120,10 @@ Esta é uma POC do **PilotoDeVendas.IA** - uma aplicação SaaS para automação
 
 **Arquivo**: `docs/deployment.md` - guia completo de deploy no GCP Cloud Run
 
+**🏗️ Infraestrutura Terraform**: Toda a infraestrutura GCP (Cloud Run, Cloud SQL, Secret Manager, networking, etc.) já está provisionada e gerenciada via Terraform em `/home/italo/projects/pvia-infra/terraform/main.tf`.
+
+**⚠️ CRÍTICO**: O repositório de infraestrutura (`pvia-infra`) é **READ-ONLY** - JAMAIS altere arquivos Terraform. Consulte apenas para entender recursos provisionados, variáveis e outputs.
+
 **Arquitetura de produção**:
 - **Container único**: `Dockerfile.prod` (3-stage build otimizado)
   - Stage 1: Build do frontend (Node + Vite → `/dist`)
@@ -176,10 +180,17 @@ uv run uvicorn app.main:app --reload
 
 ### Autenticação
 - **Padrão**: Session-based com cookies HttpOnly (não JWT)
+- **Métodos**: Email/senha + OAuth Google (com account linking automático)
 - **Fluxo**: Login/Signup → cria sessão → cookie `session_id` (HttpOnly, Secure, SameSite=Lax)
 - **Storage**: In-memory dict no backend (`backend/app/auth.py::sessions`) - será Redis em produção
 - **Expiração**: 7 dias
 - **Proxy**: Vite redireciona `/api/*` para backend (`http://backend:8000`) - navegador vê mesmo domínio
+
+**OAuth Google - Account Linking** (`backend/app/routers/auth.py:273-297`):
+- Busca usuário por `google_id` → se encontrar, autentica
+- Se não encontrar, busca por `email`:
+  - **Usuário existe** (signup tradicional): vincula `google_id` à conta (merge) - **não cria duplicata**
+  - **Usuário não existe**: cria novo com `auth_provider="google"`, `password_hash=None`
 
 ### Dark Mode e Sistema de Cores
 
@@ -324,6 +335,13 @@ frontend/
 
 ## Comandos
 
+**Makefile**: O projeto possui um `Makefile` com atalhos para comandos comuns (testes, linting, logs, banco, etc). Execute `make help` na raiz do projeto para ver todos os comandos disponíveis.
+
+**⚠️ OBRIGATÓRIO - Checklist de Qualidade:**
+- **Antes de QUALQUER commit**: `make lint` (deve passar sem erros/warnings)
+- **Antes de commits relevantes**: `make test` (testes unitários backend + frontend)
+- **Antes de PULL REQUESTS**: `make test-all` (unitários + E2E fim-a-fim)
+
 ### Setup Inicial (Primeira Vez)
 
 **IMPORTANTE**: Execute este script antes de abrir o projeto na IDE pela primeira vez:
@@ -375,6 +393,8 @@ npm run dev          # Dev server (porta 5173)
 npm run build        # Build para produção (verifica tipos TypeScript)
 npm run preview      # Preview do build
 npm run lint         # Executar ESLint (deve passar com 0 erros/warnings)
+npm test             # Testes unitários (watch mode)
+npm run test:e2e     # Testes E2E com Playwright (requer Docker Compose up)
 ```
 
 ### Backend
@@ -410,6 +430,19 @@ docker compose exec frontend npm test
 - ✅ Type guards e helpers (types/index.test.ts) - 16 testes
 - ✅ Componentes críticos (ProtectedRoute, Login, Signup) - 23 testes
 - **Total**: 70 testes passando
+
+**Frontend E2E** (Playwright):
+```bash
+# Setup inicial (primeira vez)
+npm install
+npx playwright install chromium
+
+# Rodar testes E2E (Docker Compose deve estar rodando)
+docker compose up -d
+npm run test:e2e        # Headless
+npm run test:e2e:ui     # Com interface
+npm run test:all        # Unitários + E2E
+```
 
 **Backend**:
 ```bash
@@ -469,8 +502,10 @@ O Playwright fornece automação completa de navegador com acesso a:
 - `GET /` - 404 (dev) ou SPA index.html (prod)
 
 **Autenticação:**
-- `POST /api/auth/signup` - Criar conta (retorna cookie)
-- `POST /api/auth/login` - Login (retorna cookie)
+- `POST /api/auth/signup` - Criar conta com email/senha (retorna cookie)
+- `POST /api/auth/login` - Login com email/senha (retorna cookie)
+- `GET /api/auth/google/login` - Iniciar fluxo OAuth Google (redireciona para Google)
+- `GET /api/auth/google/callback` - Callback OAuth Google (cria/vincula usuário + retorna cookie)
 - `POST /api/auth/logout` - Logout (remove cookie)
 - `GET /api/auth/me` - Verificar sessão ativa
 
@@ -486,7 +521,15 @@ O Playwright fornece automação completa de navegador com acesso a:
 5. **Tasks**: O arquivo `.mini_specs/tasks.md` contém o roadmap da POC dividido em 5 fases.
 6. **Prioridade**: KISS (Keep It Simple Stupid) sempre que possível. Ver `docs/poc/1.contexto.md` para diretrizes completas.
 7. **Linting antes de commit**: **SEMPRE** executar linting localmente antes de commitar código:
+   - **Atalho**: `make lint` (executa backend + frontend)
    - **Frontend**: `cd frontend && npm run lint` (deve passar com 0 erros/warnings)
    - **Backend**: `cd backend && uv run ruff check app/ && uv run mypy app/` (ambos devem passar)
-   - Isso garante qualidade de código e evita problemas de build em produção
+   - Todo commit deve passar no lint sem erros ou warnings - isso garante qualidade de código e evita problemas de build em produção
 8. **Git**: **NUNCA** use `git commit --amend`. Sempre crie novos commits. Isso preserva o histórico completo e evita problemas de sincronização.
+
+
+## Conventions
+
+- By "CC", we mean "Claude Code"
+- Screenshots/Prints: `/mnt/c/Users/italo/OneDrive/Imagens/Screenshots` (Windows folder accessible via in WSL)
+    - default use: pegue o print mais recente -> `ls -lt /mnt/c/Users/italo/OneDrive/Imagens/Screenshots | head -n 1`

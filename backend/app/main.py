@@ -1,25 +1,56 @@
+import logging
+import os
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
+from starlette.middleware.sessions import SessionMiddleware
 from starlette.responses import FileResponse
 
 from app.database import Base, engine
 from app.routers import auth, dashboard
 
-# Create FastAPI app
+# Configure logging
+logger = logging.getLogger(__name__)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """
+    Lifespan context manager for FastAPI application.
+    Handles startup and shutdown events.
+    """
+    # Startup: create database tables and validate environment variables
+    Base.metadata.create_all(bind=engine)
+
+    # Validate Google OAuth configuration
+    if not os.getenv("GOOGLE_CLIENT_ID"):
+        logger.warning("GOOGLE_CLIENT_ID não configurado - OAuth Google desabilitado")
+    if not os.getenv("GOOGLE_CLIENT_SECRET"):
+        logger.warning("GOOGLE_CLIENT_SECRET não configurado - OAuth Google desabilitado")
+
+    # Log OAuth status
+    if os.getenv("GOOGLE_CLIENT_ID") and os.getenv("GOOGLE_CLIENT_SECRET"):
+        logger.info("Google OAuth configurado corretamente")
+    else:
+        logger.warning("Google OAuth não está totalmente configurado")
+
+    yield
+    # Shutdown: cleanup if needed (currently none)
+
+
+# Create FastAPI app with lifespan handler
 app = FastAPI(
     title="PilotoDeVendas.IA API",
     description="Backend API for PilotoDeVendas.IA POC",
-    version="0.1.0"
+    version="0.1.0",
+    lifespan=lifespan
 )
 
-
-# Startup event: create database tables
-@app.on_event("startup")
-def startup_event():
-    """Create database tables on startup."""
-    Base.metadata.create_all(bind=engine)
+# Add SessionMiddleware for OAuth (Authlib requires it)
+SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-key-change-in-production")
+app.add_middleware(SessionMiddleware, secret_key=SECRET_KEY)
 
 
 # CORS not needed - same origin in production, Vite proxy in dev

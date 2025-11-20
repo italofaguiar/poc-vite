@@ -27,6 +27,9 @@ services:
       DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-pilotodevendas}
       SECRET_KEY: ${SECRET_KEY:-dev-secret-key-change-in-production}
       ENVIRONMENT: ${ENVIRONMENT:-development}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      GOOGLE_REDIRECT_URI: ${GOOGLE_REDIRECT_URI:-http://localhost:5173/api/auth/google/callback}
     ports:
       - "8000:8000"
     volumes:

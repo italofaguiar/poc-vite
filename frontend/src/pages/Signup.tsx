@@ -8,6 +8,7 @@ import { getErrorMessage } from '../types'
 import ErrorMessage from '../components/ErrorMessage'
 import { HeroSection } from '../components/HeroSection'
 import { LanguageToggle } from '../components/LanguageToggle'
+import { GoogleSignInButton } from '../components/GoogleSignInButton'
 
 function Signup() {
   const { t } = useTranslation()
@@ -106,7 +107,24 @@ function Signup() {
             </p>
           </div>
 
-          <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+          {/* Google Sign-In Button */}
+          <div className="mt-6">
+            <GoogleSignInButton />
+          </div>
+
+          {/* Separator */}
+          <div className="relative mt-6">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-app-primary dark:border-dark-app-primary opacity-30"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-app-primary dark:bg-dark-app-primary text-app-secondary dark:text-dark-app-secondary">
+                {t('auth.google.separator')}
+              </span>
+            </div>
+          </div>
+
+          <form className="mt-6 space-y-6" onSubmit={handleSubmit}>
             <div className="space-y-4">
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-app-primary dark:text-dark-app-primary mb-1">
