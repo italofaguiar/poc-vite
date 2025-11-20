@@ -331,6 +331,13 @@ frontend/
 
 ## Comandos
 
+**Makefile**: O projeto possui um `Makefile` com atalhos para comandos comuns (testes, linting, logs, banco, etc). Execute `make help` na raiz do projeto para ver todos os comandos disponíveis.
+
+**⚠️ OBRIGATÓRIO - Checklist de Qualidade:**
+- **Antes de QUALQUER commit**: `make lint` (deve passar sem erros/warnings)
+- **Antes de commits relevantes**: `make test` (testes unitários backend + frontend)
+- **Antes de PULL REQUESTS**: `make test-all` (unitários + E2E fim-a-fim)
+
 ### Setup Inicial (Primeira Vez)
 
 **IMPORTANTE**: Execute este script antes de abrir o projeto na IDE pela primeira vez:
@@ -510,9 +517,10 @@ O Playwright fornece automação completa de navegador com acesso a:
 5. **Tasks**: O arquivo `.mini_specs/tasks.md` contém o roadmap da POC dividido em 5 fases.
 6. **Prioridade**: KISS (Keep It Simple Stupid) sempre que possível. Ver `docs/poc/1.contexto.md` para diretrizes completas.
 7. **Linting antes de commit**: **SEMPRE** executar linting localmente antes de commitar código:
+   - **Atalho**: `make lint` (executa backend + frontend)
    - **Frontend**: `cd frontend && npm run lint` (deve passar com 0 erros/warnings)
    - **Backend**: `cd backend && uv run ruff check app/ && uv run mypy app/` (ambos devem passar)
-   - Isso garante qualidade de código e evita problemas de build em produção
+   - Todo commit deve passar no lint sem erros ou warnings - isso garante qualidade de código e evita problemas de build em produção
 8. **Git**: **NUNCA** use `git commit --amend`. Sempre crie novos commits. Isso preserva o histórico completo e evita problemas de sincronização.
 
 

@@ -72,6 +72,8 @@ docker compose up --build
 
 ### Comandos Úteis
 
+**Makefile**: O projeto inclui um `Makefile` com atalhos para testes, linting, logs, gerenciamento do banco e mais. Execute `make help` para ver todos os comandos disponíveis.
+
 ```bash
 # Subir apenas backend + database
 docker compose up backend db
