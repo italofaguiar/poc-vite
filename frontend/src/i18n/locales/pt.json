@@ -34,6 +34,11 @@
     "hero": {
       "title": "Seu Vendedor de IA 24/7 no WhatsApp",
       "subtitle": "Qualifique leads, conduza vendas e aumente sua conversão com inteligência artificial"
+    },
+    "google": {
+      "signInButton": "Continuar com o Google",
+      "signingIn": "Entrando...",
+      "separator": "ou continue com email"
     }
   },
   "dashboard": {
