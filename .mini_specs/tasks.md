@@ -84,17 +84,17 @@ Instalar bibliotecas OAuth2 e criar helpers para validação de token Google.
 
 ---
 
-## Fase 4: Backend - Endpoints OAuth
+## Fase 4: Backend - Endpoints OAuth ✅
 
 ### Objetivo
 Implementar fluxo OAuth2 Authorization Code no backend.
 
 ### Tasks
-- [ ] Criar endpoint `GET /api/auth/google/login` (`backend/app/routers/auth.py`):
+- [x] Criar endpoint `GET /api/auth/google/login` (`backend/app/routers/auth.py`):
   - Gera authorization URL do Google
   - Redireciona usuário para tela de consent do Google
   - Inclui `state` parameter (CSRF protection)
-- [ ] Criar endpoint `GET /api/auth/google/callback` (`backend/app/routers/auth.py`):
+- [x] Criar endpoint `GET /api/auth/google/callback` (`backend/app/routers/auth.py`):
   - Recebe `code` e `state` do Google
   - Valida `state` (prevenir CSRF)
   - Troca `code` por `access_token` (POST para Google)
@@ -107,7 +107,7 @@ Implementar fluxo OAuth2 Authorization Code no backend.
     - Cria sessão (igual ao login email/senha)
     - Retorna cookie `session_id` (HttpOnly, Secure, SameSite=Lax)
   - Redireciona para `/dashboard` (ou URL de origem)
-- [ ] Adicionar tratamento de erros OAuth (token inválido, consent negado, state mismatch)
+- [x] Adicionar tratamento de erros OAuth (token inválido, consent negado, state mismatch)
 
 ---
 
