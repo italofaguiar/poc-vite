@@ -176,10 +176,17 @@ uv run uvicorn app.main:app --reload
 
 ### Autenticação
 - **Padrão**: Session-based com cookies HttpOnly (não JWT)
+- **Métodos**: Email/senha + OAuth Google (com account linking automático)
 - **Fluxo**: Login/Signup → cria sessão → cookie `session_id` (HttpOnly, Secure, SameSite=Lax)
 - **Storage**: In-memory dict no backend (`backend/app/auth.py::sessions`) - será Redis em produção
 - **Expiração**: 7 dias
 - **Proxy**: Vite redireciona `/api/*` para backend (`http://backend:8000`) - navegador vê mesmo domínio
+
+**OAuth Google - Account Linking** (`backend/app/routers/auth.py:273-297`):
+- Busca usuário por `google_id` → se encontrar, autentica
+- Se não encontrar, busca por `email`:
+  - **Usuário existe** (signup tradicional): vincula `google_id` à conta (merge) - **não cria duplicata**
+  - **Usuário não existe**: cria novo com `auth_provider="google"`, `password_hash=None`
 
 ### Dark Mode e Sistema de Cores
 
@@ -469,8 +476,10 @@ O Playwright fornece automação completa de navegador com acesso a:
 - `GET /` - 404 (dev) ou SPA index.html (prod)
 
 **Autenticação:**
-- `POST /api/auth/signup` - Criar conta (retorna cookie)
-- `POST /api/auth/login` - Login (retorna cookie)
+- `POST /api/auth/signup` - Criar conta com email/senha (retorna cookie)
+- `POST /api/auth/login` - Login com email/senha (retorna cookie)
+- `GET /api/auth/google/login` - Iniciar fluxo OAuth Google (redireciona para Google)
+- `GET /api/auth/google/callback` - Callback OAuth Google (cria/vincula usuário + retorna cookie)
 - `POST /api/auth/logout` - Logout (remove cookie)
 - `GET /api/auth/me` - Verificar sessão ativa
 
