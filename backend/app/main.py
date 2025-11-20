@@ -1,5 +1,6 @@
 import logging
 import os
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI
@@ -13,22 +14,14 @@ from app.routers import auth, dashboard
 # Configure logging
 logger = logging.getLogger(__name__)
 
-# Create FastAPI app
-app = FastAPI(
-    title="PilotoDeVendas.IA API",
-    description="Backend API for PilotoDeVendas.IA POC",
-    version="0.1.0"
-)
 
-# Add SessionMiddleware for OAuth (Authlib requires it)
-SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-key-change-in-production")
-app.add_middleware(SessionMiddleware, secret_key=SECRET_KEY)
-
-
-# Startup event: create database tables
-@app.on_event("startup")
-def startup_event():
-    """Create database tables on startup and validate environment variables."""
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """
+    Lifespan context manager for FastAPI application.
+    Handles startup and shutdown events.
+    """
+    # Startup: create database tables and validate environment variables
     Base.metadata.create_all(bind=engine)
 
     # Validate Google OAuth configuration
@@ -42,6 +35,22 @@ def startup_event():
         logger.info("Google OAuth configurado corretamente")
     else:
         logger.warning("Google OAuth não está totalmente configurado")
+
+    yield
+    # Shutdown: cleanup if needed (currently none)
+
+
+# Create FastAPI app with lifespan handler
+app = FastAPI(
+    title="PilotoDeVendas.IA API",
+    description="Backend API for PilotoDeVendas.IA POC",
+    version="0.1.0",
+    lifespan=lifespan
+)
+
+# Add SessionMiddleware for OAuth (Authlib requires it)
+SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-key-change-in-production")
+app.add_middleware(SessionMiddleware, secret_key=SECRET_KEY)
 
 
 # CORS not needed - same origin in production, Vite proxy in dev

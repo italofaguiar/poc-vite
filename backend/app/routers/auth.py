@@ -198,7 +198,6 @@ async def google_login(request: Request):
 @router.get("/google/callback")
 async def google_callback(
     request: Request,
-    response: Response,
     error: str | None = None,
     db: Session = Depends(get_db)
 ):
@@ -210,7 +209,6 @@ async def google_callback(
 
     Args:
         request: FastAPI Request object
-        response: FastAPI Response object to set cookies
         error: Error from Google (if user denied consent)
         db: Database session
 
