@@ -71,7 +71,14 @@ gcloud run services logs tail poc-vite \
 
 ## Secrets OAuth
 
-✅ **Secrets já configurados** (Google OAuth credentials atualizados manualmente após provisionamento do Terraform).
+✅ **Secrets já configurados** via Secret Manager (Google OAuth credentials + SECRET_KEY).
+
+```bash
+# Verificar secrets
+gcloud secrets versions list google-client-id --project=pilotodevendas-prod
+gcloud secrets versions list google-client-secret --project=pilotodevendas-prod
+gcloud secrets versions list secret-key --project=pilotodevendas-prod
+```
 
 ---
 
