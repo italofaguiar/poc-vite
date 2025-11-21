@@ -1,5 +1,7 @@
 # PilotoDeVendas.IA - POC de Autenticação
 
+[![CI/CD](https://github.com/italofaguiar/poc-vite/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/italofaguiar/poc-vite/actions/workflows/ci-cd.yml)
+
 ## Sobre o Projeto
 
 **PilotoDeVendas.IA** é uma plataforma SaaS de automação de vendas via WhatsApp com Inteligência Artificial, voltada para pequenos e médios empresários.
@@ -89,7 +91,13 @@ docker compose down -v && docker compose up --build
 
 # Parar ambiente
 docker compose down
+
+# SEMPRE rodar antes de commit
+make lint  # Backend + Frontend
+make test  # Testes unitários
 ```
+
+**⚠️ Deploy Automático**: Merge na `main` dispara deploy no Cloud Run. **Sempre rode `make lint` e `make test` antes de commitar**.
 
 ## Variáveis de Ambiente
 
@@ -256,9 +264,9 @@ VITE_API_URL=http://localhost:8000
 ## Documentação Adicional
 
 - `CLAUDE.md` - Guia para desenvolvimento com Claude Code
-- `docs/1.contexto.md` - Contexto completo do projeto
-- `.mini_specs/tasks.md` - Roadmap da POC (8 fases)
-- **`docs/todo/`** - Estratégias e tarefas futuras (deployment, escalabilidade, etc)
+- `docs/ci-cd.md` - Pipeline CI/CD (GitHub Actions → Cloud Run)
+- `docs/deployment.md` - Deploy em produção (Cloud Run)
+- `.mini_specs/tasks.md` - Roadmap da POC (5 fases concluídas)
 
 ## Licença
 

@@ -312,27 +312,23 @@ terraform output github_actions_service_account_email
 
 **Objetivo**: Validar que o CI/CD funciona end-to-end.
 
-### Checklist
+**✅ FASE CONCLUÍDA**
 
-- [ ] Fazer uma alteração trivial no código (ex: adicionar comentário em README)
-- [ ] Criar commit e push para branch `main`
-- [ ] Acessar GitHub Actions e observar workflow executando
-- [ ] **Validar Job Lint**:
-  - [ ] Backend lint passou (ruff + mypy)
-  - [ ] Frontend lint passou (eslint)
-- [ ] **Validar Job Test**:
-  - [ ] Testes backend passaram
-  - [ ] Testes frontend passaram
-- [ ] **Validar Job Build and Deploy**:
-  - [ ] Autenticação GCP funcionou
-  - [ ] Cloud Build completou com sucesso
-  - [ ] Cloud Run foi atualizado
-  - [ ] Health check passou
-- [ ] Acessar URL do Cloud Run e validar manualmente:
-  - [ ] Frontend carrega
-  - [ ] Login funciona
-  - [ ] Dashboard carrega
-- [ ] Verificar logs do Cloud Run se houver problemas
+### Validações Realizadas
+
+- ✅ PR #2 criado com todas as mudanças
+- ✅ CI rodou no PR (Lint + Test)
+- ✅ Merge realizado na `main`
+- ✅ **Workflow completo executado**:
+  - ✅ Lint: Backend (ruff + mypy) + Frontend (ESLint)
+  - ✅ Test: Backend + Frontend (com Postgres 16)
+  - ✅ Build & Deploy: Docker + Artifact Registry + Cloud Run
+  - ✅ Health check: `{"status":"healthy","mode":"production"}`
+- ✅ **App validado em produção**:
+  - URL: https://poc-vite-uasawowwvq-ue.a.run.app
+  - Frontend carrega ✅
+  - Login funciona ✅
+  - Dashboard funciona ✅
 
 **Troubleshooting comum**:
 - **Lint falha**: Rodar `make lint` localmente e corrigir erros antes de commitar
@@ -347,17 +343,17 @@ terraform output github_actions_service_account_email
 
 **Objetivo**: Documentar processo, adicionar melhorias e garantir que time pode usar CI/CD.
 
-### Checklist
+**✅ FASE CONCLUÍDA (tarefas de documentação)**
 
-- [ ] **Documentar CI/CD** (criar `docs/ci-cd.md`):
-  - [ ] Como funciona o workflow
-  - [ ] Quando o deploy acontece (push na main)
-  - [ ] Como debugar falhas no workflow
-  - [ ] Como adicionar novos jobs/steps
-- [ ] **Atualizar README.md**:
-  - [ ] Adicionar badge do GitHub Actions (opcional)
-  - [ ] Mencionar que deploy é automático na main
-  - [ ] Reforçar importância de `make lint` e `make test` antes de push
+### Documentação Criada
+
+- ✅ **`docs/ci-cd.md`**: Como funciona o workflow, quando deploy acontece, debug, adicionar jobs
+- ✅ **README.md atualizado**:
+  - ✅ Badge do GitHub Actions no topo
+  - ✅ Aviso sobre deploy automático na main
+  - ✅ Importância de `make lint` e `make test` antes de commit
+
+### Melhorias Opcionais (não implementadas)
 - [ ] **Branch Protection Rules no GitHub** (se disponível no plano grátis):
   - [ ] Require status checks before merging (lint + test devem passar)
   - [ ] Require branches to be up to date
