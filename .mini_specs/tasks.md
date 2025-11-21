@@ -11,110 +11,43 @@
 
 **Objetivo**: Permitir que GitHub Actions faça deploy no Cloud Run sem usar service account keys (abordagem mais segura).
 
-**Responsável**: Agente Terraform (você vai passar essas orientações para ele)
+**Responsável**: Agente Terraform
 
-### Orientações para o Agente Terraform
+**✅ FASE CONCLUÍDA**
 
-O GitHub Actions precisa se autenticar no GCP para fazer build e deploy. A abordagem recomendada é **Workload Identity Federation** (não usa chaves JSON, mais seguro).
+### Recursos Provisionados
 
-**O que precisa ser provisionado via Terraform:**
+**Terraform**: Módulo `github_actions` criado em `/home/italo/projects/pvia-infra/terraform/modules/github_actions/`
 
-1. **Workload Identity Pool**:
-   ```hcl
-   resource "google_iam_workload_identity_pool" "github_actions" {
-     workload_identity_pool_id = "github-actions-pool"
-     display_name              = "GitHub Actions Pool"
-     description               = "Workload Identity Pool for GitHub Actions"
-   }
-   ```
+**Recursos GCP criados e validados**:
+1. ✅ **Workload Identity Pool**: `github-actions-pool` (ACTIVE)
+2. ✅ **Workload Identity Provider**: `github-provider` (ACTIVE, OIDC GitHub)
+3. ✅ **Service Account**: `github-actions-deployer@pilotodevendas-prod.iam.gserviceaccount.com`
+4. ✅ **IAM Roles**:
+   - `roles/run.admin` (deploy Cloud Run)
+   - `roles/artifactregistry.writer` (push imagens Docker)
+   - `roles/iam.serviceAccountUser` (impersonate SA)
+5. ✅ **Workload Identity Binding**: Restrição `assertion.repository == 'italofaguiar/poc-vite'`
 
-2. **Workload Identity Provider** (GitHub):
-   ```hcl
-   resource "google_iam_workload_identity_pool_provider" "github" {
-     workload_identity_pool_id          = google_iam_workload_identity_pool.github_actions.workload_identity_pool_id
-     workload_identity_pool_provider_id = "github-provider"
-     display_name                       = "GitHub Provider"
+### Outputs para GitHub Secrets
 
-     attribute_mapping = {
-       "google.subject"       = "assertion.sub"
-       "attribute.actor"      = "assertion.actor"
-       "attribute.repository" = "assertion.repository"
-     }
+**Referência completa**: `/home/italo/projects/pvia-infra/.mini_specs/github_actions_outputs.txt`
 
-     oidc {
-       issuer_uri = "https://token.actions.githubusercontent.com"
-     }
-   }
-   ```
+**Valores para configurar GitHub Actions**:
+```bash
+# Secret 1: GCP_WORKLOAD_IDENTITY_PROVIDER
+projects/229191889267/locations/global/workloadIdentityPools/github-actions-pool/providers/github-provider
 
-3. **Service Account** para GitHub Actions:
-   ```hcl
-   resource "google_service_account" "github_actions" {
-     account_id   = "github-actions-deployer"
-     display_name = "GitHub Actions Deployer"
-     description  = "Service Account used by GitHub Actions to deploy to Cloud Run"
-   }
-   ```
+# Secret 2: GCP_SERVICE_ACCOUNT_EMAIL
+github-actions-deployer@pilotodevendas-prod.iam.gserviceaccount.com
+```
 
-4. **Permissões necessárias** (IAM Roles):
-   ```hcl
-   # Cloud Run Admin (deploy services)
-   resource "google_project_iam_member" "github_actions_cloudrun" {
-     project = var.project_id
-     role    = "roles/run.admin"
-     member  = "serviceAccount:${google_service_account.github_actions.email}"
-   }
-
-   # Artifact Registry Writer (push images)
-   resource "google_project_iam_member" "github_actions_artifact_registry" {
-     project = var.project_id
-     role    = "roles/artifactregistry.writer"
-     member  = "serviceAccount:${google_service_account.github_actions.email}"
-   }
-
-   # Service Account User (impersonate service account)
-   resource "google_project_iam_member" "github_actions_sa_user" {
-     project = var.project_id
-     role    = "roles/iam.serviceAccountUser"
-     member  = "serviceAccount:${google_service_account.github_actions.email}"
-   }
-   ```
-
-5. **Binding do Workload Identity** (permite GitHub assumir o SA):
-   ```hcl
-   resource "google_service_account_iam_member" "github_actions_workload_identity" {
-     service_account_id = google_service_account.github_actions.name
-     role               = "roles/iam.workloadIdentityUser"
-     member             = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.github_actions.name}/attribute.repository/italofaguiar/poc-vite"
-   }
-   ```
-
-   **Repositório**: `italofaguiar/poc-vite`
-
-6. **Outputs necessários** (para configurar GitHub Actions):
-   ```hcl
-   output "github_actions_workload_identity_provider" {
-     description = "Workload Identity Provider name for GitHub Actions"
-     value       = google_iam_workload_identity_pool_provider.github.name
-   }
-
-   output "github_actions_service_account_email" {
-     description = "Service Account email for GitHub Actions"
-     value       = google_service_account.github_actions.email
-   }
-   ```
-
-**Validação**: Após aplicar o Terraform, retorne os outputs para uso nas próximas fases.
-
-### Checklist
-
-- [ ] Criar Workload Identity Pool no GCP
-- [ ] Criar Workload Identity Provider (GitHub OIDC)
-- [ ] Criar Service Account `github-actions-deployer`
-- [ ] Conceder roles necessários ao SA (Cloud Run Admin, Artifact Registry Writer, SA User)
-- [ ] Configurar binding Workload Identity (GitHub → SA)
-- [ ] Executar `terraform apply` e validar outputs
-- [ ] Documentar outputs (Workload Identity Provider name + SA email) para uso no GitHub Actions
+**Como obter via Terraform**:
+```bash
+cd ~/projects/pvia-infra/terraform
+terraform output github_actions_workload_identity_provider
+terraform output github_actions_service_account_email
+```
 
 ---
 
@@ -286,22 +219,14 @@ jobs:
 
 ### Checklist
 
-- [ ] Acessar GitHub: `Settings` → `Secrets and variables` → `Actions`
+- [ ] Acessar [GitHub Secrets](https://github.com/italofaguiar/poc-vite/settings/secrets/actions)
 - [ ] Adicionar secret `GCP_WORKLOAD_IDENTITY_PROVIDER`:
-  - Valor: output do Terraform `github_actions_workload_identity_provider`
-  - Formato: `projects/PROJECT_NUMBER/locations/global/workloadIdentityPools/github-actions-pool/providers/github-provider`
+  - Valor: `projects/229191889267/locations/global/workloadIdentityPools/github-actions-pool/providers/github-provider`
 - [ ] Adicionar secret `GCP_SERVICE_ACCOUNT_EMAIL`:
-  - Valor: output do Terraform `github_actions_service_account_email`
-  - Formato: `github-actions-deployer@pilotodevendas-prod.iam.gserviceaccount.com`
+  - Valor: `github-actions-deployer@pilotodevendas-prod.iam.gserviceaccount.com`
 - [ ] Validar que secrets foram salvos corretamente
 
-**Como obter os valores**:
-```bash
-# Após terraform apply na Fase 1
-cd ~/projects/pvia-infra/terraform
-terraform output github_actions_workload_identity_provider
-terraform output github_actions_service_account_email
-```
+**Referência**: Valores documentados na Fase 1 ou em `/home/italo/projects/pvia-infra/.mini_specs/github_actions_outputs.txt`
 
 ---
 
