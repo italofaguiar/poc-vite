@@ -55,161 +55,32 @@ terraform output github_actions_service_account_email
 
 **Objetivo**: Criar pipeline CI/CD que roda lint, testes, build e deploy no Cloud Run.
 
-### Checklist
+**✅ FASE CONCLUÍDA**
 
-- [ ] Criar arquivo `.github/workflows/ci-cd.yml`
-- [ ] Configurar trigger: apenas branch `main` (push)
-- [ ] **Job 1 - Lint**:
-  - [ ] Instalar UV (backend)
-  - [ ] Instalar Node (frontend)
-  - [ ] Rodar `make lint` (backend + frontend)
-  - [ ] Falhar workflow se lint falhar
-- [ ] **Job 2 - Test** (roda em paralelo com Lint):
-  - [ ] Instalar UV (backend)
-  - [ ] Instalar Node (frontend)
-  - [ ] Rodar `make test` (testes unitários backend + frontend)
-  - [ ] Falhar workflow se testes falharem
-- [ ] **Job 3 - Build and Deploy** (depende de Lint + Test):
-  - [ ] Autenticar no GCP via Workload Identity
-  - [ ] Configurar Docker para Artifact Registry
-  - [ ] Build da imagem Docker (`docker build -f Dockerfile.prod`)
-  - [ ] Push da imagem para Artifact Registry (`docker push`)
-  - [ ] Atualizar Cloud Run para puxar nova imagem
-  - [ ] Validar deploy (curl no /health)
-- [ ] Testar workflow localmente com `act` (opcional)
-- [ ] Commit do arquivo workflow
+### Workflow Criado
 
-**Arquivo exemplo**: `.github/workflows/ci-cd.yml`
+**Arquivo**: `.github/workflows/ci-cd.yml`
 
-```yaml
-name: CI/CD
+**Configuração**:
+- ✅ Trigger: push na branch `main`
+- ✅ **Job 1 - Lint** (paralelo):
+  - Python 3.12 + UV
+  - Node 18 + npm cache
+  - Executa `make lint` (backend ruff/mypy + frontend ESLint)
+- ✅ **Job 2 - Test** (paralelo):
+  - Python 3.12 + UV
+  - Node 18 + npm cache
+  - Executa `make test` (testes unitários backend + frontend)
+- ✅ **Job 3 - Build and Deploy** (sequencial, após lint+test):
+  - Autentica via Workload Identity (usa secrets configurados na Fase 3)
+  - Build Docker: `Dockerfile.prod`
+  - Push para Artifact Registry: `us-east1-docker.pkg.dev/pilotodevendas-prod/containers/poc-vite:latest`
+  - Deploy no Cloud Run: `poc-vite` (região `us-east1`)
+  - Validação: health check via curl
 
-on:
-  push:
-    branches:
-      - main
+**Validação**: ✅ YAML syntax válido
 
-env:
-  PROJECT_ID: pilotodevendas-prod
-  REGION: us-east1
-  SERVICE_NAME: poc-vite
-  IMAGE: us-east1-docker.pkg.dev/pilotodevendas-prod/containers/poc-vite:latest
-
-jobs:
-  lint:
-    name: Lint
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-
-      - name: Install UV
-        run: curl -LsSf https://astral.sh/uv/install.sh | sh
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
-
-      - name: Install frontend dependencies
-        run: cd frontend && npm ci
-
-      - name: Run lint (backend + frontend)
-        run: |
-          export PATH="$HOME/.local/bin:$PATH"
-          make lint
-
-  test:
-    name: Test
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-
-      - name: Install UV
-        run: curl -LsSf https://astral.sh/uv/install.sh | sh
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
-
-      - name: Install frontend dependencies
-        run: cd frontend && npm ci
-
-      - name: Run tests (backend + frontend)
-        run: |
-          export PATH="$HOME/.local/bin:$PATH"
-          make test
-
-  build-and-deploy:
-    name: Build and Deploy
-    runs-on: ubuntu-latest
-    needs: [lint, test]
-    permissions:
-      contents: read
-      id-token: write
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v2
-        with:
-          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
-          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT_EMAIL }}
-
-      - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v2
-
-      - name: Configure Docker for Artifact Registry
-        run: gcloud auth configure-docker us-east1-docker.pkg.dev
-
-      - name: Build Docker image
-        run: docker build -f Dockerfile.prod -t ${{ env.IMAGE }} .
-
-      - name: Push image to Artifact Registry
-        run: docker push ${{ env.IMAGE }}
-
-      - name: Deploy to Cloud Run
-        run: |
-          gcloud run services update ${{ env.SERVICE_NAME }} \
-            --project=${{ env.PROJECT_ID }} \
-            --region=${{ env.REGION }} \
-            --image=${{ env.IMAGE }}
-
-      - name: Verify deployment
-        run: |
-          SERVICE_URL=$(gcloud run services describe ${{ env.SERVICE_NAME }} \
-            --project=${{ env.PROJECT_ID }} \
-            --region=${{ env.REGION }} \
-            --format="value(status.url)")
-
-          echo "Service URL: $SERVICE_URL"
-
-          # Wait for deployment to stabilize
-          sleep 10
-
-          # Test health endpoint
-          curl -f "$SERVICE_URL/health" || exit 1
-
-          echo "✅ Deployment successful!"
-```
+**Próximo passo**: Configurar GitHub Secrets (Fase 3) para permitir autenticação do workflow no GCP
 
 ---
 
