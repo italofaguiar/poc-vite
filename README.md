@@ -107,6 +107,11 @@ POSTGRES_DB=pilotodevendas
 SECRET_KEY=dev-secret-key-change-in-production
 ENVIRONMENT=development
 
+# Google OAuth (obtido do Google Cloud Console)
+GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=your-client-secret
+GOOGLE_REDIRECT_URI=http://localhost:5173/api/auth/google/callback
+
 # Frontend
 VITE_API_URL=http://localhost:8000
 ```
