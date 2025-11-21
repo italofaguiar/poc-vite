@@ -43,7 +43,7 @@ jobs:
       - name: Install backend dependencies
         run: |
           export PATH="$HOME/.local/bin:$PATH"
-          cd backend && uv sync
+          cd backend && uv sync --all-extras
 
       - name: Run lint (backend + frontend)
         run: |
@@ -94,7 +94,7 @@ jobs:
       - name: Install backend dependencies
         run: |
           export PATH="$HOME/.local/bin:$PATH"
-          cd backend && uv sync
+          cd backend && uv sync --all-extras
 
       - name: Run tests (backend + frontend)
         env:
