@@ -239,6 +239,8 @@ VITE_API_URL=http://localhost:8000
 
 **Autenticação GCP**: Workload Identity Federation (sem chaves JSON, mais seguro)
 
+**⚠️ NUNCA MERGE DIRETO NA MAIN**: Sempre use Pull Requests. Deploy automático acontece apenas após merge do PR na `main`.
+
 ### GitHub Secrets Necessários
 
 Valores provisionados via Terraform em `/home/italo/projects/pvia-infra`:
