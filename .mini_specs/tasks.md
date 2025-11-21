@@ -88,16 +88,24 @@ terraform output github_actions_service_account_email
 
 **Objetivo**: Adicionar secrets necessários para o workflow no repositório GitHub.
 
-### Checklist
+**✅ FASE CONCLUÍDA**
 
-- [ ] Acessar [GitHub Secrets](https://github.com/italofaguiar/poc-vite/settings/secrets/actions)
-- [ ] Adicionar secret `GCP_WORKLOAD_IDENTITY_PROVIDER`:
-  - Valor: `projects/229191889267/locations/global/workloadIdentityPools/github-actions-pool/providers/github-provider`
-- [ ] Adicionar secret `GCP_SERVICE_ACCOUNT_EMAIL`:
-  - Valor: `github-actions-deployer@pilotodevendas-prod.iam.gserviceaccount.com`
-- [ ] Validar que secrets foram salvos corretamente
+### Secrets Configurados
 
-**Referência**: Valores documentados na Fase 1 ou em `/home/italo/projects/pvia-infra/.mini_specs/github_actions_outputs.txt`
+**Método**: GitHub CLI (`gh secret set`)
+
+**Secrets criados**:
+- ✅ `GCP_WORKLOAD_IDENTITY_PROVIDER`: `projects/229191889267/.../github-provider`
+- ✅ `GCP_SERVICE_ACCOUNT_EMAIL`: `github-actions-deployer@pilotodevendas-prod.iam.gserviceaccount.com`
+
+**Validação**:
+```bash
+$ gh secret list
+GCP_SERVICE_ACCOUNT_EMAIL
+GCP_WORKLOAD_IDENTITY_PROVIDER
+```
+
+**Referência**: Valores da Fase 1 (provisionados via Terraform)
 
 ---
 
