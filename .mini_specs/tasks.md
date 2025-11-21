@@ -72,13 +72,6 @@ O GitHub Actions precisa se autenticar no GCP para fazer build e deploy. A abord
      member  = "serviceAccount:${google_service_account.github_actions.email}"
    }
 
-   # Cloud Build Editor (submit builds)
-   resource "google_project_iam_member" "github_actions_cloudbuild" {
-     project = var.project_id
-     role    = "roles/cloudbuild.builds.editor"
-     member  = "serviceAccount:${google_service_account.github_actions.email}"
-   }
-
    # Service Account User (impersonate service account)
    resource "google_project_iam_member" "github_actions_sa_user" {
      project = var.project_id
@@ -92,11 +85,11 @@ O GitHub Actions precisa se autenticar no GCP para fazer build e deploy. A abord
    resource "google_service_account_iam_member" "github_actions_workload_identity" {
      service_account_id = google_service_account.github_actions.name
      role               = "roles/iam.workloadIdentityUser"
-     member             = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.github_actions.name}/attribute.repository/SEU_USUARIO_GITHUB/poc-vite"
+     member             = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.github_actions.name}/attribute.repository/italofaguiar/poc-vite"
    }
    ```
 
-   **IMPORTANTE**: Substitua `SEU_USUARIO_GITHUB` pelo nome correto do usuário/org no GitHub (ex: `italobusi` se o repo for `italobusi/poc-vite`).
+   **Repositório**: `italofaguiar/poc-vite`
 
 6. **Outputs necessários** (para configurar GitHub Actions):
    ```hcl
@@ -118,7 +111,7 @@ O GitHub Actions precisa se autenticar no GCP para fazer build e deploy. A abord
 - [ ] Criar Workload Identity Pool no GCP
 - [ ] Criar Workload Identity Provider (GitHub OIDC)
 - [ ] Criar Service Account `github-actions-deployer`
-- [ ] Conceder roles necessários ao SA (Cloud Run Admin, Artifact Registry Writer, Cloud Build Editor, SA User)
+- [ ] Conceder roles necessários ao SA (Cloud Run Admin, Artifact Registry Writer, SA User)
 - [ ] Configurar binding Workload Identity (GitHub → SA)
 - [ ] Executar `terraform apply` e validar outputs
 - [ ] Documentar outputs (Workload Identity Provider name + SA email) para uso no GitHub Actions
@@ -145,8 +138,9 @@ O GitHub Actions precisa se autenticar no GCP para fazer build e deploy. A abord
   - [ ] Falhar workflow se testes falharem
 - [ ] **Job 3 - Build and Deploy** (depende de Lint + Test):
   - [ ] Autenticar no GCP via Workload Identity
-  - [ ] Submit build via Cloud Build (`gcloud builds submit --config cloudbuild.yaml`)
-  - [ ] Aguardar build completar
+  - [ ] Configurar Docker para Artifact Registry
+  - [ ] Build da imagem Docker (`docker build -f Dockerfile.prod`)
+  - [ ] Push da imagem para Artifact Registry (`docker push`)
   - [ ] Atualizar Cloud Run para puxar nova imagem
   - [ ] Validar deploy (curl no /health)
 - [ ] Testar workflow localmente com `act` (opcional)
@@ -250,11 +244,14 @@ jobs:
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
 
-      - name: Build image via Cloud Build
-        run: |
-          gcloud builds submit \
-            --config cloudbuild.yaml \
-            --project=${{ env.PROJECT_ID }}
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker us-east1-docker.pkg.dev
+
+      - name: Build Docker image
+        run: docker build -f Dockerfile.prod -t ${{ env.IMAGE }} .
+
+      - name: Push image to Artifact Registry
+        run: docker push ${{ env.IMAGE }}
 
       - name: Deploy to Cloud Run
         run: |
@@ -325,7 +322,8 @@ terraform output github_actions_service_account_email
   - [ ] Testes frontend passaram
 - [ ] **Validar Job Build and Deploy**:
   - [ ] Autenticação GCP funcionou
-  - [ ] Cloud Build completou com sucesso
+  - [ ] Build Docker completou com sucesso
+  - [ ] Push para Artifact Registry funcionou
   - [ ] Cloud Run foi atualizado
   - [ ] Health check passou
 - [ ] Acessar URL do Cloud Run e validar manualmente:
@@ -338,8 +336,9 @@ terraform output github_actions_service_account_email
 - **Lint falha**: Rodar `make lint` localmente e corrigir erros antes de commitar
 - **Testes falham**: Rodar `make test` localmente e corrigir
 - **Auth GCP falha**: Verificar secrets do GitHub e outputs do Terraform
-- **Build falha**: Verificar logs do Cloud Build no GCP Console
-- **Deploy falha**: Verificar permissões do SA no Cloud Run
+- **Build falha**: Verificar logs do GitHub Actions, testar build local com `docker build -f Dockerfile.prod -t test .`
+- **Push falha**: Verificar permissões do SA no Artifact Registry (role `artifactregistry.writer`)
+- **Deploy falha**: Verificar permissões do SA no Cloud Run (role `run.admin`)
 
 ---
 
@@ -379,7 +378,7 @@ terraform output github_actions_service_account_email
 
 3. **Workload Identity > Service Account Keys**: Mais seguro, sem chaves JSON commitadas ou vazadas.
 
-4. **Build via Cloud Build**: Usa `cloudbuild.yaml` existente, que já está otimizado (multi-stage build).
+4. **Docker build direto no GitHub Actions**: Simplicidade (KISS), custo-efetivo (2000min grátis/mês), padrão da indústria. Usa `Dockerfile.prod` existente (multi-stage build).
 
 5. **Deploy apenas na main**: Branches de feature não fazem deploy automaticamente. Isso evita deploys acidentais.
 
@@ -392,6 +391,8 @@ terraform output github_actions_service_account_email
 9. **Health check**: Workflow valida que deploy foi bem-sucedido fazendo curl no `/health` endpoint.
 
 10. **Iteração**: Após primeira implementação, você pode adicionar melhorias (cache, notificações, preview deploys) conforme necessário.
+
+11. **Por que Docker direto e não Cloud Build?**: Decisão baseada em KISS - menos serviços, mais portável, custo-efetivo (2000min grátis/mês suficiente para ~400 builds), padrão da indústria. Cloud Build seria útil apenas com volumes muito altos (>500 builds/mês).
 
 ---
 

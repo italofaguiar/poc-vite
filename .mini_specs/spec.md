@@ -21,4 +21,17 @@ Pode sobre escrever o arquivo tasks.md sem problema. Só garanta que ele está e
 - [ ] Me ajude também a configurar a questão do permissionamento do GitHub Actions lá no meu GCP no meu Cloud Run. 
 - [ ] quero que, na etapa teste, rode os tests equivalente ao 'make test' (unitários backend + frontend)
 
+---
+
+- [ ] quero que, na etapa teste, rode os tests equivalente ao 'make test-all' (Atente que aqui ele roda os testes E2E e para isso precisa além do playwright, que já está no package.json do front-end, também das dependências do playwright de alguma forma em relação ao Chrome. Ou Chrome não sei o ideal era padronizar isso tanto aqui no projeto como o que vai acontecer lá no CICD. )
+- [ ] botao google embaixo, nao?
+
+---
+
+FUTURO
+
+
+- [ ] garantir que cada novo /me com sucesso prolonga a sessao atual (se existir). obviamente, se passar muito tempo, a sessao expira e o usuario precisa logar de novo
+- [ ] resolver testes intermitentes do frontend
+
 
