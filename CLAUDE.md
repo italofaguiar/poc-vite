@@ -525,7 +525,9 @@ O Playwright fornece automação completa de navegador com acesso a:
    - **Frontend**: `cd frontend && npm run lint` (deve passar com 0 erros/warnings)
    - **Backend**: `cd backend && uv run ruff check app/ && uv run mypy app/` (ambos devem passar)
    - Todo commit deve passar no lint sem erros ou warnings - isso garante qualidade de código e evita problemas de build em produção
-8. **Git**: **NUNCA** use `git commit --amend`. Sempre crie novos commits. Isso preserva o histórico completo e evita problemas de sincronização.
+8. **Git Workflow**:
+   - **NUNCA** use `git commit --amend`. Sempre crie novos commits. Isso preserva o histórico completo e evita problemas de sincronização.
+   - **NUNCA** faça merge direto na `main`. **SEMPRE** use Pull Requests. Deploy automático acontece apenas após merge do PR na `main`.
 
 
 ## Conventions

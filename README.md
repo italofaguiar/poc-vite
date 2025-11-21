@@ -115,6 +115,11 @@ POSTGRES_DB=pilotodevendas
 SECRET_KEY=dev-secret-key-change-in-production
 ENVIRONMENT=development
 
+# Google OAuth (obtido do Google Cloud Console)
+GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=your-client-secret
+GOOGLE_REDIRECT_URI=http://localhost:5173/api/auth/google/callback
+
 # Frontend
 VITE_API_URL=http://localhost:8000
 ```
@@ -233,6 +238,29 @@ VITE_API_URL=http://localhost:8000
 **🏗️ Infraestrutura gerenciada via Terraform**: Toda a infraestrutura GCP (Cloud Run, Cloud SQL, Secret Manager, etc.) já está previamente provisionada e gerenciada via Terraform no repositório externo `/home/italo/projects/pvia-infra/terraform/main.tf`.
 
 **⚠️ CRÍTICO**: O projeto de infraestrutura é **READ-ONLY** - jamais altere arquivos Terraform. Consulte apenas para entender a arquitetura.
+
+## CI/CD (GitHub Actions)
+
+**Pipeline**: Configurado para deploy automático no Cloud Run via GitHub Actions
+
+**Workflow**: Lint (paralelo) → Test (paralelo) → Build and Deploy (sequencial)
+
+**Autenticação GCP**: Workload Identity Federation (sem chaves JSON, mais seguro)
+
+**⚠️ NUNCA MERGE DIRETO NA MAIN**: Sempre use Pull Requests. Deploy automático acontece apenas após merge do PR na `main`.
+
+### GitHub Secrets Necessários
+
+Valores provisionados via Terraform em `/home/italo/projects/pvia-infra`:
+
+| Secret | Valor |
+|--------|-------|
+| `GCP_WORKLOAD_IDENTITY_PROVIDER` | `projects/229191889267/locations/global/workloadIdentityPools/github-actions-pool/providers/github-provider` |
+| `GCP_SERVICE_ACCOUNT_EMAIL` | `github-actions-deployer@pilotodevendas-prod.iam.gserviceaccount.com` |
+
+**Referência completa**: `/home/italo/projects/pvia-infra/.mini_specs/github_actions_outputs.txt`
+
+**Configurar secrets**: [GitHub Settings → Secrets](https://github.com/italofaguiar/poc-vite/settings/secrets/actions)
 
 ## Próximos Passos (Produção - Aplicação)
 
