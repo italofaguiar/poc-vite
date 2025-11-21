@@ -7,7 +7,7 @@ Por fim, uma vez aprovadas as tasks, iremos executar as tasks para construir a p
 Obs: adicione algo nessa linha no inicio de tasks.md:
 ```
 **CRÍTICO**: Siga o seguinte ciclo para cada fase:
-> implemente uma fase → testa "manual" → commita → atualiza tasks.md
+> implemente uma fase → testa "manual" + lints → commita → atualiza tasks.md
 obs: Inclusive, se necessário, pode fazer testes em passos intermediários dentro da propria fase. 
 ```
 
