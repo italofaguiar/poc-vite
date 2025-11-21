@@ -1,0 +1,2 @@
+Este arquivo é apenas para teste do CI/CD com os novos secrets do Workload Identity Provider.
+Pode ser deletado após a validação do pipeline.
